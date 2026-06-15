@@ -1,0 +1,2114 @@
+<!DOCTYPE HTML>
+<html lang="en">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="GEMM, Evan&#39;s blogs">
+    <meta name="description" content="手撕目标
+GEMM = C[M,N] = A[M,K] · B[K,N]。所有优化只围绕一个目标：
+
+逼近&amp;quot;计算访存比 × Occupancy&amp;quot;乘积的最高点 —— 既要每搬一次数据多算几次，又要让计算单元别空转。
+
+因为">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>GEMM | Evan&#39;s blogs</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<link rel="stylesheet" href="/libs/katex/katex.min.css">
+
+<style>
+#site-lock-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: #0f0f1a;
+  z-index: 99999;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  color: #fff; font-family: sans-serif;
+}
+#site-lock-overlay h2 { font-size: 22px; margin-bottom: 8px; letter-spacing: 2px; }
+#site-lock-overlay p  { color: #aaa; font-size: 14px; margin-bottom: 20px; }
+#site-lock-overlay input {
+  padding: 10px 16px; font-size: 16px;
+  border-radius: 8px; border: 1px solid #444;
+  background: #1e1e2e; color: #fff;
+  width: 260px; text-align: center; outline: none;
+  margin-bottom: 12px;
+}
+#site-lock-overlay button {
+  padding: 10px 40px;
+  background: #4a9eff; color: #fff;
+  border: none; border-radius: 8px;
+  cursor: pointer; font-size: 15px;
+  transition: background 0.2s;
+}
+#site-lock-overlay button:hover { background: #2278dd; }
+#site-lock-err { color: #ff6b6b; font-size: 13px; margin-top: 8px; min-height: 18px; }
+</style>
+
+<div id="site-lock-overlay">
+  <h2>🔒 访问受限</h2>
+  <p>请输入密码以继续访问</p>
+  <input type="password" id="site-password" placeholder="请输入密码"
+         onkeydown="if(event.key==='Enter') siteUnlock()">
+  <button onclick="siteUnlock()">确 认</button>
+  <div id="site-lock-err"></div>
+</div>
+
+<script>
+(function () {
+  // ★ 在这里修改你的访问密码 ★
+  var SITE_PASSWORD = 'qwe123456qwe';
+
+  if (sessionStorage.getItem('site_unlocked') === '1') {
+    document.getElementById('site-lock-overlay').style.display = 'none';
+  }
+
+  window.siteUnlock = function () {
+    var val = document.getElementById('site-password').value;
+    if (val === SITE_PASSWORD) {
+      sessionStorage.setItem('site_unlocked', '1');
+      document.getElementById('site-lock-overlay').style.display = 'none';
+    } else {
+      document.getElementById('site-lock-err').textContent = '密码错误，请重新输入';
+      document.getElementById('site-password').value = '';
+    }
+  };
+})();
+</script>
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">Evan&#39;s blogs</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>Index</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>Tags</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>Categories</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>Archives</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>About</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>Contact</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>Friends</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="Search" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">Evan&#39;s blogs</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			Index
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			Tags
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			Categories
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			Archives
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			About
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			Contact
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			Friends
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/blinkfox/hexo-theme-matery" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/blinkfox/hexo-theme-matery" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/img/covers/gemm.png')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">GEMM</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/CUDA/">
+                                <span class="chip bg-color">CUDA</span>
+                            </a>
+                        
+                            <a href="/tags/GEMM/">
+                                <span class="chip bg-color">GEMM</span>
+                            </a>
+                        
+                            <a href="/tags/%E7%AE%97%E5%AD%90%E4%BC%98%E5%8C%96/">
+                                <span class="chip bg-color">算子优化</span>
+                            </a>
+                        
+                            <a href="/tags/%E6%89%8B%E6%92%95/">
+                                <span class="chip bg-color">手撕</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fas fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/%E6%89%8B%E6%92%95/" class="post-category">
+                                手撕
+                            </a>
+                        
+                            <a href="/categories/%E6%89%8B%E6%92%95/CUDA%E7%AE%97%E5%AD%90/" class="post-category">
+                                CUDA算子
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>Publish Date:&nbsp;&nbsp;
+                    2026-06-02
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h1>手撕目标</h1>
+<p>GEMM = <code>C[M,N] = A[M,K] · B[K,N]</code>。所有优化只围绕一个目标：</p>
+<blockquote>
+<p><strong>逼近&quot;计算访存比 × Occupancy&quot;乘积的最高点 —— 既要每搬一次数据多算几次，又要让计算单元别空转。</strong></p>
+</blockquote>
+<p>因为内存墙的存在，GPU 算力远超访存带宽。朴素写法（naive）一次访存对应约 1 次 FLOP，被带宽活活拖死。优化的方向是把数据从 HBM 搬到离 ALU 越来越近的存储层级（HBM → shared memory → register），每搬一次尽量多复用（拉高计算访存比）；同时保证 SM 上有足够多 warp 可调度，等数据时不空转（保住 Occupancy）。这两个量是<strong>互相拉扯</strong>的，最优参数是它们的平衡点 —— 详见第零章。</p>
+<p><strong>我们要手撕的版本是经过九级优化叠加的 double buffering 最终版</strong>，它把 block tile、thread tile、warp tile、向量化读取、swizzling、z-order、位运算优化、double buffer 全部融合在一起，在 4060 Ti 上达到约 cuBLAS 80% 的性能。</p>
+<hr>
+<h2 id="手撕代码（doublebuffering-最终版，逐行批注）">手撕代码（doublebuffering 最终版，逐行批注）</h2>
+<blockquote>
+<p>下面是九级优化的融合版本。模板参数的取值理由放在第零章详谈，这里先整体过一遍代码，最后去各节深挖每个优化点。</p>
+</blockquote>
+<pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp"><span class="token comment">// double buffering —— 九级优化融合版（最终手撕版）</span>
+<span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">int</span> Bm <span class="token operator">=</span> <span class="token number">128</span><span class="token punctuation">,</span> <span class="token keyword">int</span> Bn <span class="token operator">=</span> <span class="token number">128</span><span class="token punctuation">,</span> <span class="token keyword">int</span> Bk <span class="token operator">=</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token keyword">int</span> blockSize <span class="token operator">=</span> <span class="token number">256</span><span class="token punctuation">,</span> <span class="token keyword">int</span> A_BLOCK_X <span class="token operator">=</span> <span class="token number">8</span><span class="token punctuation">,</span>
+         <span class="token keyword">int</span> A_BLOCK_Y <span class="token operator">=</span> <span class="token number">32</span><span class="token punctuation">,</span> <span class="token keyword">int</span> B_BLOCK_X <span class="token operator">=</span> <span class="token number">32</span><span class="token punctuation">,</span> <span class="token keyword">int</span> C_BLOCK_X <span class="token operator">=</span> <span class="token number">16</span><span class="token punctuation">,</span> <span class="token keyword">int</span> C_BLOCK_Y <span class="token operator">=</span> <span class="token number">16</span><span class="token punctuation">,</span>
+         <span class="token keyword">int</span> C_WARP_X <span class="token operator">=</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token keyword">int</span> C_WARP_Y <span class="token operator">=</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token keyword">int</span> C_WARP_DIM_X <span class="token operator">=</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token keyword">int</span> Tm <span class="token operator">=</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token keyword">int</span> Tn <span class="token operator">=</span> <span class="token number">8</span><span class="token operator">></span>
+__global__ <span class="token keyword">void</span> <span class="token function">doublebufferingGEMM</span><span class="token punctuation">(</span><span class="token keyword">float</span><span class="token operator">*</span> A<span class="token punctuation">,</span> <span class="token keyword">float</span><span class="token operator">*</span> B<span class="token punctuation">,</span> <span class="token keyword">float</span><span class="token operator">*</span> C<span class="token punctuation">,</span> <span class="token keyword">const</span> <span class="token keyword">int</span> M<span class="token punctuation">,</span> <span class="token keyword">const</span> <span class="token keyword">int</span> K<span class="token punctuation">,</span>
+                                  <span class="token keyword">const</span> <span class="token keyword">int</span> N<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+
+  <span class="token comment">// ★ gemm2 block tile | gemm9 double buffer</span>
+  <span class="token comment">// As/Bs 各两份：buffer[0] 正在计算，buffer[1] 正在预取（或反之）</span>
+  __shared__ <span class="token keyword">float</span> As<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">[</span>Bk<span class="token punctuation">]</span><span class="token punctuation">[</span>Bm<span class="token punctuation">]</span><span class="token punctuation">;</span>  <span class="token comment">// 存储转置后的 tileA</span>
+  __shared__ <span class="token keyword">float</span> Bs<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">[</span>Bk<span class="token punctuation">]</span><span class="token punctuation">[</span>Bn<span class="token punctuation">]</span><span class="token punctuation">;</span>  <span class="token comment">// 存储 tileB</span>
+
+  <span class="token comment">// ★ gemm3 thread tile：每线程负责 Tm×Tn 个 C 元素，寄存器累加</span>
+  <span class="token keyword">float</span> Ct<span class="token punctuation">[</span>Tm<span class="token punctuation">]</span><span class="token punctuation">[</span>Tn<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token number">0.0</span><span class="token punctuation">&#125;</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// ★ gemm3 thread tile：寄存器缓存 A 列向量和 B 行向量（外积所用）</span>
+  <span class="token comment">// ★ gemm9 double buffer：[2] 双缓冲，算 p-1 时预取 p</span>
+  <span class="token keyword">float</span> regA<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">[</span>Tm<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token number">0.0f</span><span class="token punctuation">&#125;</span><span class="token punctuation">;</span>
+  <span class="token keyword">float</span> regB<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">[</span>Tn<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">&#123;</span><span class="token number">0.0f</span><span class="token punctuation">&#125;</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">int</span> buffer_id <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>  <span class="token comment">// ★ gemm9 double buffer：当前计算槽编号</span>
+
+  <span class="token comment">// ★ gemm2 block tile：block 负责的 tileC 左上角坐标</span>
+  <span class="token keyword">int</span> r0 <span class="token operator">=</span> blockIdx<span class="token punctuation">.</span>y <span class="token operator">*</span> Bm<span class="token punctuation">;</span>
+  <span class="token keyword">int</span> c0 <span class="token operator">=</span> blockIdx<span class="token punctuation">.</span>x <span class="token operator">*</span> Bn<span class="token punctuation">;</span>
+
+  <span class="token keyword">int</span> tid <span class="token operator">=</span> threadIdx<span class="token punctuation">.</span>x<span class="token punctuation">;</span>
+
+  <span class="token comment">// ★ gemm2 block tile：tileA 加载线程坐标</span>
+  <span class="token comment">// ★ gemm8 optimGEMM：tid % A_BLOCK_X → tid &amp; (A_BLOCK_X - 1)</span>
+  <span class="token keyword">int</span> A_THREAD_Y <span class="token operator">=</span> tid <span class="token operator">/</span> A_BLOCK_X<span class="token punctuation">;</span>
+  <span class="token keyword">int</span> A_THREAD_X <span class="token operator">=</span> tid <span class="token operator">&amp;</span> <span class="token punctuation">(</span>A_BLOCK_X <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// ★ gemm2 block tile：tileB 加载线程坐标</span>
+  <span class="token comment">// ★ gemm8 optimGEMM：tid % B_BLOCK_X → tid &amp; (B_BLOCK_X - 1)</span>
+  <span class="token keyword">int</span> B_THREAD_Y <span class="token operator">=</span> tid <span class="token operator">/</span> B_BLOCK_X<span class="token punctuation">;</span>
+  <span class="token keyword">int</span> B_THREAD_X <span class="token operator">=</span> tid <span class="token operator">&amp;</span> <span class="token punctuation">(</span>B_BLOCK_X <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// ★ gemm4 warp tile：计算 warp/lane 编号</span>
+  <span class="token comment">// ★ gemm8 optimGEMM：tid % WARP_SIZE → tid &amp; (WARP_SIZE - 1)</span>
+  <span class="token keyword">int</span> warpId <span class="token operator">=</span> tid <span class="token operator">/</span> WARP_SIZE<span class="token punctuation">;</span>
+  <span class="token keyword">int</span> laneId <span class="token operator">=</span> tid <span class="token operator">&amp;</span> <span class="token punctuation">(</span>WARP_SIZE <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// ★ gemm4 warp tile：warp 在 block 中的方块坐标</span>
+  <span class="token comment">// ★ gemm8 optimGEMM：warpId % C_WARP_DIM_X → warpId &amp; (C_WARP_DIM_X - 1)</span>
+  <span class="token keyword">int</span> warpX <span class="token operator">=</span> warpId <span class="token operator">&amp;</span> <span class="token punctuation">(</span>C_WARP_DIM_X <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">int</span> warpY <span class="token operator">=</span> warpId <span class="token operator">/</span> C_WARP_DIM_X<span class="token punctuation">;</span>
+
+  <span class="token comment">// ★ gemm4 warp tile：lane 在 warp 子块内的坐标（行优先线性映射）</span>
+  <span class="token comment">// int laneY = laneId / C_WARP_X;   // 0~3，沿 M 方向</span>
+  <span class="token comment">// int laneX = laneId % C_WARP_X;   // 0~7，沿 N 方向</span>
+  <span class="token comment">// 问题：相邻 laneId（i 和 i^1）的 laneX 不同 → 读 tileB 地址不同 → 无法触发广播 → 事务数 = 4</span>
+  <span class="token comment">//</span>
+  <span class="token comment">// ★ gemm7 z-order：z 形交错映射，让相邻线程（i 和 i^1）的 laneX 相同 → 触发广播 → 事务数降到 2</span>
+  <span class="token comment">// laneId 的 bit0 → laneY 低位，bit4 → laneY 高位，bit1~3 → laneX</span>
+  <span class="token comment">// 效果：bit0 翻转（i^1）只改 laneY，不改 laneX → 两线程读 tileB 同地址 → 广播成立</span>
+  <span class="token keyword">int</span> laneX <span class="token operator">=</span> <span class="token punctuation">(</span>laneId <span class="token operator">&amp;</span> <span class="token number">15</span><span class="token punctuation">)</span> <span class="token operator">>></span> <span class="token number">1</span><span class="token punctuation">;</span>
+  <span class="token keyword">int</span> laneY <span class="token operator">=</span> <span class="token punctuation">(</span>laneId <span class="token operator">&amp;</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>laneId <span class="token operator">>></span> <span class="token number">4</span><span class="token punctuation">)</span> <span class="token operator">&lt;&lt;</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// ★ gemm4 warp tile：当前线程在 blockC 中的坐标</span>
+  <span class="token keyword">int</span> C_THREAD_Y <span class="token operator">=</span> warpY <span class="token operator">*</span> C_WARP_Y <span class="token operator">+</span> laneY<span class="token punctuation">;</span>
+  <span class="token keyword">int</span> C_THREAD_X <span class="token operator">=</span> warpX <span class="token operator">*</span> C_WARP_X <span class="token operator">+</span> laneX<span class="token punctuation">;</span>
+
+
+  <span class="token comment">// ★ gemm9 double buffer：预先读取 k=0 的数据进 buffer[0]</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">pragma</span> <span class="token expression">unroll</span></span>
+  <span class="token comment">// ★ gemm8 optimGEMM：内层 j 循环已省略（A_BLOCK_X = Bk = 8，只有一次迭代）</span>
+  <span class="token comment">// ★ gemm8 optimGEMM：循环从 0 开始（原来从 A_THREAD_Y 开始导致 #pragma unroll 失效）</span>
+  <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> Bm<span class="token punctuation">;</span> i <span class="token operator">+=</span> A_BLOCK_Y<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">int</span> r <span class="token operator">=</span> r0 <span class="token operator">+</span> i <span class="token operator">+</span> A_THREAD_Y<span class="token punctuation">;</span>
+    <span class="token comment">// ★ gemm5 向量化（转置）：As 按 [k][m] 存，外积时 A 的列变连续才能 float4 读</span>
+    <span class="token comment">// ★ gemm6 swizzling：^ 打乱 bank 落点，消除 bank conflict</span>
+    As<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">[</span>A_THREAD_X<span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token punctuation">(</span>i <span class="token operator">+</span> A_THREAD_Y<span class="token punctuation">)</span> <span class="token operator">^</span> <span class="token punctuation">(</span>A_THREAD_X <span class="token operator">&lt;&lt;</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">]</span> <span class="token operator">=</span>
+        <span class="token punctuation">(</span>r <span class="token operator">&lt;</span> M <span class="token operator">&amp;&amp;</span> A_THREAD_X <span class="token operator">&lt;</span> K<span class="token punctuation">)</span> <span class="token operator">?</span> A<span class="token punctuation">[</span>r <span class="token operator">*</span> K <span class="token operator">+</span> A_THREAD_X<span class="token punctuation">]</span> <span class="token operator">:</span> <span class="token number">0.0f</span><span class="token punctuation">;</span>
+  <span class="token punctuation">&#125;</span>
+
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">pragma</span> <span class="token expression">unroll</span></span>
+  <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> j <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> j <span class="token operator">&lt;</span> Bm<span class="token punctuation">;</span> j <span class="token operator">+=</span> B_BLOCK_X<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">int</span> c <span class="token operator">=</span> c0 <span class="token operator">+</span> j <span class="token operator">+</span> B_THREAD_X<span class="token punctuation">;</span>
+    Bs<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">[</span>B_THREAD_Y<span class="token punctuation">]</span><span class="token punctuation">[</span>j <span class="token operator">+</span> B_THREAD_X<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">(</span>B_THREAD_Y <span class="token operator">&lt;</span> K <span class="token operator">&amp;&amp;</span> c <span class="token operator">&lt;</span> N<span class="token punctuation">)</span> <span class="token operator">?</span> B<span class="token punctuation">[</span>B_THREAD_Y <span class="token operator">*</span> N <span class="token operator">+</span> c<span class="token punctuation">]</span> <span class="token operator">:</span> <span class="token number">0.0f</span><span class="token punctuation">;</span>
+  <span class="token punctuation">&#125;</span>
+
+  <span class="token function">__syncthreads</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// K-Loop</span>
+  <span class="token comment">// ★ gemm2 block tile + gemm9 double buffer</span>
+  <span class="token comment">// 从 Bk 开始（k=0 已预取），超出 K 多一次收尾（为了完成最后一块的计算,所以要多跑一圈）</span>
+  <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> k <span class="token operator">=</span> Bk<span class="token punctuation">;</span> k <span class="token operator">&lt;</span> K <span class="token operator">+</span> Bk<span class="token punctuation">;</span> k <span class="token operator">+=</span> Bk<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+
+    <span class="token comment">// p-loop</span>
+    <span class="token comment">// ★ gemm9 double buffer，Bk+1 次迭代,p这里也同理,为了完成第p次搬运的计算 需要多跑一圈在p+1的时候做计算</span>
+    <span class="token comment">// p=0：只预取，不计算；p=1..Bk：计算 p-1 + 预取 p；p=Bk：只计算，不预取</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">pragma</span> <span class="token expression">unroll</span></span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> p <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> p <span class="token operator">&lt;</span> Bk <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">;</span> <span class="token operator">++</span>p<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+
+      <span class="token comment">// 计算阶段：计算第 p-1 次循环的外积</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>p <span class="token operator">></span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">pragma</span> <span class="token expression">unroll</span></span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> Tm<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">pragma</span> <span class="token expression">unroll</span></span>
+          <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> j <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> j <span class="token operator">&lt;</span> Tn<span class="token punctuation">;</span> <span class="token operator">++</span>j<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            <span class="token comment">// ★ gemm3 thread tile：Tm×Tn 外积累加（核心）</span>
+            <span class="token comment">// ★ gemm8 optimGEMM：(p-1) % 2 → (p-1) &amp; 1</span>
+            Ct<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">[</span>j<span class="token punctuation">]</span> <span class="token operator">+=</span> regA<span class="token punctuation">[</span><span class="token punctuation">(</span>p <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">&amp;</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">*</span> regB<span class="token punctuation">[</span><span class="token punctuation">(</span>p <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">&amp;</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">[</span>j<span class="token punctuation">]</span><span class="token punctuation">;</span>
+          <span class="token punctuation">&#125;</span>
+        <span class="token punctuation">&#125;</span>
+      <span class="token punctuation">&#125;</span>
+
+      <span class="token comment">// 预取阶段：从 shared 读取第 p 次循环需要的寄存器数据</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>p <span class="token operator">&lt;</span> Bk<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token comment">// ★ gemm5 向量化读取：FLOAT4 一次读 4 个 float</span>
+        <span class="token comment">// ★ gemm3 thread tile：regA 缓存 A 列向量（外积）</span>
+        <span class="token comment">// ★ gemm8 optimGEMM：p % 2 → p &amp; 1，i * 4 → i &lt;&lt; 2</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">pragma</span> <span class="token expression">unroll</span></span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token punctuation">(</span>Tm <span class="token operator">>></span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+          <span class="token keyword">int</span> r <span class="token operator">=</span> <span class="token punctuation">(</span>C_THREAD_Y <span class="token operator">+</span> i <span class="token operator">*</span> C_BLOCK_Y<span class="token punctuation">)</span> <span class="token operator">&lt;&lt;</span> <span class="token number">2</span><span class="token punctuation">;</span>
+          <span class="token comment">// ★ gemm6 swizzling：^ 还原 bank 打乱后的地址</span>
+          <span class="token function">FLOAT4</span><span class="token punctuation">(</span>regA<span class="token punctuation">[</span>p <span class="token operator">&amp;</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">[</span>i <span class="token operator">&lt;&lt;</span> <span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token function">FLOAT4</span><span class="token punctuation">(</span>As<span class="token punctuation">[</span>buffer_id<span class="token punctuation">]</span><span class="token punctuation">[</span>p<span class="token punctuation">]</span><span class="token punctuation">[</span>r <span class="token operator">^</span> <span class="token punctuation">(</span>p <span class="token operator">&lt;&lt;</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+
+        <span class="token comment">// ★ gemm5 向量化读取：FLOAT4 读 B 行向量</span>
+        <span class="token comment">// ★ gemm8 optimGEMM：p % 2 → p &amp; 1，j * 4 → j &lt;&lt; 2</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">pragma</span> <span class="token expression">unroll</span></span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> j <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> j <span class="token operator">&lt;</span> <span class="token punctuation">(</span>Tn <span class="token operator">>></span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token operator">++</span>j<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+          <span class="token keyword">int</span> c <span class="token operator">=</span> <span class="token punctuation">(</span>C_THREAD_X <span class="token operator">+</span> j <span class="token operator">*</span> C_BLOCK_X<span class="token punctuation">)</span> <span class="token operator">&lt;&lt;</span> <span class="token number">2</span><span class="token punctuation">;</span>
+          <span class="token function">FLOAT4</span><span class="token punctuation">(</span>regB<span class="token punctuation">[</span>p <span class="token operator">&amp;</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">[</span>j <span class="token operator">&lt;&lt;</span> <span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token function">FLOAT4</span><span class="token punctuation">(</span>Bs<span class="token punctuation">[</span>buffer_id<span class="token punctuation">]</span><span class="token punctuation">[</span>p<span class="token punctuation">]</span><span class="token punctuation">[</span>c<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+      <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token comment">// ★ gemm9 double buffer：预取下一轮 tileA/tileB 进另一个缓冲槽（与上面计算重叠）</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>k <span class="token operator">&lt;</span> K<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+      <span class="token comment">// ★ gemm5 向量化（转置存储）| ★ gemm6 swizzling</span>
+      <span class="token comment">// ★ gemm8 optimGEMM：内层 j 循环省略，循环从 0 开始</span>
+      <span class="token keyword">int</span> c <span class="token operator">=</span> k <span class="token operator">+</span> A_THREAD_X<span class="token punctuation">;</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">pragma</span> <span class="token expression">unroll</span></span>
+      <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> Bm<span class="token punctuation">;</span> i <span class="token operator">+=</span> A_BLOCK_Y<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">int</span> r <span class="token operator">=</span> r0 <span class="token operator">+</span> i <span class="token operator">+</span> A_THREAD_Y<span class="token punctuation">;</span>
+        As<span class="token punctuation">[</span>buffer_id <span class="token operator">^</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">[</span>A_THREAD_X<span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token punctuation">(</span>i <span class="token operator">+</span> A_THREAD_Y<span class="token punctuation">)</span> <span class="token operator">^</span> <span class="token punctuation">(</span>A_THREAD_X <span class="token operator">&lt;&lt;</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">]</span> <span class="token operator">=</span>
+            <span class="token punctuation">(</span>r <span class="token operator">&lt;</span> M <span class="token operator">&amp;&amp;</span> c <span class="token operator">&lt;</span> K<span class="token punctuation">)</span> <span class="token operator">?</span> A<span class="token punctuation">[</span>r <span class="token operator">*</span> K <span class="token operator">+</span> c<span class="token punctuation">]</span> <span class="token operator">:</span> <span class="token number">0.f</span><span class="token punctuation">;</span>
+      <span class="token punctuation">&#125;</span>
+
+      <span class="token keyword">int</span> r <span class="token operator">=</span> k <span class="token operator">+</span> B_THREAD_Y<span class="token punctuation">;</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">pragma</span> <span class="token expression">unroll</span></span>
+      <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> j <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> j <span class="token operator">&lt;</span> Bn<span class="token punctuation">;</span> j <span class="token operator">+=</span> B_BLOCK_X<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        c <span class="token operator">=</span> c0 <span class="token operator">+</span> j <span class="token operator">+</span> B_THREAD_X<span class="token punctuation">;</span>
+        Bs<span class="token punctuation">[</span>buffer_id <span class="token operator">^</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">[</span>B_THREAD_Y<span class="token punctuation">]</span><span class="token punctuation">[</span>j <span class="token operator">+</span> B_THREAD_X<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">(</span>r <span class="token operator">&lt;</span> K <span class="token operator">&amp;&amp;</span> c <span class="token operator">&lt;</span> N<span class="token punctuation">)</span> <span class="token operator">?</span> B<span class="token punctuation">[</span>r <span class="token operator">*</span> N <span class="token operator">+</span> c<span class="token punctuation">]</span> <span class="token operator">:</span> <span class="token number">0.f</span><span class="token punctuation">;</span>
+      <span class="token punctuation">&#125;</span>
+
+      <span class="token function">__syncthreads</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    buffer_id <span class="token operator">^=</span> <span class="token number">1</span><span class="token punctuation">;</span>  <span class="token comment">// ★ gemm9 double buffer：切换缓冲槽（0→1 或 1→0）</span>
+  <span class="token punctuation">&#125;</span>
+
+  <span class="token comment">// 将 Ct 写回全局内存 C</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">pragma</span> <span class="token expression">unroll</span></span>
+  <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> Tm<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token comment">// ★ gemm8 optimGEMM：(i / 4) * 4 → (i >> 2) &lt;&lt; 2，i % 4 → i &amp; 3</span>
+    <span class="token keyword">int</span> r <span class="token operator">=</span> r0 <span class="token operator">+</span> <span class="token punctuation">(</span>C_THREAD_Y <span class="token operator">&lt;&lt;</span> <span class="token number">2</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>i <span class="token operator">>></span> <span class="token number">2</span><span class="token punctuation">)</span> <span class="token operator">&lt;&lt;</span> <span class="token number">2</span><span class="token punctuation">)</span> <span class="token operator">*</span> C_BLOCK_Y <span class="token operator">+</span> <span class="token punctuation">(</span>i <span class="token operator">&amp;</span> <span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">pragma</span> <span class="token expression">unroll</span></span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> j <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> j <span class="token operator">&lt;</span> Tn<span class="token punctuation">;</span> <span class="token operator">++</span>j<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+      <span class="token comment">// ★ gemm8 optimGEMM：同上</span>
+      <span class="token keyword">int</span> c <span class="token operator">=</span> c0 <span class="token operator">+</span> <span class="token punctuation">(</span>C_THREAD_X <span class="token operator">&lt;&lt;</span> <span class="token number">2</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>j <span class="token operator">>></span> <span class="token number">2</span><span class="token punctuation">)</span> <span class="token operator">&lt;&lt;</span> <span class="token number">2</span><span class="token punctuation">)</span> <span class="token operator">*</span> C_BLOCK_X <span class="token operator">+</span> <span class="token punctuation">(</span>j <span class="token operator">&amp;</span> <span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>r <span class="token operator">&lt;</span> M <span class="token operator">&amp;&amp;</span> c <span class="token operator">&lt;</span> N<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span> C<span class="token punctuation">[</span>r <span class="token operator">*</span> N <span class="token operator">+</span> c<span class="token punctuation">]</span> <span class="token operator">=</span> Ct<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">[</span>j<span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+  <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<hr>
+<h1>〇、模板参数怎么定？—— 性能的两个对立指标</h1>
+<blockquote>
+<p>这是整套 GEMM 优化的<strong>第一性原理</strong>。所有模板参数（Bm/Bn/Bk/blockSize/Tm/Tn）本质上都在调同两个量：<strong>计算访存比</strong>和 <strong>Occupancy</strong>。先理解它们为什么对立、为什么都不能走极端，再看具体参数怎么选才不会死记硬背。</p>
+</blockquote>
+<h2 id="0-1-核心结论：性能不是单指标最优，是两者乘积最高">0.1 核心结论：性能不是单指标最优，是两者乘积最高</h2>
+<p>一句话先记住：</p>
+<blockquote>
+<p><strong>算子性能 ≈ 计算访存比（能跑多快的上限）× Occupancy（能不能逼近上限）。两者互相拉扯，最优配置在乘积的峰值，不在任何单一指标的极值。</strong></p>
+</blockquote>
+<ul>
+<li><strong>计算访存比（arithmetic intensity）</strong> = 每从内存搬 1 字节，能做多少次 FLOP。它决定你是被<strong>算力</strong>卡住还是被<strong>带宽</strong>卡住 —— 即性能的<strong>天花板</strong>。</li>
+<li><strong>Occupancy（占有率）</strong> = 一个 SM 上实际驻留的 warp 数 / 硬件支持的最大 warp 数。它决定 SM 在等访存时<strong>有没有别的 warp 可切换</strong>来隐藏延迟 —— 即你<strong>能不能贴近天花板</strong>。</li>
+</ul>
+<p>这两个量为什么对立？因为<strong>提高计算访存比的唯一手段是把 tile 做大</strong>（Bm/Bn/Tm/Tn 调大），而 tile 越大，每个 block / 每个线程占用的 shared memory 和寄存器越多，一个 SM 能塞下的 warp 就越少 → <strong>Occupancy 直接被砸下去</strong>。</p>
+<div align="center">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 420" width="100%" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif">
+  <text x="40" y="34" font-size="16" font-weight="600" fill="#888">tile 越大：算访比↑ 但 Occupancy↓，性能是两者乘积（中间最高）</text>
+  <!-- axes -->
+  <line x1="70" y1="360" x2="640" y2="360" stroke="#9aa" stroke-width="1"/>
+  <line x1="70" y1="80" x2="70" y2="360" stroke="#9aa" stroke-width="1"/>
+  <text x="355" y="398" font-size="13" fill="#888" text-anchor="middle">tile 边长（Bm = Bn）→</text>
+  <text x="30" y="220" font-size="13" fill="#888" text-anchor="middle" transform="rotate(-90 30 220)">归一化指标 →</text>
+  <!-- x ticks -->
+<p><text x="130" y="380" font-size="12" fill="#999" text-anchor="middle">32</text><br>
+<text x="230" y="380" font-size="12" fill="#999" text-anchor="middle">64</text><br>
+<text x="355" y="380" font-size="12" fill="#999" text-anchor="middle">128</text><br>
+<text x="480" y="380" font-size="12" fill="#999" text-anchor="middle">256</text><br>
+<text x="600" y="380" font-size="12" fill="#999" text-anchor="middle">384</text></p>
+  <!-- arithmetic intensity: rising, concave -->
+  <path d="M90 330 Q 250 250, 400 175 T 620 120" fill="none" stroke="#378ADD" stroke-width="2.5" stroke-dasharray="7 5"/>
+  <!-- occupancy: falling -->
+  <path d="M90 100 Q 250 130, 400 235 T 620 350" fill="none" stroke="#1D9E75" stroke-width="2.5" stroke-dasharray="3 4"/>
+  <!-- performance = product: peak in middle -->
+  <path d="M90 320 Q 230 180, 360 150 Q 480 165, 620 300" fill="none" stroke="#D85A30" stroke-width="4"/>
+  <!-- peak marker -->
+  <line x1="360" y1="150" x2="360" y2="360" stroke="#D85A30" stroke-width="1" stroke-dasharray="3 4" opacity="0.6"/>
+  <circle cx="360" cy="150" r="5" fill="#D85A30"/>
+  <text x="372" y="142" font-size="13" fill="#D85A30" font-weight="600">性能峰值 ≈ 128</text>
+  <!-- legend -->
+  <line x1="90" y1="60" x2="118" y2="60" stroke="#378ADD" stroke-width="2.5" stroke-dasharray="7 5"/>
+  <text x="124" y="64" font-size="13" fill="#888">算访比（越大越想要）</text>
+  <line x1="300" y1="60" x2="328" y2="60" stroke="#1D9E75" stroke-width="2.5" stroke-dasharray="3 4"/>
+  <text x="334" y="64" font-size="13" fill="#888">Occupancy（被撑爆）</text>
+  <line x1="510" y1="60" x2="538" y2="60" stroke="#D85A30" stroke-width="4"/>
+  <text x="544" y="64" font-size="13" fill="#888">实际性能</text>
+</svg>
+</div>
+<blockquote>
+<p>💡 <strong>怎么看这张图</strong>：横轴是 tile 边长（Bm=Bn）。蓝线计算访存比单调上升（tile 越大复用越多），绿线 Occupancy 单调下降（tile 越大资源压力越大）。橙线&quot;实际性能&quot;是两者的乘积 —— <strong>两头都低，中间最高</strong>。<code>Bm=Bn=128</code> 就落在那个峰附近，不是因为它哪个指标最优，而是乘积最大。</p>
+</blockquote>
+<h2 id="0-2-为什么访存比太高反而不好？">0.2 为什么访存比太高反而不好？</h2>
+<p>很多人受&quot;内存墙&quot;影响，以为计算访存比越大越好 —— <strong>错。超过某个点后纯属浪费，还白白赔掉 Occupancy。</strong></p>
+<p>关键概念是 <strong>Roofline 模型的脊点（ridge point）</strong>：</p>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mtext>脊点</mtext><mo>=</mo><mfrac><mtext>峰值算力 (FLOPS)</mtext><mtext>峰值带宽 (Byte/s)</mtext></mfrac></mrow><annotation encoding="application/x-tex">\text{脊点} = \frac{\text{峰值算力 (FLOPS)}}{\text{峰值带宽 (Byte/s)}}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord text"><span class="mord cjk_fallback">脊点</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:2.363em;vertical-align:-0.936em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.427em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord text"><span class="mord cjk_fallback">峰值带宽</span><span class="mord"> (Byte/s)</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord text"><span class="mord cjk_fallback">峰值算力</span><span class="mord"> (FLOPS)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.936em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+<ul>
+<li>当你的计算访存比 <strong>&lt; 脊点</strong> → <strong>memory-bound</strong>，瓶颈是带宽，此时拉高访存比有实打实的收益。</li>
+<li>当你的计算访存比 <strong>&gt; 脊点</strong> → <strong>compute-bound</strong>，瓶颈已经变成计算单元，<strong>内存早就不是瓶颈了</strong>。再往上堆访存比，多出来的数据复用是纯浪费，而你为此付出的 tile 增大、Occupancy 暴跌、甚至寄存器溢出（register spilling）的代价却是实打实的。</li>
+</ul>
+<div align="center">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 440" width="100%" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif">
+  <text x="40" y="34" font-size="16" font-weight="600" fill="#888">Roofline：脊点左侧被带宽锁死，右侧被算力锁死</text>
+  <line x1="80" y1="360" x2="640" y2="360" stroke="#9aa" stroke-width="1"/>
+  <line x1="80" y1="70" x2="80" y2="360" stroke="#9aa" stroke-width="1"/>
+  <text x="360" y="404" font-size="13" fill="#888" text-anchor="middle">计算访存比（FLOP / Byte）→</text>
+  <text x="34" y="215" font-size="13" fill="#888" text-anchor="middle" transform="rotate(-90 34 215)">可达性能（FLOPS）→</text>
+  <path d="M80 350 L 430 120" fill="none" stroke="#7F77DD" stroke-width="3"/>
+  <path d="M430 120 L 640 120" fill="none" stroke="#7F77DD" stroke-width="3"/>
+  <text x="540" y="110" font-size="12" fill="#7F77DD" text-anchor="middle">算力上限（22 TFLOPS）</text>
+  <line x1="430" y1="120" x2="430" y2="360" stroke="#888" stroke-width="1" stroke-dasharray="4 4" opacity="0.5"/>
+  <circle cx="430" cy="120" r="5" fill="#7F77DD"/>
+  <text x="430" y="378" font-size="12" fill="#888" text-anchor="middle">HBM 脊点≈76</text>
+  <path d="M80 350 L 235 120" fill="none" stroke="#1D9E75" stroke-width="2" stroke-dasharray="6 4"/>
+  <line x1="235" y1="120" x2="235" y2="360" stroke="#1D9E75" stroke-width="1" stroke-dasharray="4 4" opacity="0.6"/>
+  <text x="200" y="378" font-size="12" fill="#1D9E75" text-anchor="middle">L2 有效脊点≈31</text>
+  <text x="155" y="305" font-size="13" fill="#378ADD" font-weight="600" text-anchor="middle">memory-bound</text>
+  <text x="555" y="165" font-size="13" fill="#D85A30" font-weight="600" text-anchor="middle">compute-bound</text>
+  <line x1="255" y1="113" x2="255" y2="360" stroke="#D85A30" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/>
+  <circle cx="255" cy="113" r="5" fill="#D85A30"/>
+  <text x="290" y="105" font-size="12" fill="#D85A30" font-weight="600" text-anchor="middle">128 tile (算访比≈32)</text>
+  <text x="360" y="430" font-size="12" fill="#999" text-anchor="middle">算访比 32 越过 L2 有效脊点(31) → compute-bound；只看 HBM 脊点(76) 则仍 memory-bound</text>
+</svg>
+</div>
+<blockquote>
+<p>💡 <strong>用 4060 Ti 的数字算一遍</strong>：fp32 算力 ≈ 22 TFLOPS，HBM 带宽 ≈ 288 GB/s → 脊点 ≈ 22000/288 ≈ <strong>76</strong>。<code>Bm=Bn=128</code> 时计算访存比 = 32，<strong>还没到 76</strong>，理论上仍是 memory-bound。但 L2 cache 把有效带宽抬到约 716 GB/s（同行 block 复用 A、同列 block 复用 B，命中率轻松 &gt;33%），有效脊点降到 22000/716 ≈ <strong>31</strong>，于是 32 刚好越过。<strong>这才是 128 够用的真正原因 —— 不是访存比绝对值大，而是配合 L2 刚好越过脊点。越过之后再加大 tile，收益几乎为零，纯亏 Occupancy。</strong></p>
+</blockquote>
+<p><strong>所以内存墙时代的正确心态不是&quot;访存比越大越好&quot;，而是&quot;用最小的 tile 越过脊点&quot;</strong> —— 越过脊点的最小 tile = 资源压力最小 = Occupancy 最高 = 延迟掩盖最好。</p>
+<h2 id="0-3-为什么-Occupancy-很高、访存比很低也不行？">0.3 为什么 Occupancy 很高、访存比很低也不行？</h2>
+<p>反过来也是错的。如果你为了拉满 Occupancy 把 tile 做得很小（比如退化到 naive 的一线程一元素），计算访存比掉到 ≈1，<strong>远在脊点左侧，被死死焊在带宽上限上</strong>：</p>
+<ul>
+<li>此时 SM 上 warp 再多、Occupancy 再高（接近 100%），也只是<strong>一堆 warp 排队等同一条拥堵的内存总线</strong>。</li>
+<li>带宽是物理上限，多开 warp 并不会让 HBM 吐数据更快 → 计算单元大量空转 → 性能被带宽锁死。</li>
+</ul>
+<blockquote>
+<p>💡 <strong>一句话对比两种极端</strong>：</p>
+<ul>
+<li><strong>访存比太低</strong>（tile 太小）：Occupancy 拉满也没用，卡在带宽，算力闲置 → memory-bound 的死。</li>
+<li><strong>访存比太高</strong>（tile 太大）：越过脊点后访存比是浪费，Occupancy 却被砸穿，warp 不够隐藏延迟 → 延迟暴露的死。</li>
+</ul>
+<p><strong>真正的最优：把计算访存比刚好提到脊点右侧一点点，剩下的资源全部留给 Occupancy。</strong></p>
+</blockquote>
+<h2 id="0-4-高-Occupancy-≠-高性能（进阶易错点）">0.4 高 Occupancy ≠ 高性能（进阶易错点）</h2>
+<p>还有一个反直觉但面试高频的点：<strong>即使不考虑访存比，Occupancy 本身也不是越高越好</strong>。</p>
+<p>延迟隐藏有两条路，Occupancy 只是其中一条：</p>
+<ol>
+<li><strong>靠更多 warp</strong>（高 Occupancy）—— SM 等数据时切到别的 warp。</li>
+<li><strong>靠每个 warp 内更多独立指令</strong>（高 ILP，指令级并行）—— 一个 warp 内有多条互不依赖的指令可以连续发射，流水线照样满。</li>
+</ol>
+<p>GEMM 恰恰大量依赖第二条：每个线程的 <code>Tm×Tn = 64</code> 个累加器全在寄存器里，提供了 64 条独立的 FMA 指令可以并行发射。<strong>这种高 ILP 让 GEMM 即使只有 30%~50% 的 Occupancy 也能喂饱计算单元</strong> —— CUTLASS 的旗舰 kernel Occupancy 往往就只有 25%~50%。Vasily Volkov 的经典工作正是证明了「低 Occupancy + 高 ILP」可以打败「高 Occupancy」。</p>
+<blockquote>
+<p>⚠️ <strong>面试结论</strong>：不要把&quot;调高 Occupancy&quot;当成优化目标本身。Occupancy 只要&quot;够用&quot;（够隐藏延迟）就行，把寄存器留给 ILP 和数据复用往往更划算。能说出这一层，是 senior 和 junior 的分水岭。</p>
+</blockquote>
+<hr>
+<h1>第二节、Bm / Bn / Bk / blockSize 具体怎么选</h1>
+<blockquote>
+<p>理解了第零章的对立关系，再看具体参数就是&quot;在这个权衡里找平衡点&quot;，而非死记数字。</p>
+</blockquote>
+<pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp"><span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">int</span> Bm <span class="token operator">=</span> <span class="token number">128</span><span class="token punctuation">,</span> <span class="token keyword">int</span> Bn <span class="token operator">=</span> <span class="token number">128</span><span class="token punctuation">,</span> <span class="token keyword">int</span> Bk <span class="token operator">=</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token keyword">int</span> blockSize <span class="token operator">=</span> <span class="token number">256</span><span class="token punctuation">,</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token operator">></span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h2 id="2-0-一张图看清四个参数各管什么">2.0 一张图看清四个参数各管什么</h2>
+<div align="center">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 420" width="100%" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif">
+  <text x="40" y="34" font-size="16" font-weight="600" fill="#888">四个参数各管一层：从 HBM 到寄存器，每层一种复用</text>
+  <!-- three storage tiers stacked -->
+  <rect x="60" y="70" width="560" height="80" rx="10" fill="#378ADD" fill-opacity="0.12" stroke="#378ADD" stroke-width="1.2"/>
+  <text x="80" y="98" font-size="14" font-weight="600" fill="#378ADD">HBM (global memory)</text>
+  <text x="80" y="120" font-size="12" fill="#888">慢、大。所有数据的源头</text>
+  <rect x="120" y="190" width="440" height="80" rx="10" fill="#7F77DD" fill-opacity="0.14" stroke="#7F77DD" stroke-width="1.2"/>
+  <text x="140" y="218" font-size="14" font-weight="600" fill="#7F77DD">shared memory (block 内共享)</text>
+  <text x="140" y="240" font-size="12" fill="#888">block tile 搬到这里复用 → 决定计算访存比</text>
+  <rect x="200" y="310" width="280" height="72" rx="10" fill="#D85A30" fill-opacity="0.14" stroke="#D85A30" stroke-width="1.2"/>
+  <text x="220" y="338" font-size="14" font-weight="600" fill="#D85A30">register (线程私有)</text>
+  <text x="220" y="360" font-size="12" fill="#888">thread tile 复用 → 寄存器复用 + ILP</text>
+  <!-- arrows between tiers -->
+  <line x1="340" y1="150" x2="340" y2="188" stroke="#999" stroke-width="2"/>
+  <polygon points="340,192 335,182 345,182" fill="#999"/>
+  <line x1="340" y1="270" x2="340" y2="308" stroke="#999" stroke-width="2"/>
+  <polygon points="340,312 335,302 345,302" fill="#999"/>
+  <!-- param tags on the right -->
+<p><text x="600" y="115" font-size="13" font-weight="600" fill="#378ADD" text-anchor="end">Bm/Bn → 算访比</text><br>
+<text x="600" y="208" font-size="13" font-weight="600" fill="#7F77DD" text-anchor="end">Bk → float4+占用</text><br>
+<text x="600" y="345" font-size="13" font-weight="600" fill="#D85A30" text-anchor="end">Tm/Tn → 寄存器复用</text></p>
+  <!-- blockSize spanning note -->
+<p><text x="40" y="408" font-size="12" fill="#999">blockSize（线程数）横跨整体：决定一个 SM 驻留多少 warp → Occupancy</text><br>
+</svg></p>
+</div>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>调的是哪一层</th>
+<th>主要影响的指标</th>
+<th>取值方向</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Bm / Bn</strong></td>
+<td>block tile（HBM→shared 的复用）</td>
+<td><strong>计算访存比</strong></td>
+<td>够大以越过脊点，且 Bm=Bn 最优</td>
+</tr>
+<tr>
+<td><strong>Bk</strong></td>
+<td>K 维分段长度</td>
+<td>shared 占用 + 向量化对齐</td>
+<td>凑 float4，不撑爆 Occupancy</td>
+</tr>
+<tr>
+<td><strong>blockSize</strong></td>
+<td>一个 block 的线程数</td>
+<td><strong>Occupancy</strong></td>
+<td>让 SM 驻留的 warp 数够隐藏延迟</td>
+</tr>
+<tr>
+<td><strong>Tm / Tn</strong></td>
+<td>thread tile（shared→register 的复用）</td>
+<td>寄存器复用 + ILP</td>
+<td>够大以复用寄存器，不溢出</td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-1-Bm、Bn-128：让计算访存比越过脊点">2.1 Bm、Bn = 128：让计算访存比越过脊点</h2>
+<p>Bm、Bn 的核心作用是决定计算访存比。在每次 K-Loop 中，一个 block 完成 tileA（<code>Bm×Bk</code>）和 tileB（<code>Bk×Bn</code>）的矩阵乘，计算量 <code>2·Bm·Bn·Bk</code> FLOP；从 global memory 搬入的数据量 <code>4·(Bm + Bn)·Bk</code> 字节（忽略 shared 访存代价）。计算访存比：</p>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mfrac><mrow><mn>2</mn><mo>⋅</mo><msub><mi>B</mi><mi>m</mi></msub><mo>⋅</mo><msub><mi>B</mi><mi>n</mi></msub><mo>⋅</mo><msub><mi>B</mi><mi>k</mi></msub></mrow><mrow><mn>4</mn><mo>⋅</mo><mo stretchy="false">(</mo><msub><mi>B</mi><mi>m</mi></msub><mo>+</mo><msub><mi>B</mi><mi>n</mi></msub><mo stretchy="false">)</mo><mo>⋅</mo><msub><mi>B</mi><mi>k</mi></msub></mrow></mfrac><mo>=</mo><mfrac><mn>1</mn><mrow><mn>2</mn><mrow><mo fence="true">(</mo><mfrac><mn>1</mn><msub><mi>B</mi><mi>m</mi></msub></mfrac><mo>+</mo><mfrac><mn>1</mn><msub><mi>B</mi><mi>n</mi></msub></mfrac><mo fence="true">)</mo></mrow></mrow></mfrac></mrow><annotation encoding="application/x-tex">\frac{2 \cdot B_m \cdot B_n \cdot B_k}{4 \cdot (B_m + B_n) \cdot B_k} = \frac{1}{2\left(\frac{1}{B_m} + \frac{1}{B_n}\right)}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:2.29633em;vertical-align:-0.936em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.36033em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">4</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.05017em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">m</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.05017em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:-0.05017em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">2</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.05017em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">m</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.05017em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:-0.05017em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.936em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:3.01146em;vertical-align:-1.69002em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.32144em;"><span style="top:-2.11em;"><span class="pstrut" style="height:3.15em;"></span><span class="mord"><span class="mord">2</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size2">(</span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.845108em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05017em;">B</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.16454285714285719em;"><span style="top:-2.357em;margin-left:-0.05017em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight">m</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.44509999999999994em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.845108em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05017em;">B</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.16454285714285719em;"><span style="top:-2.357em;margin-left:-0.05017em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.44509999999999994em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size2">)</span></span></span></span></span><span style="top:-3.38em;"><span class="pstrut" style="height:3.15em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.827em;"><span class="pstrut" style="height:3.15em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.69002em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+<p>两个关键推论：</p>
+<ul>
+<li><strong>与 Bk 无关</strong>：Bk 同时出现在分子（多算 Bk 次）和分母（多搬 Bk 行），约掉了。Bk 不是用来调访存比的。</li>
+<li><strong>Bm = Bn 时最优</strong>：<code>1/Bm + 1/Bn</code> 在 <code>Bm·Bn</code> 固定（即 shared 预算固定）时，由均值不等式两者相等时和最小 → 访存比最大。所以方形 tile（128×128）在给定 shared 预算下访存比理论最优，瘦长 tile（如 256×64）同面积但访存比更差。</li>
+</ul>
+<p>令 <code>Bm = Bn = 128</code>，计算访存比 = 32。结合第零章：4060 Ti 配合 L2 的有效脊点 ≈ 31，32 刚好越过 → 进入 compute-bound。<strong>Bm/Bn 过小</strong>会让访存比掉回脊点左侧（memory-bound）；<strong>过大</strong>则 shared 占用激增、Occupancy 暴跌，且访存比早已越过脊点纯属浪费。128 是&quot;刚好越过脊点 + Occupancy 还保得住&quot;的平衡点。</p>
+<h2 id="2-2-Bk-8：被-float4-和-shared-占用夹出来的">2.2 Bk = 8：被 float4 和 shared 占用夹出来的</h2>
+<p>Bk 不影响计算访存比，它被两个约束夹定：</p>
+<ul>
+<li><strong>下界（向量化对齐）</strong>：每个线程搬运的 A 元素数 = <code>Bm×Bk / blockSize = 128×8/256 = 4</code>，正好凑一个 <code>float4</code>（128-bit，一条 <code>LDG.128</code> 指令）。Bk 太小（如 Bk=1）每次只搬 A 的一整列、沿 M 方向不连续，无法合并访存；且凑不满 float4。</li>
+<li><strong>上界（Occupancy）</strong>：<code>As[Bk][Bm]</code> / <code>Bs[Bk][Bn]</code> 占的 shared 随 Bk 线性增长，Bk 太大 → 一个 SM 能驻留的 block 数减少 → Occupancy 下降。</li>
+</ul>
+<p>取 8 在两者间平衡，还有个附带好处：<code>A_BLOCK_X = Bk = 8</code> 让加载循环只剩一次迭代，gemm8 里可以整个消掉（见第八章）。</p>
+<h2 id="2-3-blockSize-256：Occupancy-的甜点">2.3 blockSize = 256：Occupancy 的甜点</h2>
+<p>256 = 8 个 warp。这个数不是&quot;为了 Occupancy 随便挑 256&quot;，而是被 tile 形状算出来后、又恰好落在 Occupancy 甜点：</p>
+<ul>
+<li><strong>被 tile 算出来</strong>：<code>(Bm/Tm) × (Bn/Tn) = (128/8) × (128/8) = 16×16 = 256</code>。定了 block tile（128×128）和 thread tile（8×8），256 是被迫的。</li>
+<li><strong>恰好是 Occupancy 甜点</strong>：以 Ampere 一个 SM 上限 2048 线程算，<code>2048/256 = 8</code> 个 block/SM，给调度器足够多 warp 隐藏延迟；同时没撞到每 SM 最大 block 数上限。warp 太少（如 4 warp）延迟无法隐藏，warp 太多（如 16 warp）寄存器/shared 不够、可并发 block 反而减少。</li>
+</ul>
+<div align="center">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 400" width="100%" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif">
+  <text x="40" y="34" font-size="16" font-weight="600" fill="#888">blockSize=256：先被 tile 形状算出，又恰好落在 Occupancy 甜点</text>
+  <!-- step 1: derive 256 from tiles -->
+<p><text x="40" y="72" font-size="14" font-weight="600" fill="#888">① 被 tile 算出来</text><br>
+<rect x="50" y="86" width="150" height="56" rx="8" fill="#7F77DD" fill-opacity="0.14" stroke="#7F77DD" stroke-width="1.2"/><br>
+<text x="125" y="110" font-size="13" fill="#7F77DD" text-anchor="middle" font-weight="600">block tile</text><br>
+<text x="125" y="128" font-size="12" fill="#888" text-anchor="middle">128 × 128</text></p>
+<p><text x="215" y="118" font-size="18" fill="#999" text-anchor="middle">÷</text></p>
+  <rect x="230" y="86" width="150" height="56" rx="8" fill="#D85A30" fill-opacity="0.14" stroke="#D85A30" stroke-width="1.2"/>
+  <text x="305" y="110" font-size="13" fill="#D85A30" text-anchor="middle" font-weight="600">thread tile</text>
+  <text x="305" y="128" font-size="12" fill="#888" text-anchor="middle">8 × 8</text>
+<p><text x="395" y="118" font-size="18" fill="#999" text-anchor="middle">=</text></p>
+  <rect x="410" y="86" width="200" height="56" rx="8" fill="#1D9E75" fill-opacity="0.14" stroke="#1D9E75" stroke-width="1.2"/>
+  <text x="510" y="108" font-size="13" fill="#1D9E75" text-anchor="middle" font-weight="600">16×16 = 256 线程</text>
+  <text x="510" y="128" font-size="12" fill="#888" text-anchor="middle">= 8 个 warp（被迫得出）</text>
+  <!-- step 2: 256 lands in occupancy sweet spot -->
+<p><text x="40" y="190" font-size="14" font-weight="600" fill="#888">② 恰好是 Occupancy 甜点（以 SM 上限 2048 线程算）</text></p>
+  <!-- three options bar -->
+  <rect x="50" y="210" width="180" height="70" rx="8" fill="#888" fill-opacity="0.08" stroke="#aaa" stroke-width="1"/>
+  <text x="140" y="234" font-size="13" fill="#888" text-anchor="middle" font-weight="600">128 线程 (4 warp)</text>
+  <text x="140" y="254" font-size="12" fill="#888" text-anchor="middle">warp 太少</text>
+  <text x="140" y="271" font-size="12" fill="#D85A30" text-anchor="middle">延迟掩盖不住 ✗</text>
+  <rect x="250" y="210" width="180" height="70" rx="8" fill="#1D9E75" fill-opacity="0.16" stroke="#1D9E75" stroke-width="1.6"/>
+  <text x="340" y="234" font-size="13" fill="#1D9E75" text-anchor="middle" font-weight="600">256 线程 (8 warp)</text>
+  <text x="340" y="254" font-size="12" fill="#888" text-anchor="middle">2048/256 = 8 block/SM</text>
+  <text x="340" y="271" font-size="12" fill="#1D9E75" text-anchor="middle">甜点 ✓</text>
+  <rect x="450" y="210" width="180" height="70" rx="8" fill="#888" fill-opacity="0.08" stroke="#aaa" stroke-width="1"/>
+  <text x="540" y="234" font-size="13" fill="#888" text-anchor="middle" font-weight="600">512 线程 (16 warp)</text>
+  <text x="540" y="254" font-size="12" fill="#888" text-anchor="middle">寄存器/shared 不够</text>
+  <text x="540" y="271" font-size="12" fill="#D85A30" text-anchor="middle">可并发 block 反而少 ✗</text>
+<p><text x="40" y="330" font-size="12" fill="#999">结论：256 不是为 Occupancy 随便挑的，而是 tile 形状的必然结果，且正好落在甜点 —— 两个理由指向同一个数。</text><br>
+</svg></p>
+</div>
+<h2 id="2-4-这套参数是死的吗？——-不是">2.4 这套参数是死的吗？—— 不是</h2>
+<p>这套模板是<strong>这一类 tiling 策略</strong>的参数化，具体数值随三件事变：</p>
+<ul>
+<li><strong>硬件换代</strong>：A100→H100，SM 的寄存器/shared 容量、最大 block 数都变，甜点跟着移；Hopper 上可能用更大 tile + <code>wgmma</code> 异步指令，整套重来。</li>
+<li><strong>矩阵形状</strong>：这套为大方阵优化。GEMV 或瘦长矩阵下，128×128 会让大量线程算空气，得换 split-K 或更扁的 tile。</li>
+<li><strong>数据类型</strong>：fp16/bf16 走 Tensor Core，tile 必须对齐 Tensor Core 的 fragment 尺寸（如 16×16×16），且<strong>脊点剧烈右移</strong>（算力涨十几倍、带宽不变，脊点从 ~76 飙到 1000+）—— 同一 tile 在 fp32 是 compute-bound，换 fp16 可能瞬间变回 memory-bound，必须用更激进的 tile + 更深的 software pipeline 把访存比再拉上去。</li>
+</ul>
+<p>所以真实的库（cuBLAS、CUTLASS）不是一套模板，而是<strong>几百套预编译 kernel + 启发式选择器</strong>，运行时按 M/N/K 和 GPU 型号挑一套。手写这个相当于 CUTLASS 里某一个特定 config 的展开。</p>
+<blockquote>
+<p>⚠️ <strong>方法论结论</strong>：真实调参不是套公式，是 <strong>profile 驱动</strong> —— 用 Nsight Compute 看到底卡在 Occupancy、计算访存比、bank conflict 还是 register spilling，再针对性调对应参数。CUTLASS 直接暴力枚举上百组实测选优。</p>
+</blockquote>
+<hr>
+<h1>一、gemm1：naive GEMM</h1>
+<p>最朴素：<strong>一个线程负责 C 中一个元素</strong>。要算 <code>M×N</code> 个元素，就启动 <code>M×N</code> 个线程。每个线程跑一条 K 维内积循环。</p>
+<pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp">__global__ <span class="token keyword">void</span> <span class="token function">gemm_naive</span><span class="token punctuation">(</span><span class="token keyword">float</span><span class="token operator">*</span> A<span class="token punctuation">,</span> <span class="token keyword">float</span><span class="token operator">*</span> B<span class="token punctuation">,</span> <span class="token keyword">float</span><span class="token operator">*</span> C<span class="token punctuation">,</span>
+                           <span class="token keyword">int</span> M<span class="token punctuation">,</span> <span class="token keyword">int</span> N<span class="token punctuation">,</span> <span class="token keyword">int</span> K<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+  <span class="token keyword">int</span> row <span class="token operator">=</span> blockIdx<span class="token punctuation">.</span>y <span class="token operator">*</span> blockDim<span class="token punctuation">.</span>y <span class="token operator">+</span> threadIdx<span class="token punctuation">.</span>y<span class="token punctuation">;</span>  <span class="token comment">// M 方向</span>
+  <span class="token keyword">int</span> col <span class="token operator">=</span> blockIdx<span class="token punctuation">.</span>x <span class="token operator">*</span> blockDim<span class="token punctuation">.</span>x <span class="token operator">+</span> threadIdx<span class="token punctuation">.</span>x<span class="token punctuation">;</span>  <span class="token comment">// N 方向</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>row <span class="token operator">&lt;</span> M <span class="token operator">&amp;&amp;</span> col <span class="token operator">&lt;</span> N<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">float</span> acc <span class="token operator">=</span> <span class="token number">0.f</span><span class="token punctuation">;</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> k <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> k <span class="token operator">&lt;</span> K<span class="token punctuation">;</span> <span class="token operator">++</span>k<span class="token punctuation">)</span>
+      acc <span class="token operator">+=</span> A<span class="token punctuation">[</span>row <span class="token operator">*</span> K <span class="token operator">+</span> k<span class="token punctuation">]</span> <span class="token operator">*</span> B<span class="token punctuation">[</span>k <span class="token operator">*</span> N <span class="token operator">+</span> col<span class="token punctuation">]</span><span class="token punctuation">;</span>        <span class="token comment">// A 行 × B 列</span>
+    C<span class="token punctuation">[</span>row <span class="token operator">*</span> N <span class="token operator">+</span> col<span class="token punctuation">]</span> <span class="token operator">=</span> acc<span class="token punctuation">;</span>
+  <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><strong>致命问题：访存全在 HBM，且毫无复用。</strong> 算一个 C 元素要读 K 个 A、K 个 B，共 <code>2K</code> 次 HBM 访问、<code>2K</code> 次 FLOP（1 乘 1 加），计算访存比 ≈ <strong>1</strong>。而且相邻线程反复从 HBM 读同一行 A / 同一列 B —— 同样的数据被搬运无数次。这就是后面所有优化的出发点。</p>
+<p><img src="/img/notes/gemm/gemm1-naive.png" alt="naive GEMM —— 1 线程算 1 个 C 元素"></p>
+<hr>
+<h1>二、gemm2：block tile GEMM —— 最重要的第一刀</h1>
+<blockquote>
+<p>核心思想：<strong>从 block 的视角重新审视问题。</strong> 我们想把要用到的 A、B 数据搬进 shared memory 复用，但整块 A、B 太大放不进去 —— 于是切块（tile）+ K-loop。</p>
+</blockquote>
+<h2 id="2-1-为什么需要-K-loop？">2.1 为什么需要 K-loop？</h2>
+<p>shared memory 一个 block 只有几十 KB，放不下整行 A（<code>K</code> 列）或整列 B（<code>K</code> 行）。所以沿 <strong>K 维</strong>把它切成一段段 <code>Bk</code> 宽的小块，<strong>循环累加</strong>：每次只搬 <code>Bm×Bk</code> 的 A 块 和 <code>Bk×Bn</code> 的 B 块进 shared，算完局部贡献，再搬下一段。这就是 <strong>K-loop</strong>（外层循环 K 维）。</p>
+<blockquote>
+<p>💡 <strong>K 是从哪来的？</strong> K-loop 的 K 就是收缩维（contraction dim），即 A 的列 / B 的行。沿它分块、循环累加，是为了让 shared 装得下。</p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">一个 block 负责 C 的一个 Bm×Bn 子块：
+  for (k_tile : K &#x2F; Bk):          ← K-loop
+      load A[Bm,Bk] → shared
+      load B[Bk,Bn] → shared
+      __syncthreads()
+      局部矩阵乘累加到 C_block
+      __syncthreads()<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><img src="/img/notes/gemm/gemm2-block-tile-kloop.png" alt="block tile + K-loop"></p>
+<h2 id="2-2-block-内线程重排">2.2 block 内线程重排</h2>
+<p>默认 <code>blockSize = 256</code>。这 256 个线程要被<strong>重排成对应矩阵子块的形状</strong>去干活（比如 16×16），而不是一维排开。这一步是后面 thread tile / warp tile 的基础。</p>
+<p><img src="/img/notes/gemm/gemm2-block-compute.png" alt="block 计算量划分"></p>
+<h2 id="2-3-向量内积-vs-向量外积（K-loop-用的是外积）">2.3 向量内积 vs 向量外积（K-loop 用的是外积）</h2>
+<p>这是 gemm2 里<strong>最反直觉、最值得讲透</strong>的点。同样算 <code>C += A·B</code>，有两种组织方式：</p>
+<ul>
+<li><strong>向量内积（inner product）</strong>：固定 C 的一个元素，让 A 的一行 × B 的一列点乘出它。→ <strong>C 元素被读写很多次的视角</strong>，A、B 的元素也要被反复搬运。</li>
+<li><strong>向量外积（outer product）</strong>：取 A 的<strong>一列</strong>（长 Bm）和 B 的<strong>一行</strong>（长 Bn），做外积得到一个 <code>Bm×Bn</code> 的矩阵，<strong>累加</strong>进 C_block。沿 K 把每个 (列,行) 外积累加起来。</li>
+</ul>
+<blockquote>
+<p>💡 <strong>外积的关键优势（你卡住的点）</strong>：外积里 <strong>A 的一列、B 的一行只参与计算一次</strong> —— 一次性读进来，外积算完即可丢弃，读下一段。<strong>每个 A/B 元素只被搬运一次</strong>；而内积里一个元素要被反复搬运。从结果看，外积<strong>省了访存次数</strong>。</p>
+<p>更重要的是：外积天然把&quot;被复用的数据&quot;暴露成<strong>寄存器里的一小段向量</strong>（A 的一列 + B 的一行），这正是 gemm3/5/8 要榨取的对象 —— 用寄存器缓存、向量化读取、double buffer 全都建立在外积结构上。所以这里看不出优势很正常，它是<strong>为后面铺路的结构选择</strong>。</p>
+</blockquote>
+<p><img src="/img/notes/gemm/gemm2-inner-vs-outer.png" alt="向量内积 vs 向量外积"></p>
+<p><img src="/img/notes/gemm/gemm2-outer-reuse.png" alt="外积复用特点（A 列 / B 行只读一次）"></p>
+<hr>
+<h1>三、gemm3：thread tile GEMM —— 加 P-loop</h1>
+<p>在 block tile 基础上，让<strong>一个线程负责 C 的一个小块（多个元素）</strong>，而不是一个元素。多出来的内层循环叫 <strong>P-loop</strong>。</p>
+<blockquote>
+<p>💡 <strong>K 和 P 的命名来源（你问的点）</strong>：K-loop 的 K 是收缩维（A 列 / B 行），是<strong>跨 block 共享的外层累加</strong>。P-loop 的 P 通常指 <strong>partial / per-thread</strong> 的内层循环 —— 在一个 Bk 段内，遍历这个线程负责的那几个 (m,n) 局部坐标，做外积累加。（注：命名是原博客作者的习惯，不是 CUDA 官方术语，理解成&quot;K=外层 contraction 循环，P=线程内的局部累加循环&quot;即可。）</p>
+</blockquote>
+<p><strong>为什么这样能拉高计算访存比</strong>：一个线程算 <code>Tm×Tn</code> 个 C 元素时，从 shared 读进寄存器的 A 的 <code>Tm</code> 个数 + B 的 <code>Tn</code> 个数，可以做 <code>Tm×Tn</code> 次乘加。访存 <code>Tm+Tn</code>，计算 <code>Tm×Tn</code>，比值从 naive 的 ~1 拉到 <code>Tm·Tn/(Tm+Tn)</code>。这就是 thread tile 的全部意义：<strong>寄存器复用</strong>。</p>
+<p><img src="/img/notes/gemm/gemm2-block-compute.png" alt="thread tile —— 一个线程负责 C 的 Tm×Tn 小块"></p>
+<hr>
+<h1>四、gemm4：warp tile GEMM —— 重排 warp 的 C 分块形状</h1>
+<blockquote>
+<p>核心：在 warp 这一层，<strong>调整一个 warp 负责的 C 子块形状</strong>，让计算访存比更高。</p>
+<p><strong>优化的位置</strong>：shared memory → register 这一步。数据已经在 shared 里了，warp 的分块形状决定了每次做外积时要从 shared 广播多少行 A、多少列 B —— 形状越接近正方形，shared 读次数越少，计算访存比越高。</p>
+</blockquote>
+<p>正常排法是图7那种（warp 横向铺开，C_block 16×16，warp0 占 16×2 等），改成图8那种（warp 占 8×4 的方块形）后，<strong>计算访存比更高</strong>。</p>
+<blockquote>
+<p>💡 <strong>为什么方块形访存比更高（你卡住的逻辑）</strong>：一个 warp（32 线程）做外积时，要从 shared 读进 A 的一段（行数 = warp 覆盖的 M 高度）和 B 的一段（列数 = warp 覆盖的 N 宽度）。</p>
+<ul>
+<li>若 warp 是 <strong>16×2 长条</strong>：读 16 个 A + 2 个 B = 18 次访存，算 16×2=32 次 → 比值 32/18 ≈ 1.8。</li>
+<li>若 warp 是 <strong>8×4 方块</strong>：读 8 个 A + 4 个 B = 12 次访存，算 8×4=32 次 → 比值 32/12 ≈ 2.7。</li>
+</ul>
+<p><strong>同样的计算量（32），方块形周长最小 → 访存最少 → 计算访存比最高。</strong> 这就是&quot;为什么倾向正方形分块&quot;的本质：<strong>计算量 ∝ 面积，访存量 ∝ 周长，正方形周长/面积比最优。</strong> 因内存墙，我们永远想要更高的计算访存比（= 更高 arithmetic intensity），让本就高算力低带宽的 GPU 跑在算力上限而非带宽上限。</p>
+</blockquote>
+<p><img src="/img/notes/gemm/gemm4-warp-normal.png" alt="warp tile 正常排法（16×2 长条）"></p>
+<p><img src="/img/notes/gemm/gemm4-warp-square.png" alt="warp tile 方块排法（8×4，访存比更高）"></p>
+<hr>
+<h1>五、gemm5：向量化读取 —— 转置 tileA + float4</h1>
+<blockquote>
+<p>核心：用 <code>float4</code>（128-bit）一次读 4 个连续 float，把访存指令数砍到 1/4。</p>
+</blockquote>
+<h2 id="5-0-float4-为什么只能加在-shared-→-register，而不能加在-HBM-→-shared？">5.0 float4 为什么只能加在 shared → register，而不能加在 HBM → shared？</h2>
+<p><strong>核心</strong>：<code>float4</code> 要求起始地址能被 4 整除（16B 对齐）。</p>
+<ul>
+<li><strong>shared → register</strong>：tileA/tileB 的列数是我们自己定的（<code>Bk</code>、<code>Bn</code> 都取 2 的幂），每行 index <strong>独立从 0 开始计</strong>，只跟这一小块矩阵的列数有关 → 完全可控，天然对齐。</li>
+<li><strong>HBM → shared</strong>：HBM 把整个矩阵压成一维，线性地址 = <code>row * N + col</code>。每行的起始地址不是从 0 重算，而是<strong>受全局列数 N 累积影响</strong>。并且，N 是用户传入的，是不可控的，一旦 N 不是 4 的倍数，每行起始地址就不对齐，float4 报错。</li>
+</ul>
+<p><strong>结论：HBM 是全局一维地址，行起始受用户给的 N 控制、不可控；shared/register 是局部地址，行 index 独立可控。float4 只能安全地用在后者。</strong></p>
+<h2 id="5-1-为什么要先转置-tileA？">5.1 为什么要先转置 tileA？</h2>
+<p>向量化读取要求<strong>被读的 4 个元素在内存里连续</strong>。外积里要取 A 的<strong>一列</strong>（沿 M 方向），但 A 在 shared 里是行主序存的，一列的元素并不连续 → 没法 <code>float4</code>。<strong>先把 tileA 转置</strong>存进 shared，“列&quot;就变成了&quot;行”、变连续了，才能向量化读。</p>
+<p><img src="/img/notes/gemm/gemm5-transpose-tileA.png" alt="转置 tileA（global 竖条 → shared 横条）"></p>
+<h2 id="5-2-向量化前后对比">5.2 向量化前后对比</h2>
+<p><strong>向量化之前</strong>（gemm4）：每次外积循环，每个线程从 tileA/tileB 逐个读 float，共需读 <code>Bk</code> 次 A + <code>Bk</code> 次 B，访存指令数 = <code>2 * Bk</code>。</p>
+<p><strong>向量化之后</strong>（gemm5）：改用 <code>float4</code> 一次读 4 个，访存指令数直接砍到 <code>2 * Bk / 4</code>，<strong>减少 4 倍</strong>。</p>
+<p><img src="/img/notes/gemm/gemm4-load-tile.png" alt="向量化前 —— 每次读 1 个 float，循环 Bk 次"></p>
+<p><img src="/img/notes/gemm/gemm5-vectorized-cblock.png" alt="向量化后 C_block 划分"></p>
+<hr>
+<h1>六、gemm6：swizzling 解决 bank conflict</h1>
+<p>引入 shared memory 后，按列访问 tile 会撞 bank（同列元素落同一 bank → 串行）。用 <strong>swizzling</strong>（异或打乱列在 bank 里的落点）解决，零显存浪费。</p>
+<blockquote>
+<p>原理同 transpose 笔记的 swizzle：更换每一列的存储位置，使得虽然按列读取，但因存储位置不同而落在不同 bank，从而合并为一次内存事务。</p>
+</blockquote>
+<p><img src="/img/notes/gemm/gemm6-swizzling.png" alt="swizzling 前后 bank 落点对比"></p>
+<h2 id="6-1-为什么是-x-2？（异或项的两个旋钮）">6.1 为什么是 <code>x &lt;&lt; 2</code>？（异或项的两个旋钮）</h2>
+<pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp">As<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">[</span>A_THREAD_X<span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token punctuation">(</span>i <span class="token operator">+</span> A_THREAD_Y<span class="token punctuation">)</span> <span class="token operator">^</span> <span class="token punctuation">(</span>A_THREAD_X <span class="token operator">&lt;&lt;</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>这个异或表达式藏着<strong>两个独立的设计决定</strong>：<strong>移几位</strong>、<strong>绑哪一维</strong>。分开看。</p>
+<h3 id="旋钮一：移-2-位-——-为了不打散-float4">旋钮一：移 2 位 —— 为了不打散 float4</h3>
+<p>我们用 float4 一次读 4 个连续元素，所以 swizzle 必须 <strong>4 个一组</strong>地打乱、<strong>组内 4 个保持连续</strong>。二进制上，4 个连续坐标只差最低 2 位（<code>…00 / …01 / …10 / …11</code>），只要<strong>异或不碰最低 2 位</strong>，这 4 个就永远连在一起。</p>
+<p><code>&lt;&lt; 2</code> 做的就是这件事：把异或的扰动全部推到第 3 位以上，<strong>最低 2 位原封不动</strong> → 每个 float4 组内连续性自动保住。</p>
+<pre class="line-numbers language-none"><code class="language-none">连续坐标:  ...0 00 | ...0 01 | ...0 10 | ...0 11    ← 只差最低 2 位
+异或项 &lt;&lt; 2: x x x 0 0                              ← 扰动全在高位，碰不到最低 2 位
+结果:      4 个一组被整体搬到新 bank，但组内仍连续 ✓<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>所以<strong>移几位</strong>这个旋钮只跟<strong>向量化宽度</strong>挂钩：float4 = 4 = 2² → 移 2 位。跟 bank 撞不撞无关。</p>
+<h3 id="旋钮二：绑-x-——-因为要保连续的是-y（转置翻转了连续维）">旋钮二：绑 x —— 因为要保连续的是 y（转置翻转了连续维）</h3>
+<p>定下&quot;最低 2 位不许异或&quot;后，问题变成：<strong>最低 2 位属于哪一维？必须保哪一维的连续性？</strong></p>
+<p>关键在于 <strong><code>As</code> 存的是转置后的 tileA</strong>（<code>As[Bk][Bm]</code>，第二维 k、第三维 m）。外积要按 <strong>A 的列</strong> 取数，转置后<strong>列变成了第三维（m 方向）</strong>，float4 正是沿这一维连续读 —— 也就是说：</p>
+<blockquote>
+<p><strong>转置把&quot;连续维&quot;从 x 翻成了 y。</strong> 要保护连续性的是 <strong><code>i + A_THREAD_Y</code> 这一维（y/m 方向）</strong>，它的最低 2 位绝不能被异或碰。</p>
+</blockquote>
+<p>异或项既然要<strong>避开 y</strong>，就只能由<strong>另一维 x</strong> 来驱动 → 所以是 <code>A_THREAD_X &lt;&lt; 2</code>。这样 y 那一维 4 个 4 个连续不被打乱，而不同的 x 给每行配一个不同的扰动量，把 bank 落点错开。</p>
+<pre class="line-numbers language-none"><code class="language-none">(i + A_THREAD_Y) ^ (A_THREAD_X &lt;&lt; 2)
+ └──────┬───────┘    └──────┬──────┘
+ 连续维（转置后的 y&#x2F;m）      用另一维 x 驱动异或
+ float4 靠它连续           └ &lt;&lt;2 把扰动推到高位，
+ → 异或绝不能碰它             不污染连续维的低 2 位<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<blockquote>
+<p>💡 <strong>一句话判定法</strong>（不用背结论）：先问&quot;这一拍 float4 的 4 个连续元素，下标靠哪一维在低位变？&quot;——那一维就是<strong>连续维，异或必须避开它</strong>，绑到<strong>另一维</strong>。这里因为做了转置，连续维是 y，所以绑 x。换个没转置的场景，结论可能反过来。</p>
+</blockquote>
+<blockquote>
+<p>🔗 bank conflict 只是这一切的底层落点：异或最终把&quot;按列访问会撞同一 bank&quot;的那些地址散到不同 bank。但主线是 <strong>“为 float4 服务的错位”</strong>，bank 是结果不是出发点。</p>
+</blockquote>
+<hr>
+<h1>七、gemm7：z-order GEMM —— 改善 float4 访存合并</h1>
+<h2 id="7-1-float4-之后访存合并逻辑变了">7.1 float4 之后访存合并逻辑变了</h2>
+<p>普通 float32（每次读 4B），half-warp 16 个线程共读 16×4B = <strong>64B</strong>，一次 128B 事务可以装两个 half-warp，32 个 bank 各不同就能合并，条件宽松。</p>
+<p>向量化之后每次读 float4（16B），half-warp 16 线程共读 16×16B = <strong>256B</strong>，远超 128B 的单次事务上限。合并的关键不再是&quot;落在不同 bank&quot;，而是要触发<strong>广播机制</strong>：</p>
+<blockquote>
+<p>触发广播机制（两个 half-warp 的事务合并成一个）需满足以下条件之一：</p>
+<ul>
+<li>对 warp 内所有活跃的第 <em>i</em> 号线程，第 <em>i</em> <strong>xor 1</strong> 号线程不活跃或访存地址与其一致；</li>
+<li>对 warp 内所有活跃的第 <em>i</em> 号线程，第 <em>i</em> <strong>xor 2</strong> 号线程不活跃或访存地址与其一致。</li>
+</ul>
+<p>满足其中一个条件，两个 half-warp 的 memory transaction 才能合并成一个。</p>
+</blockquote>
+<h2 id="7-2-z-order-解决什么">7.2 z-order 解决什么</h2>
+<p>z-order 前（行优先映射）：quarter-warp（8 线程）内每个线程负责 C 的不同行，从 tileB shared 里读的是同一行的<strong>不同列</strong>位置 —— 地址各不相同，<code>i xor 1</code> 条件不满足，无法触发广播，事务数 = <strong>4</strong>。</p>
+<p>z-order 后（z 形交错映射）：相邻两个线程（<code>i</code> 和 <code>i xor 1</code>）被映射到读取 tileB 的<strong>同一地址</strong>，满足广播机制第一条，两个 half-warp 的事务合并，事务数从 4 降到 <strong>2</strong>，访存量减半。</p>
+<p><img src="/img/notes/gemm/gemm7-zorder-before.png" alt="z-order 前 —— warp0 行优先线程映射"></p>
+<p><img src="/img/notes/gemm/gemm7-zorder-after.png" alt="z-order 后 —— warp0 z 形交错线程映射"></p>
+<h2 id="7-3-代码对比：gemm4-行优先-→-gemm7-z-形映射">7.3 代码对比：gemm4 行优先 → gemm7 z 形映射</h2>
+<p><strong>gemm4 的 lane 映射（行优先，线性排开）</strong>：</p>
+<pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp"><span class="token comment">// warp 内 laneId 0~31，按行优先直接铺到 C_WARP_Y × C_WARP_X 的子块</span>
+<span class="token comment">// C_WARP_Y = 4（M 方向），C_WARP_X = 8（N 方向）</span>
+<span class="token keyword">int</span> laneY <span class="token operator">=</span> laneId <span class="token operator">/</span> C_WARP_X<span class="token punctuation">;</span>   <span class="token comment">// 0~3，沿 M 方向</span>
+<span class="token keyword">int</span> laneX <span class="token operator">=</span> laneId <span class="token operator">%</span> C_WARP_X<span class="token punctuation">;</span>   <span class="token comment">// 0~7，沿 N 方向</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p><code>laneId 0~7</code> 在同一行（laneY=0），读 tileB 时每人负责<strong>不同列</strong>：lane0 读 col0，lane1 读 col1……相邻的 <code>i</code> 和 <code>i xor 1</code> 地址不一致 → 无法触发广播 → 事务数 = 4。</p>
+<p><strong>gemm7 的 z 形映射</strong>：</p>
+<pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp"><span class="token comment">// z 形交错：把 laneId 的 bit[0] 分给 Y，bit[4] 分给 Y，中间 bit[1~3] 给 X</span>
+<span class="token keyword">int</span> laneY <span class="token operator">=</span> <span class="token punctuation">(</span>laneId <span class="token operator">&amp;</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>laneId <span class="token operator">>></span> <span class="token number">4</span><span class="token punctuation">)</span> <span class="token operator">&lt;&lt;</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>   <span class="token comment">// 取 bit0 和 bit4，组成 0~3</span>
+<span class="token keyword">int</span> laneX <span class="token operator">=</span> <span class="token punctuation">(</span>laneId <span class="token operator">&amp;</span> <span class="token number">15</span><span class="token punctuation">)</span> <span class="token operator">>></span> <span class="token number">1</span><span class="token punctuation">;</span>                     <span class="token comment">// 取 bit1~3，组成 0~7</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>拆开看每个 bit 的去向：</p>
+<table>
+<thead>
+<tr>
+<th>laneId bit</th>
+<th>4</th>
+<th>3</th>
+<th>2</th>
+<th>1</th>
+<th>0</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>分配给</td>
+<td>laneY[1]</td>
+<td>laneX[2]</td>
+<td>laneX[1]</td>
+<td>laneX[0]</td>
+<td>laneY[0]</td>
+</tr>
+</tbody>
+</table>
+<p>效果：<strong>laneId 相邻的两个线程（<code>i</code> 和 <code>i xor 1</code>，即 bit0 翻转）→ laneY 不同、laneX 相同</strong>。读 tileB 时（只用 laneX 决定列），地址完全相同 → 触发广播机制第一条 → 事务从 4 降到 2。</p>
+<blockquote>
+<p><strong>为什么是 <code>(laneId &amp; 1) + ((laneId &gt;&gt; 4) &lt;&lt; 1)</code>？</strong></p>
+<ul>
+<li><code>laneId &amp; 1</code>：取 bit0，得 0 或 1，这是 laneY 的低位</li>
+<li><code>(laneId &gt;&gt; 4) &lt;&lt; 1</code>：取 bit4（值 0 或 1），左移 1 位变成 0 或 2，这是 laneY 的高位</li>
+<li>相加后 laneY ∈ {0,1,2,3}，正好覆盖 C_WARP_Y=4 的范围</li>
+</ul>
+<p><strong>为什么是 <code>(laneId &amp; 15) &gt;&gt; 1</code>？</strong></p>
+<ul>
+<li><code>laneId &amp; 15</code>：保留 bit0~3（屏蔽 bit4）</li>
+<li><code>&gt;&gt; 1</code>：右移 1 位，扔掉 bit0（bit0 已经给了 laneY），剩下 bit1~3，范围 0~7</li>
+<li>正好覆盖 C_WARP_X=8 的范围</li>
+</ul>
+</blockquote>
+<hr>
+<h1>八、gemm8：optimGEMM —— 位运算 + 循环优化</h1>
+<blockquote>
+<p>这一步是在 gemm7 基础上做<strong>指令级优化</strong>，不改变算法结构，只消除低效运算。完成后计算时间缩短至 <strong>1.85 ms</strong>，相对效率达到 <strong>77.8%</strong>，提高约 <strong>19%</strong>。</p>
+</blockquote>
+<h2 id="8-1-优化一：除法-取余-→-位运算">8.1 优化一：除法/取余 → 位运算</h2>
+<p>在程序中，除法运算和求余运算都是一个复杂的计算过程，通常需要多个时钟周期才能完成。而由于计算机的二进制特性，当对元素进行 2 的幂次方形式的除法或取余运算时，可以转换为更高效的位运算写法：</p>
+<ul>
+<li><code>x / 2^n</code>  可以转换为  <code>x &gt;&gt; n</code>（同理，2 的幂次乘法可以写成左移位运算形式）</li>
+<li><code>x % 2^n</code>  可以转换为  <code>x &amp; (2^n - 1)</code></li>
+</ul>
+<p>现有 GEMM 算子的代码中，<strong>几乎所有的乘法、除法和取余运算都是与 2 的幂次方形式进行的</strong>，因此可以全部以位运算形式代替。例如：</p>
+<pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp"><span class="token comment">// before（gemm7）</span>
+<span class="token keyword">int</span> A_THREAD_X <span class="token operator">=</span> tid <span class="token operator">%</span> A_BLOCK_X<span class="token punctuation">;</span>          <span class="token comment">// A_BLOCK_X = 8 = 2^3</span>
+<span class="token keyword">int</span> laneId     <span class="token operator">=</span> tid <span class="token operator">%</span> WARP_SIZE<span class="token punctuation">;</span>           <span class="token comment">// WARP_SIZE = 32 = 2^5</span>
+<span class="token keyword">int</span> warpX      <span class="token operator">=</span> warpId <span class="token operator">%</span> C_WARP_DIM_X<span class="token punctuation">;</span>    <span class="token comment">// C_WARP_DIM_X = 2 = 2^1</span>
+
+<span class="token comment">// after（gemm8）</span>
+<span class="token keyword">int</span> A_THREAD_X <span class="token operator">=</span> tid <span class="token operator">&amp;</span> <span class="token punctuation">(</span>A_BLOCK_X <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>    <span class="token comment">// tid &amp; 7</span>
+<span class="token keyword">int</span> laneId     <span class="token operator">=</span> tid <span class="token operator">&amp;</span> <span class="token punctuation">(</span>WARP_SIZE <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>    <span class="token comment">// tid &amp; 31</span>
+<span class="token keyword">int</span> warpX      <span class="token operator">=</span> warpId <span class="token operator">&amp;</span> <span class="token punctuation">(</span>C_WARP_DIM_X <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// warpId &amp; 1</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h2 id="8-2-优化二：循环优化">8.2 优化二：循环优化</h2>
+<p>tileA 加载循环原来的写法（gemm7）存在两个问题：</p>
+<p><strong>问题 a：内层循环可以省略。</strong> 在参数设置时，<code>A_BLOCK_X</code> 和 <code>Bk</code> 全部取值为 8，因此外层 <code>j</code> 循环不有且只有一次迭代（<code>j = A_THREAD_X</code>），整个 <code>j</code> 循环可以直接删掉：</p>
+<pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp"><span class="token comment">// before：多余的外层 j 循环</span>
+<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> j <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> j <span class="token operator">&lt;</span> Bk<span class="token punctuation">;</span> j <span class="token operator">+=</span> A_BLOCK_X<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>   <span class="token comment">// A_BLOCK_X = Bk = 8，只循环一次</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> A_THREAD_Y<span class="token punctuation">;</span> i <span class="token operator">&lt;</span> Bm<span class="token punctuation">;</span> i <span class="token operator">+=</span> A_BLOCK_Y<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        As<span class="token punctuation">[</span>A_THREAD_X<span class="token punctuation">]</span><span class="token punctuation">[</span>i <span class="token operator">^</span> <span class="token punctuation">(</span>A_THREAD_X <span class="token operator">&lt;&lt;</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">]</span> <span class="token operator">=</span> A<span class="token punctuation">[</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token comment">// after：去掉 j 循环，j = A_THREAD_X 直接用</span>
+<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> Bm<span class="token punctuation">;</span> i <span class="token operator">+=</span> A_BLOCK_Y<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">int</span> r <span class="token operator">=</span> r0 <span class="token operator">+</span> i <span class="token operator">+</span> A_THREAD_Y<span class="token punctuation">;</span>
+    As<span class="token punctuation">[</span>A_THREAD_X<span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token punctuation">(</span>i <span class="token operator">+</span> A_THREAD_Y<span class="token punctuation">)</span> <span class="token operator">^</span> <span class="token punctuation">(</span>A_THREAD_X <span class="token operator">&lt;&lt;</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">]</span> <span class="token operator">=</span> A<span class="token punctuation">[</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><strong>问题 b：<code>#pragma unroll</code> 没有起到作用。</strong> <code>#pragma unroll</code> 的作用是展开已知次数的循环运算，而原代码中 <code>i</code> 的初始值为 <code>A_THREAD_Y</code>，这是一个在不同 thread 中数值不同的变量，编译器无法预先确定循环次数，因此 <code>#pragma unroll</code> 无效。</p>
+<p>修复方法：将循环改为<strong>从 0 开始</strong>，把 <code>A_THREAD_Y</code> 移进循环体内作为偏移量。这样循环次数 <code>Bm / A_BLOCK_Y</code> 在编译时可知，<code>#pragma unroll</code> 才能真正展开：</p>
+<pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp"><span class="token comment">// before：i 从 A_THREAD_Y 开始，unroll 无效</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">pragma</span> <span class="token expression">unroll   </span><span class="token comment">// ← 实际上没有展开！</span></span>
+<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> A_THREAD_Y<span class="token punctuation">;</span> i <span class="token operator">&lt;</span> Bm<span class="token punctuation">;</span> i <span class="token operator">+=</span> A_BLOCK_Y<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span> <span class="token punctuation">&#125;</span>
+
+<span class="token comment">// after：i 从 0 开始，循环次数 = Bm/A_BLOCK_Y 编译期可知，unroll 生效</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">pragma</span> <span class="token expression">unroll   </span><span class="token comment">// ← 真正展开 Bm/A_BLOCK_Y 次</span></span>
+<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> Bm<span class="token punctuation">;</span> i <span class="token operator">+=</span> A_BLOCK_Y<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">int</span> r <span class="token operator">=</span> r0 <span class="token operator">+</span> i <span class="token operator">+</span> A_THREAD_Y<span class="token punctuation">;</span>   <span class="token comment">// A_THREAD_Y 作为偏移放进体内</span>
+    <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<hr>
+<h1>九、gemm9：double buffer —— 串行变并行（最终背诵版）</h1>
+<blockquote>
+<p>这是<strong>面试要手撕的最终版本</strong>，必须理解到能默写。核心：把&quot;load 数据&quot;和&quot;compute&quot;从<strong>串行</strong>改成<strong>并行流水</strong>。</p>
+</blockquote>
+<h2 id="9-1-理论分析">9.1 理论分析</h2>
+<h3 id="问题：串行的-load-→-compute-浪费">问题：串行的 load → compute 浪费</h3>
+<p>朴素流水（图14）：每个阶段 p 先 <code>load regA/regB</code>，再 <code>FFMA</code>（fused multiply-add）。load 和 compute 串行，<strong>计算单元在等数据时空转</strong>。</p>
+<p><img src="/img/notes/gemm/gemm8-serial.png" alt="串行流水（load → FFMA → load → FFMA）"></p>
+<h3 id="解法：double-buffer-预取，load-与-compute-重叠">解法：double buffer 预取，load 与 compute 重叠</h3>
+<p>double buffer（双缓存）：开两份寄存器/shared，<strong>当前在算 buffer[0] 的同时，预取下一段进 buffer[1]</strong>，下一拍交换。如图15，p=1 的 load 和 p=0 的 FFMA 在时间上<strong>重叠</strong>了 —— 访存延迟被计算掩盖，流水线打满。</p>
+<blockquote>
+<p>💡 <strong>本质（你说的&quot;串行变并行&quot;）</strong>：不是真的多开线程并行，而是<strong>指令级并行（ILP）+ 延迟隐藏</strong> —— 让访存指令和计算指令在硬件流水里 overlap，使 GPU 在等 HBM/shared 数据时不空转，持续做 FFMA。这是把计算访存比的优化&quot;落地&quot;到时间维度的最后一步。</p>
+</blockquote>
+<p><img src="/img/notes/gemm/gemm8-double-buffer.png" alt="double buffer 流水（load 与 FFMA 时间上重叠）"></p>
+<h3 id="双缓冲的两个层次">双缓冲的两个层次</h3>
+<p>double buffer 同时作用在两个层次，相辅相成：</p>
+<table>
+<thead>
+<tr>
+<th>层次</th>
+<th>缓冲对象</th>
+<th>目的</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>shared memory 级</strong></td>
+<td><code>As[2][Bk][Bm]</code> / <code>Bs[2][Bk][Bn]</code></td>
+<td>K-loop 的下一个 tile 从 HBM 预取时，当前 tile 的计算不被打断</td>
+</tr>
+<tr>
+<td><strong>register 级</strong></td>
+<td><code>regA[2][Tm]</code> / <code>regB[2][Tn]</code></td>
+<td>p-loop 的下一个外积从 shared 预取时，当前外积计算不被打断</td>
+</tr>
+</tbody>
+</table>
+<p>两级流水叠加，几乎完全掩盖 HBM→shared 和 shared→register 两段访存延迟。</p>
+<h2 id="9-2-易错点">9.2 易错点</h2>
+<h3 id="易错点1：k-loop-和-p-loop-的循环次数要-1">易错点1：k-loop 和 p-loop 的循环次数要 +1</h3>
+<p>k-loop 从 <code>Bk</code> 开始、上限是 <code>K + Bk</code>（而不是 <code>K</code>）；p-loop 从 <code>0</code> 到 <code>Bk + 1</code>（而不是 <code>Bk</code>）。两者都要<strong>多跑一圈</strong>，原因完全对称：</p>
+<ul>
+<li><strong>k-loop 多一圈</strong>：k=0 的 tile 在循环外已经预读进 <code>buffer[0]</code>，k-loop 从 <code>Bk</code> 开始跳过了 k=0。但最后一段 tile（k = <code>K - Bk</code> 那一次预读）的<strong>计算</strong>还没完成，必须多跑一圈来收尾这最后一块的 FFMA。</li>
+<li><strong>p-loop 多一圈</strong>：同理，p=0 只预取、不计算；p=1 开始才算 p-1 的外积。最后一次从 shared 预取的寄存器数据（第 <code>Bk-1</code> 次），要等 <code>p = Bk</code> 那圈才能被算完。</li>
+</ul>
+<pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp"><span class="token comment">// k-loop：从 Bk 开始，上限 K + Bk（多一圈收尾最后一块的计算）</span>
+<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> k <span class="token operator">=</span> Bk<span class="token punctuation">;</span> k <span class="token operator">&lt;</span> K <span class="token operator">+</span> Bk<span class="token punctuation">;</span> k <span class="token operator">+=</span> Bk<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token comment">// p-loop：0 到 Bk（共 Bk+1 次，多一圈收尾最后一次预取的计算）</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> p <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> p <span class="token operator">&lt;</span> Bk <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">;</span> <span class="token operator">++</span>p<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<blockquote>
+<p>直觉记法：double buffer 是&quot;先读后算，错位一拍&quot;——有多少次&quot;读&quot;，就得有多少次&quot;算&quot;来收尾；读写各差一圈，所以各 +1。</p>
+</blockquote>
+<h3 id="易错点2：k-loop-的预读取必须写在循环外面">易错点2：k-loop 的预读取必须写在循环外面</h3>
+<p>k-loop 里的 <code>if (k &lt; K)</code> 预读 HBM→shared 这段代码，必须放在<strong>循环体外、p-loop 之后</strong>，而不是打包进 p-loop 内部。</p>
+<p>原因：<strong>k-loop 不能用 <code>#pragma unroll</code> 展开</strong>，因为 K 是运行时才知道的参数（用户调用算子时传入矩阵大小），编译器看不到 K 的值，无法在编译期确定循环次数，unroll 根本不生效。</p>
+<p>如果把预读写进 p-loop 内部，代码逻辑上也能跑，但你需要在 p-loop 里加额外的 <code>if</code> 判断（比如&quot;p 等于某个值才触发 HBM 预读&quot;），不仅让 p-loop 逻辑变复杂，还因为 k-loop 无法 unroll 而多出运行时分支代价。</p>
+<p><strong>正确写法：预读独立放在 p-loop 结束后、k-loop 末尾：</strong></p>
+<pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp"><span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> k <span class="token operator">=</span> Bk<span class="token punctuation">;</span> k <span class="token operator">&lt;</span> K <span class="token operator">+</span> Bk<span class="token punctuation">;</span> k <span class="token operator">+=</span> Bk<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token comment">// p-loop（shared→register 预取 + FFMA，可以 unroll 因为 Bk 编译期已知）</span>
+    <span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">pragma</span> <span class="token expression">unroll</span></span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> p <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> p <span class="token operator">&lt;</span> Bk <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">;</span> <span class="token operator">++</span>p<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span> <span class="token punctuation">&#125;</span>
+
+    <span class="token comment">// HBM→shared 预读：独立在 p-loop 外，k-loop 无法 unroll，放外面最干净</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>k <span class="token operator">&lt;</span> K<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token comment">// load As[buffer_id ^ 1], Bs[buffer_id ^ 1] from HBM</span>
+        <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+        <span class="token function">__syncthreads</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    buffer_id <span class="token operator">^=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<blockquote>
+<p>对比：p-loop 的 <code>Bk</code> 是模板参数，编译期已知，所以 p-loop 可以 unroll，把预取和计算的 overlap 完全展开。k-loop 的 K 运行时才知道，unroll 无效，所以 HBM 预读不必也不能往里塞。</p>
+</blockquote>
+<hr>
+<h1>十、易错点速查 List</h1>
+<blockquote>
+<p>这是咱们讨论过程中你提到的卡点 + 我补充的易错点，持续更新。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>易错点</th>
+<th>正确理解</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>GEMM 优化的主线是什么？</td>
+<td>逼近<strong>计算访存比 × Occupancy 的乘积峰值</strong>。前者决定性能天花板（compute-bound 还是 memory-bound），后者决定能否贴近天花板。两者对立，最优在乘积峰值而非单指标极值。</td>
+</tr>
+<tr>
+<td>2</td>
+<td>K-loop 的 K 从哪来？</td>
+<td>K = 收缩维（A 列 / B 行）。沿它分块循环累加，是为了让 tile 装进 shared。</td>
+</tr>
+<tr>
+<td>3</td>
+<td>P-loop 的 P 从哪来？</td>
+<td>非官方术语，理解为 per-thread / partial 的线程内局部累加循环（在一个 Bk 段内遍历该线程负责的 (m,n)）。</td>
+</tr>
+<tr>
+<td>4</td>
+<td>内积和外积代码看起来一样，有区别吗？</td>
+<td>编译器优化后性能差不多，但<strong>外积的结构关键</strong>：A 列 / B 行只读一次即丢弃，每元素只搬一次；且把可复用数据暴露成寄存器向量，为后续优化铺路。</td>
+</tr>
+<tr>
+<td>5</td>
+<td>外积省了什么？</td>
+<td>省访存次数。内积里一个元素被反复搬运，外积里只搬一次。</td>
+</tr>
+<tr>
+<td>6</td>
+<td>为什么 warp 倾向方块形分块？</td>
+<td>计算量 ∝ 面积，访存量 ∝ 周长。同面积下正方形周长最小 → 访存最少 → 计算访存比最高。</td>
+</tr>
+<tr>
+<td>7</td>
+<td>向量化读取为什么要先转置 tileA？</td>
+<td>float4 要求 4 元素连续。外积取 A 的列不连续，转置后列变行、变连续，才能向量化。</td>
+</tr>
+<tr>
+<td>8</td>
+<td>为什么 GEMM 比 reduce 更适合向量化？</td>
+<td><strong>待深入讨论</strong>。初步：GEMM 访存是规则稠密 tile、天然对齐；reduce 受 strided/树形结构限制，瓶颈在带宽利用而非指令数。</td>
+</tr>
+<tr>
+<td>9</td>
+<td>swizzling 解决什么？和 padding 啥关系？</td>
+<td>解决 shared memory 的 bank conflict。异或打乱列的 bank 落点，零显存浪费（vs padding 费显存）。</td>
+</tr>
+<tr>
+<td>9.1</td>
+<td>swizzle 为什么是 <code>x &lt;&lt; 2</code>，不是 <code>y &lt;&lt; 2</code>？</td>
+<td>两个独立旋钮。<strong>移 2 位</strong>：float4=2² → 把异或扰动推到高位、保最低 2 位不变，使每组 4 个连续元素不被打散（与 bank 无关）。<strong>绑 x</strong>：要保连续性的是 float4 的连续维，而 <code>As</code> 存转置后的 tileA，<strong>转置把连续维从 x 翻成了 y</strong>，所以异或必须避开 y、绑到 x。判定法：问&quot;float4 的 4 连续元素靠哪维低位变&quot;→ 那维是连续维、异或避开它、绑另一维。</td>
+</tr>
+<tr>
+<td>9.2</td>
+<td>&quot;只要保最后两位不变，谁左移都一样&quot;对吗？</td>
+<td><strong>错</strong>。保最后两位（移 2 位）只保证 float4 组内连续，是旋钮一；绑哪一维是旋钮二，由&quot;谁是连续维&quot;决定，唯一解。两个旋钮正交，别混。</td>
+</tr>
+<tr>
+<td>10</td>
+<td>z-order 优化点在哪？</td>
+<td>float4 后每次读 16B，half-warp 共 256B 超 128B 事务上限，合并必须靠广播机制（需 i xor 1 或 i xor 2 地址一致）。行优先映射下相邻线程读 tileB 不同列、地址各异，不触发广播，事务数=4；z-order 让相邻线程对齐到同一地址，触发广播，事务数降到 2。</td>
+</tr>
+<tr>
+<td>11</td>
+<td>gemm8 的 #pragma unroll 为什么之前没起作用？</td>
+<td>原循环从 <code>A_THREAD_Y</code> 开始，该值在不同 thread 中不同，编译器无法确定循环次数，unroll 失效。改为从 0 开始、A_THREAD_Y 作为体内偏移后，次数 = <code>Bm/A_BLOCK_Y</code> 编译期可知，才能真正展开。</td>
+</tr>
+<tr>
+<td>12</td>
+<td>double buffer 的&quot;串行变并行&quot;是多线程吗？</td>
+<td><strong>不是</strong>。是指令级并行 + 延迟隐藏，让 load 和 compute 在硬件流水里 overlap，等数据时不空转。</td>
+</tr>
+<tr>
+<td>13</td>
+<td>double buffer 作用在几个层次？</td>
+<td>两个：shared memory 级（掩盖 HBM→shared 延迟）+ register 级（掩盖 shared→register 延迟），两级流水叠加。</td>
+</tr>
+<tr>
+<td>14</td>
+<td>计算访存比是越大越好吗？</td>
+<td><strong>不是</strong>。超过 Roofline 脊点后就是 compute-bound，内存不再是瓶颈，多出的复用纯浪费，还白赔 tile 增大带来的 Occupancy 暴跌。正确目标是&quot;用最小 tile 刚好越过脊点&quot;。</td>
+</tr>
+<tr>
+<td>15</td>
+<td>Occupancy 是越高越好吗？</td>
+<td><strong>不是</strong>。① 访存比太低时，Occupancy 拉满也卡在带宽。② 延迟隐藏还能靠 ILP，GEMM 每线程 64 个寄存器累加器提供高 ILP，30%~50% Occupancy 就够喂饱 ALU。CUTLASS 旗舰 kernel Occupancy 常只有 25%~50%。</td>
+</tr>
+<tr>
+<td>16</td>
+<td>脊点（ridge point）怎么算？</td>
+<td>脊点 = 峰值算力 / 峰值带宽。算访比 &lt; 脊点 → memory-bound；&gt; 脊点 → compute-bound。4060 Ti fp32 脊点 ≈ 76，配合 L2 有效带宽后降到 ≈ 31，所以算访比 32 刚好越过。</td>
+</tr>
+<tr>
+<td>17</td>
+<td>blockSize=256 是先定的还是推出来的？</td>
+<td><strong>推出来的</strong>。先定 block tile（128×128）和 thread tile（8×8），256 = (128/8)×(128/8) 被迫得出，且恰好落在 2048/256=8 block/SM 的 Occupancy 甜点。</td>
+</tr>
+<tr>
+<td>18</td>
+<td>为什么 Bm=Bn（方形 tile）最优？</td>
+<td>访存比 = 1 / [2(1/Bm+1/Bn)]。shared 预算固定即 Bm·Bn 固定时，由均值不等式 Bm=Bn 使分母最小、访存比最大。瘦长 tile 同面积但访存比更差。</td>
+</tr>
+<tr>
+<td>19</td>
+<td>为什么 Bk=8？</td>
+<td>被 float4 和 shared 占用夹定。下界：每线程搬 Bm·Bk/blockSize=4 个 float 凑满 float4；上界：Bk 太大 shared 占用涨、Occupancy 掉。与计算访存比无关（Bk 在分子分母约掉）。</td>
+</tr>
+<tr>
+<td>20</td>
+<td>换数据类型/硬件后参数还一样吗？</td>
+<td><strong>不一样</strong>。fp16 走 Tensor Core 脊点从 ~76 飙到 1000+，同 tile 可能从 compute-bound 变回 memory-bound，需更激进 tile + 更深 pipeline。真实库（cuBLAS/CUTLASS）是几百套预编译 kernel + 启发式选择器，profile 驱动而非套公式。</td>
+</tr>
+<tr>
+<td>21</td>
+<td>double buffer 里 k-loop 和 p-loop 循环次数为什么要 +1？</td>
+<td>两者都是&quot;先读后算、错位一拍&quot;的收尾问题。k-loop 从 <code>Bk</code> 开始（k=0 已在循环外预读），上限必须是 <code>K + Bk</code> 才能算完最后一个 tile；p-loop 从 0 到 <code>Bk + 1</code>（共 <code>Bk+1</code> 次），p=0 只预取不算，最后一圈 p=Bk 只算不预取，用来收尾第 <code>Bk-1</code> 次预取的寄存器数据。</td>
+</tr>
+<tr>
+<td>22</td>
+<td>k-loop 的 HBM 预读为什么必须写在 p-loop 外面，不能放进 p-loop 里？</td>
+<td><strong>k-loop 无法 unroll</strong>：K 是运行时参数，编译器不知道循环次数，<code>#pragma unroll</code> 对 k-loop 无效。把预读放进 p-loop 需要额外的运行时 <code>if</code> 判断，逻辑更复杂；放外面代码最干净，也不影响性能。反之，p-loop 的 <code>Bk</code> 是编译期已知的模板参数，可以 unroll，两个循环性质不同。</td>
+</tr>
+</tbody>
+</table>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        Author:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">Evan Guo</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        Link:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://gureumdot.github.io/2026/06/02/%E6%89%8B%E6%92%95/CUDA%E7%AE%97%E5%AD%90/gemm/">https://gureumdot.github.io/2026/06/02/%E6%89%8B%E6%92%95/CUDA%E7%AE%97%E5%AD%90/gemm/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        Reprint policy:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    All articles in this blog are used except for special statements
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    reprint policy. If reproduced, please indicate source
+                    <a href="/about" target="_blank">Evan Guo</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>Copied successfully, please follow the reprint policy of this article</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">more</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/CUDA/">
+                                    <span class="chip bg-color">CUDA</span>
+                                </a>
+                            
+                                <a href="/tags/GEMM/">
+                                    <span class="chip bg-color">GEMM</span>
+                                </a>
+                            
+                                <a href="/tags/%E7%AE%97%E5%AD%90%E4%BC%98%E5%8C%96/">
+                                    <span class="chip bg-color">算子优化</span>
+                                </a>
+                            
+                                <a href="/tags/%E6%89%8B%E6%92%95/">
+                                    <span class="chip bg-color">手撕</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;Previous</div>
+            <div class="card">
+                <a href="/2026/06/10/%E7%AE%80%E5%8E%86/resume-qa/">
+                    <div class="card-image">
+                        
+                        <img src="/img/covers/coding.png" class="responsive-img" alt="简历 QA 准备">
+                        
+                        <span class="card-title">简历 QA 准备</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+针对简历每条经历，预设面试官可能追问的问题并给出答案框架。
+
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2026-06-10
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/%E7%AE%80%E5%8E%86/" class="post-category">
+                                    简历
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/%E9%9D%A2%E8%AF%95/">
+                        <span class="chip bg-color">面试</span>
+                    </a>
+                    
+                    <a href="/tags/%E7%AE%80%E5%8E%86/">
+                        <span class="chip bg-color">简历</span>
+                    </a>
+                    
+                    <a href="/tags/QA/">
+                        <span class="chip bg-color">QA</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                Next&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2026/05/31/%E6%89%8B%E6%92%95/CUDA%E7%AE%97%E5%AD%90/reduce/">
+                    <div class="card-image">
+                        
+                        <img src="/img/covers/reduce.png" class="responsive-img" alt="Reduce">
+                        
+                        <span class="card-title">Reduce</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2026-05-31
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/%E6%89%8B%E6%92%95/" class="post-category">
+                                    手撕
+                                </a>
+                            
+                            <a href="/categories/%E6%89%8B%E6%92%95/CUDA%E7%AE%97%E5%AD%90/" class="post-category">
+                                    CUDA算子
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/%E6%8E%A8%E7%90%86%E4%BC%98%E5%8C%96/">
+                        <span class="chip bg-color">推理优化</span>
+                    </a>
+                    
+                    <a href="/tags/CUDA/">
+                        <span class="chip bg-color">CUDA</span>
+                    </a>
+                    
+                    <a href="/tags/%E7%AE%97%E5%AD%90%E4%BC%98%E5%8C%96/">
+                        <span class="chip bg-color">算子优化</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;TOC</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        // Give h1 headings an id so tocbot can link to them (Hexo only generates ids for h2+)
+        $('#articleContent h1').each(function () {
+            if (!this.id) {
+                this.id = $(this).text().trim().replace(/\s+/g, '-');
+            }
+        });
+
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('1'),
+            headingSelector: 'h1, h2, h3, h4',
+            scrollSmooth: true,
+            scrollSmoothOffset: -64
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2026</span>
+            
+            <a href="/about" target="_blank">Evan Guo</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;Total visits:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;Total visitors:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/blinkfox" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:1181062873@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=1181062873" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 1181062873" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;Search</span>
+            <input type="search" id="searchInput" name="s" placeholder="Please enter a search keyword"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+
+    
+    
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>

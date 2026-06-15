@@ -1,0 +1,1878 @@
+<!DOCTYPE HTML>
+<html lang="en">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="vLLM, Evan&#39;s blogs">
+    <meta name="description" content="一、PagedAttention
+
+本节只解决一个问题：显存利用率，从而能在同样的卡上塞下更多并发请求，把吞吐顶上去。
+
+
+1. 问题：传统 KV cache 的显存浪费
+传统方案给每个请求按 max_seq_len 预分配一整块连续显存。">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>vLLM | Evan&#39;s blogs</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<link rel="stylesheet" href="/libs/katex/katex.min.css">
+
+<style>
+#site-lock-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: #0f0f1a;
+  z-index: 99999;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  color: #fff; font-family: sans-serif;
+}
+#site-lock-overlay h2 { font-size: 22px; margin-bottom: 8px; letter-spacing: 2px; }
+#site-lock-overlay p  { color: #aaa; font-size: 14px; margin-bottom: 20px; }
+#site-lock-overlay input {
+  padding: 10px 16px; font-size: 16px;
+  border-radius: 8px; border: 1px solid #444;
+  background: #1e1e2e; color: #fff;
+  width: 260px; text-align: center; outline: none;
+  margin-bottom: 12px;
+}
+#site-lock-overlay button {
+  padding: 10px 40px;
+  background: #4a9eff; color: #fff;
+  border: none; border-radius: 8px;
+  cursor: pointer; font-size: 15px;
+  transition: background 0.2s;
+}
+#site-lock-overlay button:hover { background: #2278dd; }
+#site-lock-err { color: #ff6b6b; font-size: 13px; margin-top: 8px; min-height: 18px; }
+</style>
+
+<div id="site-lock-overlay">
+  <h2>🔒 访问受限</h2>
+  <p>请输入密码以继续访问</p>
+  <input type="password" id="site-password" placeholder="请输入密码"
+         onkeydown="if(event.key==='Enter') siteUnlock()">
+  <button onclick="siteUnlock()">确 认</button>
+  <div id="site-lock-err"></div>
+</div>
+
+<script>
+(function () {
+  // ★ 在这里修改你的访问密码 ★
+  var SITE_PASSWORD = 'qwe123456qwe';
+
+  if (sessionStorage.getItem('site_unlocked') === '1') {
+    document.getElementById('site-lock-overlay').style.display = 'none';
+  }
+
+  window.siteUnlock = function () {
+    var val = document.getElementById('site-password').value;
+    if (val === SITE_PASSWORD) {
+      sessionStorage.setItem('site_unlocked', '1');
+      document.getElementById('site-lock-overlay').style.display = 'none';
+    } else {
+      document.getElementById('site-lock-err').textContent = '密码错误，请重新输入';
+      document.getElementById('site-password').value = '';
+    }
+  };
+})();
+</script>
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">Evan&#39;s blogs</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>Index</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>Tags</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>Categories</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>Archives</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>About</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>Contact</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>Friends</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="Search" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">Evan&#39;s blogs</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			Index
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			Tags
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			Categories
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			Archives
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			About
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			Contact
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			Friends
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/blinkfox/hexo-theme-matery" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/blinkfox/hexo-theme-matery" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/img/covers/vllm.png')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">vLLM</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/%E6%8E%A8%E7%90%86%E4%BC%98%E5%8C%96/">
+                                <span class="chip bg-color">推理优化</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fas fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0/" class="post-category">
+                                技术笔记
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>Publish Date:&nbsp;&nbsp;
+                    2026-05-25
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h1>一、PagedAttention</h1>
+<blockquote>
+<p>本节只解决一个问题：<strong>显存利用率</strong>，从而能在同样的卡上塞下更多并发请求，把吞吐顶上去。</p>
+</blockquote>
+<hr>
+<h2 id="1-问题：传统-KV-cache-的显存浪费">1. 问题：传统 KV cache 的显存浪费</h2>
+<p>传统方案给每个请求<strong>按 <code>max_seq_len</code> 预分配一整块连续显存</strong>。模型支持 2048，哪怕实际只生成 100 个 token，剩下的空间也被占着。论文实测，有效显存利用率经常只有 <strong>20%~40%</strong>。</p>
+<p>浪费分两类（<strong>这两个术语严格说不是一回事，面试会抠</strong>）：</p>
+<ul>
+<li><strong>internal fragmentation（内部碎片）</strong>：预留了但最终没用上的空间。属于这个请求，但浪费了。</li>
+<li><strong>external fragmentation（外部碎片）</strong>：请求之间的空隙。空闲总量够，但都是不连续的小块，凑不出一段连续大空间给新请求。</li>
+</ul>
+<p><img src="/img/notes/vllm/std_kvcache_storage.png" alt="传统 KV cache 存储分配"></p>
+<hr>
+<h2 id="2-解法总纲：两种碎片，两种武器">2. 解法总纲：两种碎片，两种武器</h2>
+<p>PagedAttention 把 KV cache 切成<strong>固定大小的 block</strong>（每个 block 存固定数量 token 的 KV），用一张 <strong>block table</strong> 把&quot;逻辑连续的序列&quot;映射到&quot;物理分散的 block&quot;。</p>
+<p>由此对症下药，<strong>两种碎片各有各的解法</strong>（这个因果对应是本章核心，别说反）：</p>
+<pre class="line-numbers language-none"><code class="language-none">深色碎片 (internal)  ←──  动态按需分配（不再预留 max_seq_len）
+灰色碎片 (external)  ←──  等大 block + block table 映射（不再要求物理连续）<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p><img src="/img/notes/vllm/pa_kvcache_storage.png" alt="PagedAttention Block Table 映射"></p>
+<h3 id="2-1-动态分配-→-消灭深色碎片（internal）">2.1 动态分配 → 消灭深色碎片（internal）</h3>
+<p><strong>旧方案的问题</strong>：一次性预分配 <code>prompt + max_response</code> 的连续显存。其中 prompt 部分是已知的，decode 部分（response）是<strong>预留但还没用上的</strong>——哪怕最终只生成了 100 个 token，<code>max_response</code> 对应的整段空间也从一开始就被占着不放。这段&quot;预留但未用&quot;的空间就是 internal frag 的根源。</p>
+<p><strong>PagedAttention 的改法</strong>：把序列切成固定大小的 block，<strong>每次只预分配一个 block，用完了再分配下一个</strong>。decode 阶段不需要一次性预留整段 response 空间——当前 block 写满，才去申请下一个，写不满就停在那里。</p>
+<pre class="line-numbers language-none"><code class="language-none">序列长度 &#x3D; 100 token，block_size &#x3D; 16
+需要 ceil(100&#x2F;16) &#x3D; 7 个 block，按需逐个分配
+最后一个 block 装 100 - 96 &#x3D; 4 个 token，浪费 12 个 token 的空间
+全局碎片率 → 最多一个 block 以内，论文里 &lt; 4%<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>额外好处：显存能在请求间<strong>流动复用</strong>。别的请求算完释放了 block，正在 decode 的请求就能继续申请——不用像以前那样死死预留一大块等着自己用。</p>
+<h3 id="2-2-映射表-→-消灭灰色碎片（external）">2.2 映射表 → 消灭灰色碎片（external）</h3>
+<p><strong>灰色碎片的根源是&quot;非连续&quot;</strong>。GPU 显存里有大量空闲，但这些空闲是零散的——每块都太小，没有任何一块能容纳一个完整的变长 KV。传统做法要求 KV 在物理上连续，所以那些零散的空闲永远拼不起来，只能闲置——这就是 external frag。</p>
+<p><strong>映射表的解法</strong>：把逻辑视角和物理视角分开。</p>
+<pre class="line-numbers language-none"><code class="language-none">KV 的逻辑序列：block 0 → block 1 → block 2 → ...（对请求来说是连续的）
+                    ↓           ↓           ↓
+物理显存：     地址 A     地址 F     地址 B    （实际散落在任意位置）<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>线程通过映射表（block table）把逻辑 block 编号翻译成物理地址，然后直接跳过去读写。<strong>物理内存不需要连续，线程也能正确访问</strong>——映射表赋予了线程&quot;访问非连续内存&quot;的能力。</p>
+<p>因此：</p>
+<ul>
+<li>那些原本因为&quot;不够大、拼不连续&quot;而闲置的零散空闲，现在可以逐个分配给不同的 block</li>
+<li>只要显存里有空闲 block，就能继续装 KV，不存在&quot;有空间却用不上&quot;的灰色碎片</li>
+</ul>
+<blockquote>
+<p>💡 <strong>类比 OS 分页</strong>：操作系统用页表让进程看到&quot;连续&quot;的虚拟地址空间，物理页框可以散落在 DRAM 各处。PagedAttention 做的是完全一样的事，只不过对象换成了 GPU 显存里的 KV cache。</p>
+</blockquote>
+<hr>
+<h2 id="3-易错点">3. 易错点</h2>
+<h3 id="3-1-映射表与-coalescing-的关系（最易讲错）">3.1 映射表与 coalescing 的关系（最易讲错）</h3>
+<h4 id="最大的误解">最大的误解</h4>
+<blockquote>
+<p>“KV 散落在物理各处，attention 计算岂不是要满显存随机捞数据？warp 里 32 个线程访问的是非连续内存，还能合并成一次内存事务吗？”</p>
+</blockquote>
+<p><strong>这是一个伪命题，一句话就能破：</strong></p>
+<blockquote>
+<p><strong>映射表和内存事务（coalescing）是两个层级、毫不相干的东西。</strong></p>
+<ul>
+<li><strong>映射表</strong>只做一件事：赋予线程&quot;<strong>跨地址访问</strong>&quot;的能力（逻辑 block → 物理地址）。</li>
+<li><strong>内存事务能不能合并</strong>，是 <strong>warp / block 调度层面的 kernel 设计问题</strong>——你只要在写 kernel 时保证&quot;<strong>一个 warp 在一个物理 block 内连续访问</strong>&quot;，就能 coalesce。这跟有没有映射表、逻辑连不连续，<strong>统统没关系</strong>。</li>
+</ul>
+</blockquote>
+<p>换句话说：coalescing 只看<strong>一条访存指令里 warp 内线程算出来的物理地址连不连续</strong>。映射表只负责&quot;把地址算出来&quot;，算完之后连不连续、能不能合并，是 kernel 循环结构自己保证的事。</p>
+<h4 id="关键：warp-不会横跨-block-边界">关键：warp 不会横跨 block 边界</h4>
+<p>这正是 kernel 设计层面要保证的事——vLLM 的 paged attention kernel <strong>从不让一个 warp 在一条指令里横跨两个物理 block</strong>。kernel 的循环结构是：</p>
+<pre class="line-numbers language-none"><code class="language-none">for logical_blk in sequence:                    # 一次迭代只处理一个 block
+    phys_blk &#x3D; block_table[logical_blk]          # 查表，标量操作
+    base &#x3D; kv_cache_ptr + phys_blk * block_stride  # 算这个 block 的物理基址
+    # ↓ 这条访存指令：warp 内线程只在【这一个】物理 block 内部读
+    load KV[base + thread_offset]                # 物理连续 → coalesce ✓
+# 处理完这个 block 才进入下一轮，查表换 base，再读下一个 block<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>所以&quot;非连续&quot;被<strong>吸收进了 <code>base</code> 的计算里</strong>：跨 block 不是靠&quot;一条横跨的访存指令&quot;过去的，而是靠&quot;<strong>循环换一轮 + 重新查表算 base</strong>&quot;过去的。同一条访存指令内部永远物理连续，coalescing 一点没丢。</p>
+<p>代价只是多了&quot;查表 + 算 base&quot;这些<strong>标量指令</strong>——而 decode 阶段是 <strong>memory-bound</strong>，算力大把富余，这点标量开销等于免费。</p>
+<h4 id="映射表到底解决了什么——破除图的误导">映射表到底解决了什么——破除图的误导</h4>
+<blockquote>
+<p>📌 <strong>图片占位</strong><br>
+<strong>文件名建议：<code>pagedattention-two-requests.png</code></strong><br>
+内容：vLLM 论文 Figure 7（两个请求 A、B 的 KV 同时存储，逻辑 block → 物理 block 散落各处）。<br>
+一句话看图结论：逻辑连续、物理分散，靠 block table 定位。</p>
+</blockquote>
+<p><strong>这张图（以及几乎所有讲 PagedAttention 的图）有一个隐含误导</strong>：它容易让人以为&quot;PagedAttention 把非连续访问变成了连续访问&quot;。<strong>不是的。</strong></p>
+<p>真相是：</p>
+<blockquote>
+<p><strong>写 kernel 默认就是连续寻址</strong>——读数据就是 <code>首地址 base + i × stride</code> 按顺序读，这是最自然的逻辑（你不用多线程、单纯读个数组也是这样）。</p>
+<p>想读<strong>非连续</strong>的物理地址，就<strong>必须额外记录下一个块的首地址 base</strong>——而 <strong>block table 干的就是这件事：记录每个 block 的物理首地址。</strong></p>
+<p>所以 PagedAttention <strong>不是&quot;把非连续变连续&quot;，而是&quot;给了 kernel 寻址非连续物理内存的能力&quot;。</strong></p>
+</blockquote>
+<p>类比（数组 vs 索引表，你写 kernel 一定熟）：</p>
+<pre class="line-numbers language-none"><code class="language-none">无表（公式寻址）：base(i) &#x3D; start + i*16*stride    ← 像数组 arr[i]，元素必须连续摆放
+有表（查表寻址）：base(i) &#x3D; block_table[i] * stride ← 像加了索引表，元素可散落任意位置<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p><strong>&quot;必须连续&quot;不是物理限制，是寻址方式的限制。</strong> 你选了&quot;用公式推地址&quot;，公式就只能表达连续关系；想打破连续，就得用一张表把任意对应关系记下来。这正是 OS page table 做的事——虚拟页号查表得物理页号，于是物理页能随便放。</p>
+<h4 id="正交关系表">正交关系表</h4>
+<p>很多人把&quot;能不能 coalesce&quot;和&quot;block 能不能不连续摆放&quot;耦合在一起，才会觉得矛盾。其实是<strong>两件正交的事</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>能 coalesce？</th>
+<th>block 能任意摆放（无碎片）？</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>连续分配，无表</td>
+<td>能</td>
+<td><strong>不能</strong>（必须连续，有碎片）</td>
+</tr>
+<tr>
+<td>Paged，有表</td>
+<td><strong>能</strong></td>
+<td><strong>能</strong></td>
+</tr>
+<tr>
+<td>任意分配 + 让 warp 横跨 block</td>
+<td>不能</td>
+<td>——</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>结论：有没有表，不改变&quot;能不能合并&quot;——合并永远靠&quot;每条指令内部物理连续&quot;（由 kernel 循环结构保证）。表只改变&quot;能不能不连续摆放&quot;。映射表从来不是 coalescing 的开关。</strong></p>
+</blockquote>
+<h3 id="3-2-block-size-怎么选">3.2 block_size 怎么选</h3>
+<p>block_size 是个<strong>多目标权衡</strong>，往两个极端走各有各的死法：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>coalescing / 访存</th>
+<th>internal 碎片</th>
+<th>table 开销 / 灵活性</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>block_size 小（如 1）</td>
+<td>差（每读 1 token 就查表跳走）</td>
+<td>小</td>
+<td>表长、迭代多</td>
+</tr>
+<tr>
+<td>block_size 大（如 256）</td>
+<td>好（连续读得多）</td>
+<td>大（最后一块浪费多）</td>
+<td>表短、但浪费大</td>
+</tr>
+</tbody>
+</table>
+<p>核心矛盾：<strong>碎片 ↔ 访存效率互相打架</strong>（小块碎片小但访存差，大块反之）。vLLM 默认 <strong>block_size = 16</strong>，是这条矛盾曲线上的经验甜点，且<strong>可调</strong>（支持 8/16/32）。</p>
+<blockquote>
+<p>⚠️ <strong>重要易错点（必记）</strong>：block_size 的选择 <strong>不是</strong> 为了&quot;对齐 warp=32&quot;或&quot;凑满一次访存事务&quot;。<br>
+现代 kernel 是<strong>向量化访存</strong>（一个线程一次 <code>float4</code> 读 4 个数），访存效率由<strong>向量化宽度</strong>决定，与 block_size <strong>解耦</strong>——16 个 token 的 KV 几个线程就读完了，根本喂不饱、也不需要对齐一个 warp。<br>
+block_size 真正权衡的是 <strong>{ internal 碎片 ↔ block table 开销 ↔ prefix caching 共享粒度 ↔ kernel occupancy }</strong>。<strong>面试时若有人用&quot;16 对齐 warp&quot;来解释，是错的。</strong> 诚实的答法是&quot;16 是经验默认值，不是从硬件带宽推导出的理论最优&quot;。</p>
+</blockquote>
+<blockquote>
+<p>🔗 <strong>埋钩子</strong>：block_size 还会影响 <strong>prefix caching 的共享粒度</strong>——两个请求只有在 block 对齐的前缀上才能共享 KV，block 越大越不灵活。留到 Prefix Caching 章展开。</p>
+</blockquote>
+<h3 id="3-3-Copy-on-Write（CoW）">3.3 Copy-on-Write（CoW）</h3>
+<blockquote>
+<p><strong>CoW 自己很少被直接考，但它是 Prefix Caching 的机制底座。本章讲透原理，复用部分留到后面。</strong></p>
+</blockquote>
+<h4 id="触发条件（破第一个误解）">触发条件（破第一个误解）</h4>
+<blockquote>
+<p>❓ 单序列 decode（一个 prompt → 一个输出）会触发 CoW 吗？<br>
+<strong>不会。</strong></p>
+</blockquote>
+<p>CoW <strong>只在&quot;一个 prompt 衍生出多个序列&quot;时触发</strong>，两种场景：</p>
+<ul>
+<li><strong>parallel sampling</strong>：一个 prompt 采样 <code>n&gt;1</code> 个不同回答</li>
+<li><strong>beam search</strong>：维护 k 条候选 beam</li>
+</ul>
+<p>共同特征：<strong>多个序列共享同一段 prompt 的 KV</strong>。有共享，才谈得上&quot;写时复制&quot;。</p>
+<h4 id="机制（用-Figure-7-的-prompt-举例）">机制（用 Figure 7 的 prompt 举例）</h4>
+<p><img src="/img/notes/vllm/cow.png" alt="CoW 触发过程图"></p>
+<p>parallel sampling，n=2，prompt 占满 Block0 + 半个 Block1：</p>
+<p><strong>① 共享阶段</strong>：A、B 的 prompt 完全相同，KV 也相同，不存两份，block table 都指向同一批物理 block，每个物理 block 记 <code>refcount</code>。</p>
+<pre class="line-numbers language-none"><code class="language-none">seq A table: [物理7][物理1] ┐
+                            ├─► 物理 block 7、1 共享，refcount &#x3D; 2
+seq B table: [物理7][物理1] ┘<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p><strong>② 分叉 + 写时复制</strong>：A、B 采样出不同的下一个 token，都要写进<strong>半满且共享</strong>的 Block1。若直接写会污染对方的数据，于是 A 触发 CoW：</p>
+<pre class="line-numbers language-none"><code class="language-none">A 要写 refcount&gt;1 的 Block1
+  → 申请新物理 block（物理2）
+  → 拷贝原 Block1 已有内容过去
+  → A 的 table 改指物理2，在副本上写
+  → 原物理1 的 refcount 减到 1（只剩 B 用）
+  → B 之后写时发现 refcount&#x3D;1，独占，直接写，不拷贝
+
+结果：
+  seq A: [物理7][物理2(副本)]   物理2 refcount&#x3D;1
+  seq B: [物理7][物理1(原块)]   物理1 refcount&#x3D;1
+  物理7(完整 prompt 的 Block0): 始终 refcount&#x3D;2, 只读, 永不拷贝 ✓<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h4 id="易错点：哪个-block-会触发-CoW？">易错点：哪个 block 会触发 CoW？</h4>
+<p><strong>不是所有共享 block，只有&quot;半满且还要继续写&quot;的那个。</strong></p>
+<ul>
+<li><strong>Block0（满的、之后只读）</strong>：refcount 一直是 2，<strong>永远不拷贝</strong>。</li>
+<li><strong>Block1（半满、还要追加写）</strong>：触发 CoW。</li>
+</ul>
+<blockquote>
+<p>💡 关键词是 CoW 里的 <strong>“Write”</strong>：只有<strong>还要往里写</strong>的 block 才需要拷贝；<strong>满的、只读的 block 可以无限共享、永不拷贝</strong>。</p>
+</blockquote>
+<blockquote>
+<p>🔗 <strong>埋钩子（连接 Prefix Caching）</strong>：&quot;满的、只读的 block 可以无限共享&quot;正是 <strong>Prefix Caching</strong> 复用的东西——CoW 是&quot;请求内&quot;多序列共享，Prefix Caching 是&quot;跨请求&quot;前缀共享，<strong>底层是同一套 refcount + block 复用机制</strong>。留到 Prefix Caching 章展开。</p>
+</blockquote>
+<h3 id="3-4-显存打满了怎么办：抢占-Preemption">3.4 显存打满了怎么办：抢占 / Preemption</h3>
+<p><strong>问题根源（动态分配的反噬）</strong>：动态分配不给任何请求保证&quot;一定有显存跑到结束&quot;。decode 每生成一段就要新增 block，万一某一刻所有运行中的请求都要新 block，而空闲 block = 0 → <strong>爆了</strong>。此时只能<strong>抢占</strong>：牺牲一部分请求，腾出它们的 KV block 给其他请求，被牺牲的请求之后再恢复。</p>
+<h4 id="调度原则：FCFS-后来者先被抢占（LIFO）">调度原则：FCFS + 后来者先被抢占（LIFO）</h4>
+<ul>
+<li><strong>FCFS（先来先服务）</strong>：保证公平，早来的不会被饿死。</li>
+<li><strong>如需抢占，后来的先被踢（LIFO）</strong>。</li>
+</ul>
+<blockquote>
+<p>💡 <strong>为什么踢后来的？</strong> 早来的请求已经攒了一大堆 KV，踢掉它（无论换出还是重算）代价都大；晚来的几乎没攒 KV，踢掉最便宜。</p>
+</blockquote>
+<h4 id="两种回收方式：swap-vs-recompute">两种回收方式：swap vs recompute</h4>
+<p>被踢请求已算出的 KV 要腾出来，但恢复时还要用。KV 是&quot;算出来的中间结果&quot;，于是有两条根本不同的路：</p>
+<pre class="line-numbers language-none"><code class="language-none">swap：      KV 不丢，从 GPU 显存换出到 CPU 内存，恢复时再搬回来
+recompute： KV 直接丢掉，恢复时把它当成新 prompt 重跑一遍 prefill 算出来<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p><strong>代价归属（核心，面试爱抠）</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>方式</th>
+<th>代价花在哪</th>
+<th>随序列长度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>swap</strong></td>
+<td>KV 走 <strong>PCIe</strong> 在 GPU↔CPU 来回搬（PCIe 是系统最窄瓶颈）</td>
+<td>代价 ∝ 长度（搬运量大）</td>
+</tr>
+<tr>
+<td><strong>recompute</strong></td>
+<td>重跑 prefill，吃<strong>算力</strong>（prefill 是 <strong>compute-bound</strong>）</td>
+<td>代价 ∝ 长度，但<strong>单价低</strong>（prefill 高并行 + 抢占时算力本就闲置）</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>📌 <strong>图片占位</strong><br>
+<strong>文件名建议：<code>preemption-swap-vs-recompute.png</code></strong><br>
+内容：左右对比图——swap（KV 经 PCIe 换出 CPU 内存再换回，标注 PCIe 瓶颈）vs recompute（KV 丢弃，恢复时重跑 prefill，标注吃算力）。<br>
+一句话看图结论：swap 省算力费 PCIe 带宽，recompute 省带宽费算力。</p>
+</blockquote>
+<p><strong>经典取舍（V0 语境）</strong>：两条曲线一交叉——</p>
+<ul>
+<li><strong>prompt 长 → recompute</strong>：序列越长 swap 搬运量越大、PCIe 越慢；而重算吃的是抢占时闲置的算力，prefill 又高度并行，划算。</li>
+<li><strong>prompt 短 → swap</strong>：KV 少搬得快；recompute 有固定 kernel launch / 调度开销，短序列时这笔固定成本占比反而不划算。</li>
+</ul>
+<blockquote>
+<p>⚠️ V0 里 swap 的另一个真正用途：<strong>多序列场景（beam search / parallel sampling）recompute 不支持</strong>，只能退回 swap 兜底。</p>
+</blockquote>
+<h4 id="V0-→-V1-的现状（一句话）">V0 → V1 的现状（一句话）</h4>
+<blockquote>
+<p><strong>V1 默认直接 recompute，swap 基本退役</strong>——因为 V1 默认开了 <strong>chunked prefill</strong>，被抢占请求恢复时要重跑的那段 prefill，能被切成小块混进正在跑的 decode batch，不会再&quot;重算一大段 prompt 卡住其他请求的 decode&quot;。所以 V1 不再纠结长短，重算开销已被压得很低。</p>
+<p>🔗 chunked prefill 到底怎么切、为什么能解决卡顿，留到 <strong>Chunked Prefill 章</strong>展开。</p>
+</blockquote>
+<h3 id="易错点速查-List">易错点速查 List</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>易错点</th>
+<th>正确理解</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>internal frag 和 external frag 是一回事？</td>
+<td><strong>不是</strong>。前者=预留没用上（属于该请求），后者=请求间凑不出连续空间。“预留&quot;严格说也不等于&quot;碎片”。</td>
+</tr>
+<tr>
+<td>2</td>
+<td>两种碎片靠什么解决？</td>
+<td>深色(internal)←动态分配；灰色(external)←<strong>等大 block + 映射表</strong>。别说反，更别把&quot;动态分配&quot;算成消灭 external 的根本机制。</td>
+</tr>
+<tr>
+<td>3</td>
+<td>等大 block 可有可无？</td>
+<td><strong>不可</strong>。等大是&quot;消灭 external frag&quot;和&quot;映射表退化成 O(1) 数组&quot;的共同前提（分页 vs 分段）。</td>
+</tr>
+<tr>
+<td>4</td>
+<td>PagedAttention 把非连续访问变连续了？</td>
+<td><strong>没有</strong>。它给了 kernel <strong>寻址非连续物理内存</strong>的能力（靠 table 记录每个 block 的 base），访问本身仍是块内连续。</td>
+</tr>
+<tr>
+<td>5</td>
+<td>block 散落各处会破坏 coalescing？</td>
+<td><strong>不会</strong>。warp 不横跨 block 边界，每条访存指令只落在一个物理 block 内（块内连续）。跨 block 靠循环换 base，不靠横跨指令。</td>
+</tr>
+<tr>
+<td>6</td>
+<td>有映射表才能 coalesce？</td>
+<td><strong>错</strong>。coalescing 只看&quot;指令内物理是否连续&quot;，与表无关。表只决定&quot;能不能不连续摆放&quot;。两件事正交。</td>
+</tr>
+<tr>
+<td>7</td>
+<td>block_size=16 是为对齐 warp=32？</td>
+<td><strong>错</strong>。向量化访存下访存宽度与 block_size 解耦。16 是 {碎片↔表开销↔共享粒度↔occupancy} 的经验默认值，可调，非硬件最优。</td>
+</tr>
+<tr>
+<td>8</td>
+<td>单序列 decode 会触发 CoW？</td>
+<td><strong>不会</strong>。CoW 只在 parallel sampling / beam search 这类&quot;一 prompt 多序列共享 prompt KV&quot;时触发。</td>
+</tr>
+<tr>
+<td>9</td>
+<td>共享的 block 都要 CoW？</td>
+<td><strong>不是</strong>。只有&quot;半满且还要写&quot;的 block 触发；满的、只读的 block 无限共享、永不拷贝。</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h1>二、Prefix Caching</h1>
+<blockquote>
+<p>一句话定位：<strong>跨请求复用相同前缀的 KV</strong>。它是 CoW（请求内多序列共享）的&quot;跨请求版&quot;，底层是同一套 refcount + block 复用机制。</p>
+<p><strong>强依赖 PagedAttention</strong>：prefill 复用要靠 block 切分（命中率才高），decode 注册要靠 block-level hash（复用粒度 = block 粒度）。没有 paged 的 block 抽象，prefix caching 无从谈起。</p>
+</blockquote>
+<hr>
+<h2 id="1-总纲：识别-复用-省了什么">1. 总纲：识别 + 复用 + 省了什么</h2>
+<p><strong>场景</strong>：两个请求独立到达，但前缀相同（最典型的是同一段 system prompt “You are a helpful assistant…”）。它们一开始各算各的，物理 block 不是同一批。Prefix Caching 要让后到的请求<strong>复用前人已经算好的前缀 KV</strong>。</p>
+<p><strong>相对 CoW 多出来的唯一新东西：怎么识别可复用前缀？</strong></p>
+<p>靠 <strong>hash</strong>。维护一张 <code>hash → 物理 block</code> 的映射表（<code>cached_blocks</code>）：</p>
+<ul>
+<li><strong>hash 算的是 token，不是 KV</strong>——所以 prefill 前（KV 还没算）就能算出来。</li>
+<li><strong>hash 必须是累积前缀 hash</strong>（含从头到本块的所有 token，如图里的 <code>hash(A~D)</code>、<code>hash(A~H)</code>），因为一段 KV 取决于它前面<strong>所有</strong> token。</li>
+<li><strong>hash 命中 ⟺ 这段 token 及其所有前缀完全相同 ⟺ KV 必然相同</strong>（KV 是 token + 位置的确定性函数）。所以 hash 一致就保证&quot;那个物理 block 里的 KV 正是我这段 token 该算出来的 KV&quot;，<strong>无需真去比对 KV</strong>。</li>
+</ul>
+<blockquote>
+<p>💡 <strong>复用是 block 粒度、从头连续命中</strong>：</p>
+<ul>
+<li>block 切分让复用从&quot;整段全或无&quot;变成&quot;逐 block 命中到哪算哪&quot;，复用率大幅提升——这是 PagedAttention 给的红利。</li>
+<li>但必须<strong>从头连续命中到第一个 miss 为止</strong>：不能跳过中间 miss 的 block 去复用后面的，因为后面 block 的 KV 依赖前面 block 的内容。第一个 miss 之后，即使 hash 偶然相同也不能用。</li>
+</ul>
+</blockquote>
+<p><strong>省了什么（prefill 和 decode 省的位置不同，别混）</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>角色</th>
+<th>省什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>prefill 命中</strong></td>
+<td>消费者</td>
+<td>省<strong>重算前缀的 prefill 计算</strong>（TTFT↓）+ 不用重存 KV</td>
+</tr>
+<tr>
+<td><strong>decode</strong></td>
+<td>生产者</td>
+<td>几乎不命中、不省 FLOPs；作用是把满 block 注册进 cache，<strong>省的是未来请求的显存</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>⚠️ 常见错误：“prefix caching 只省显存不省 FLOPs”——这是把 decode 的结论错误推广到 prefill。<strong>prefill 命中是实打实省计算的</strong>，这是它降 TTFT 的核心。</p>
+</blockquote>
+<p><img src="/img/notes/vllm/prefix_prefill1.png" alt="Prefix Caching prefill 命中示意"></p>
+<p><img src="/img/notes/vllm/prefix_prefill2.png" alt="Prefix Caching prefill 全miss示意"></p>
+<hr>
+<h2 id="2-Prefill-阶段：查表前置，命中跳过计算（消费者）">2. Prefill 阶段：查表前置，命中跳过计算（消费者）</h2>
+<p><strong>要不要建物理块的逻辑</strong>：</p>
+<pre class="line-numbers language-none"><code class="language-none">请求进来（token 已知，KV 未算）
+  → 对 token 序列逐 block 算累积 hash（纯 token 哈希，不需要 KV）
+  → 拿 hash 查 cache：
+       命中 → 直接复用已有物理 block，这段 KV 根本不重算（省计算）
+       miss → 从第一个 miss 的 block 开始，才真正 forward 计算、建新块<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><strong>关键：顺序是&quot;查表前置、命中跳过&quot;，不是&quot;先全算完再发现能复用然后丢弃&quot;。</strong> 若真要全算完，prefill 的 FLOPs 一点没省，prefix caching 在 prefill 就失去了最大意义。</p>
+<p><strong>前缀单调性（面试爱抠）</strong>：复用必须从头连续。<code>hash</code> 累积了从头到本块的所有 token，所以&quot;前 3 块命中、第 4 块 miss&quot;之后就停——第 4 块之后即便 hash 偶然撞上也不能复用，因为它的 KV 依赖第 4 块的内容。</p>
+<blockquote>
+<p>💡 <strong>跟&quot;同步/异步&quot;无关</strong>：不要用&quot;同步 prefill 能不能做 prefix cache&quot;来想。真正的轴是**“那段前缀的 block 是否已被前人算完、写满、注册进 cache”**。谁先把前缀算熟入 cache，后来者才能蹭。命中只看 block 在不在 cache，与请求何时进 batch 无直接因果。</p>
+</blockquote>
+<hr>
+<h2 id="3-Decode-阶段：写满才注册-hash（生产者）">3. Decode 阶段：写满才注册 hash（生产者）</h2>
+<p><strong>和 prefill 的根本不同：token 是生成出来才知道的，不是输入已知的。</strong> 所以：</p>
+<ul>
+<li>decode 一个 step 生成一个 token，<strong>生成前无法算 hash</strong>（不知道 token 是什么）。</li>
+<li>只有当一个 block 被逐 token 填<strong>满</strong>，才对它算一次累积 hash（block-level），<strong>注册进 <code>cached_blocks</code></strong>。</li>
+</ul>
+<p><strong>要不要建物理块的逻辑</strong>：decode 每生成一个 token 写入当前 block，当前 block 写满 → 算 hash 注册 → 申请下一个 block 继续写。</p>
+<p><strong>为什么 decode 不省 FLOPs（精确原因）</strong>：</p>
+<ul>
+<li>不是因为&quot;先算完才查所以省不了&quot;。</li>
+<li>而是 decode 的 token 本来就必须算（不算它出不来），<strong>没有&quot;可跳过的计算&quot;</strong>。</li>
+<li>而且 decode 写满的 block 内容 = prompt 前缀 + <strong>自己生成的 token</strong>，另一个序列除非采样撞出完全相同的生成 token，否则命中率≈0。</li>
+</ul>
+<p><strong>所以 decode 的角色是生产者/注册者</strong>：它把自己写满的 block 的 hash 注册进 cache，供<strong>未来</strong>请求复用——省的是未来的显存，不是自己的计算。</p>
+<blockquote>
+<p>图3 里 decode 写满 block 后算 hash、<code>save it in cached_blocks</code> 就是&quot;注册&quot;。流程里的 <code>Is hash_str in cached_blocks or free_tables?</code> 主要服务于 CoW 分叉出的多序列之间偶然撞 hash 时的去重，不是常规复用路径。</p>
+</blockquote>
+<p><img src="/img/notes/vllm/prefix_decode.png" alt="Prefix Caching decode 注册示意"></p>
+<hr>
+<h2 id="4-KV-block-的生命周期管理：驱逐器（Evictor）">4. KV block 的生命周期管理：驱逐器（Evictor）</h2>
+<p>驱逐器<strong>横跨 prefill 和 decode</strong>，不属于某一阶段——它是设备上所有&quot;引用归零但保留待复用&quot;物理块的全局管理者。</p>
+<p><strong>核心思想：引用归零的块不立刻销毁，而是进&quot;缓刑区&quot; <code>free_tables</code> 等待被复用。</strong></p>
+<ul>
+<li>一个物理块没有任何逻辑块引用时（如某 seq 整个推理做完），本该释放。</li>
+<li>但 prefix caching 的优化思想是：留着它，万一不久后来个新 seq 的前缀（如同一段 system message）和它一致，就能直接复用，省下存储和计算。</li>
+<li>于是设置驱逐器（evictor），其 <code>free_tables</code> 存放这些暂时不用的物理块。</li>
+</ul>
+<p><strong>设备可用物理块的等式（点睛）</strong>：</p>
+<pre class="line-numbers language-none"><code class="language-none">设备全部可用物理块 &#x3D; 正在被使用&#x2F;等待使用的块 + free_tables 中的块<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<blockquote>
+<p>💡 <code>free_tables</code> 不是&quot;额外开销&quot;，是<strong>延迟释放的复用池</strong>。池里的块是&quot;薛定谔的块&quot;——在被复用前一直是驱逐候选：hash 匹配的新请求先到 → 被复用救回；缺空间的建块请求先到 → 被驱逐。<strong>free_tables 不是垃圾桶，是缓刑区。</strong></p>
+</blockquote>
+<p><strong>驱逐器的两件职责（它是被动的池子管理者，不决定谁要建块）</strong>：</p>
+<ol>
+<li><strong>入池 + 供查</strong>：接收引用归零的块，供 prefill 查询复用。</li>
+<li><strong>执行驱逐</strong>：别人要建块而设备无空闲时，从 free_tables 踢一个腾位置。</li>
+</ol>
+<p><strong>建块时的三道关卡（驱逐只是最后一道）</strong>：</p>
+<pre class="line-numbers language-none"><code class="language-none">prefill &#x2F; decode 想建一个物理块
+  ① 算 hash 查 free_tables：有同 hash 可复用？ → 命中即复用，结束
+  ② 没命中 → 设备还有空闲块？ → 有则直接建新块，结束
+  ③ 没空闲 → 这才轮到驱逐器：从 free_tables 按策略踢一个，腾空间建新块<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p><strong>驱逐策略（步骤③）</strong>：</p>
+<ol>
+<li><strong>LRU</strong>：优先驱逐最久未使用的块。</li>
+<li><strong>max_num_tokens</strong>：若多个块 LRU 时间相同，驱逐其 hash 计算涵盖 token 最多的那个（即图例中 <code>num_tokens</code> 最大的——前缀越长越具体、越难被再次命中，优先踢）。</li>
+<li><strong>随机</strong>：若 LRU 和 max_num_tokens 仍并列，随机踢一个。</li>
+</ol>
+<hr>
+<h2 id="Prefix-Caching-易错点速查-List">Prefix Caching 易错点速查 List</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>易错点</th>
+<th>正确理解</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>hash 算的是 KV？</td>
+<td><strong>不是</strong>。hash 算的是 <strong>token</strong>，所以 prefill 前（KV 未算）就能算出来并查表。</td>
+</tr>
+<tr>
+<td>2</td>
+<td>hash 只算本 block 的 token？</td>
+<td><strong>不是</strong>。是<strong>累积前缀 hash</strong>（从头到本块所有 token），因为 KV 依赖全部前缀。</td>
+</tr>
+<tr>
+<td>3</td>
+<td>命中可以跳着复用（跳过中间 miss）？</td>
+<td><strong>不能</strong>。必须<strong>从头连续命中到第一个 miss 为止</strong>，后面 KV 依赖前面内容。</td>
+</tr>
+<tr>
+<td>4</td>
+<td>prefix caching 只省显存不省 FLOPs？</td>
+<td><strong>错</strong>。<strong>prefill 命中省计算（TTFT↓）</strong>；decode 不省 FLOPs（无可跳过的计算）。别把 decode 结论推广到 prefill。</td>
+</tr>
+<tr>
+<td>5</td>
+<td>prefill 是&quot;先全算完再发现能复用就丢弃&quot;？</td>
+<td><strong>错</strong>。是<strong>查表前置、命中跳过计算</strong>。先全算完就没省到 FLOPs。</td>
+</tr>
+<tr>
+<td>6</td>
+<td>decode 阶段是去复用别人（消费者）？</td>
+<td><strong>不是</strong>。decode 是<strong>生产者/注册者</strong>：写满 block 才算 hash 注册进 cache，供未来复用，自己命中率≈0。</td>
+</tr>
+<tr>
+<td>7</td>
+<td>decode 能像 prefill 一样前置算 hash？</td>
+<td><strong>不能</strong>。decode 的 token 是生成出来才知道的，只能<strong>写满 block 后</strong>算 block-level hash。</td>
+</tr>
+<tr>
+<td>8</td>
+<td>要不要用 prefix cache 取决于&quot;同步/异步&quot;？</td>
+<td><strong>不是</strong>。取决于&quot;前缀 block 是否已被前人算完写满注册进 cache&quot;，与请求何时进 batch 无直接因果。</td>
+</tr>
+<tr>
+<td>9</td>
+<td>驱逐器只管 prefill / 只管 decode？</td>
+<td><strong>都不是</strong>。它<strong>横跨两阶段</strong>：decode 产出的满块引用归零后入 free_tables，prefill 建块时查复用/触发驱逐。</td>
+</tr>
+<tr>
+<td>10</td>
+<td>引用归零的块立刻销毁？</td>
+<td><strong>不是</strong>。进 <code>free_tables</code> 缓刑区等待复用；只有 prefill 缺空间时才按 LRU→max_num_tokens→随机 驱逐。</td>
+</tr>
+<tr>
+<td>11</td>
+<td>驱逐器决定&quot;要不要建块&quot;？</td>
+<td><strong>不是</strong>。建不建块是调用方（prefill/decode 分配逻辑）的事；驱逐器只在&quot;建块没空间&quot;时被动执行驱逐。</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h1>三、Continuous Batching</h1>
+<blockquote>
+<p>一句话定位：<strong>让请求能动态进出 batch（不再绑死整个请求跑完），并让 prefill 和 decode 共处一个 batch</strong>。</p>
+<p>它由两个正交的方向拼成：<strong>iteration-level scheduling</strong>（让请求动态进出）+ <strong>selective batching</strong>（混了之后，算子该叠的叠、该拆的拆）。</p>
+<p><strong>强依赖 PagedAttention</strong>：请求随时进出意味着显存要随时分配/释放，只有 paged 的 block 抽象能做到&quot;动态进出不产生 external frag&quot;。没有 PagedAttention，continuous batching 一组重排 batch 就会把显存切成碎片。</p>
+</blockquote>
+<hr>
+<h2 id="1-问题：static-batching-的两个病">1. 问题：static batching 的两个病</h2>
+<p>static batching 的世界观是 <strong>request-level</strong>：一个 batch 一旦组好，这几个请求就<strong>从头到尾绑死跑完</strong>，中途不能进新请求、也不能踢出已结束的请求。这个&quot;绑死&quot;派生出两个病。</p>
+<p><strong>病一：早结束的请求空占坑 → GPU 气泡。</strong> 同一个 batch 里各请求要生成的 token 数不同，但必须一起跑到最长的那个结束。先 <code>&lt;EOS&gt;</code> 的请求腾不出位置，那个槽位只能空转（算 padding），新请求也进不来。</p>
+<pre class="line-numbers language-none"><code class="language-none">请求A：要生成 200 个 token
+请求B：要生成 5 个 token
+绑死在一个 batch → B 第 5 步就结束了，但坑被占着
+              → B 的槽位空跑到第 200 步，期间全在算 padding（纯浪费）<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p><strong>病二：凑规则张量靠 padding。</strong> static batching 按&quot;规则矩形张量&quot;组织计算，长度不齐的请求被迫 <strong>padding 到最长</strong>，算力浪费在废 token 上。prefill 阶段尤其明显（prompt 长度天差地别）。</p>
+<blockquote>
+<p>📌 <strong>图片占位</strong><br>
+<strong>文件名建议：<code>static-vs-continuous-batching.png</code></strong><br>
+内容：左右对比图。左=static batching：一个 batch 的若干请求时间轴，早结束的请求后面拖一长条灰色&quot;空占坑/算padding&quot;气泡，新请求在外面排队进不来。右=continuous batching：请求一结束立刻被踢出、新请求立刻补进同一槽位，时间轴上没有灰色气泡。<br>
+一句话看图结论：static 早结束就空占坑（GPU 气泡），continuous 一结束就换人，槽位永远满载。</p>
+</blockquote>
+<hr>
+<h2 id="2-方向一：iteration-level-scheduling（治病一）">2. 方向一：iteration-level scheduling（治病一）</h2>
+<p><strong>核心改动：把调度单位从&quot;整个请求&quot;降到&quot;一个 iteration（一步 forward）&quot;。</strong></p>
+<p>每跑完一个 iteration 就<strong>重新组一次 batch</strong>：结束的请求立刻踢出去、等待的新请求立刻补进来。槽位不再被空占——这正是 “continuous” 的含义。</p>
+<pre class="line-numbers language-none"><code class="language-none">request-level（static）：组一次 batch → 绑死跑到所有请求结束 → 才换下一批
+iteration-level（Orca）：每跑 1 步 → 重组 batch（踢走结束的、放进新来的）→ 再跑 1 步<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<blockquote>
+<p>📌 <strong>图片占位</strong><br>
+<strong>文件名建议：<code>iteration-level-scheduling.png</code></strong><br>
+内容：Orca 论文 Figure 3（x1、x2 两个请求，iter1~iter4 逐步推进，x2 提前结束后该位置被 <code>-</code> 标记，展示按 iteration 粒度调度、请求可在迭代边界进出）。<br>
+一句话看图结论：调度粒度 = 一个 iteration，请求在迭代边界自由进出，不必等整批跑完。</p>
+</blockquote>
+<p>下面两张 grid 图把&quot;槽位不空占&quot;画得更直观（横轴 = 时间步 / iteration，每行一个序列）：</p>
+<blockquote>
+<p>📌 <strong>图片占位</strong><br>
+<strong>文件名建议：<code>continuous-batching-single-iter.png</code></strong><br>
+内容：4 行序列 S1~S4 × 时间步 T1~T8 的格子图。黄色 = 已产出的历史 token，每行一个蓝色格 = 本次 iteration 刚产出的 token，T5~T8 为空白。每一列等宽。<br>
+一句话看图结论：单次 iteration 后的快照——每个序列各推进一个 token，列宽相等（理想等长 iteration）。</p>
+</blockquote>
+<blockquote>
+<p>📌 <strong>图片占位</strong><br>
+<strong>文件名建议：<code>continuous-batching-several-iters.png</code></strong><br>
+内容：同样的 4×8 格子图，跑了若干 iteration 后。S3 最早在 T5 <code>END</code>（红格），S1/S4/S2 陆续结束，空出的槽位立刻被新序列 S5/S6/S7 填进来。列仍等宽。<br>
+一句话看图结论：序列一 <code>END</code> 就被新序列顶上，槽位永不空占——这正是 continuous batching 相对 static 的红利。</p>
+</blockquote>
+<hr>
+<h2 id="3-方向二：selective-batching（方向一的自然结果）">3. 方向二：selective batching（方向一的自然结果）</h2>
+<p><strong>动机不是 PP，而是方向一的直接派生。</strong> 一旦每步都在动态重组 batch，新来的请求要做 <strong>prefill</strong>、老请求在做 <strong>decode</strong>，它们天然就处在同一个调度时刻——你被迫要处理&quot;一个 batch 里既有 prefill 又有 decode&quot;。selective batching 就是回答：混在一起后，<strong>每个算子该怎么算？</strong></p>
+<p>答案分两类算子，截然相反：</p>
+<pre class="line-numbers language-none"><code class="language-none">Linear &#x2F; LayerNorm：逐 token 独立（token 间无交互）→ 全部拍平一起 batch
+Attention：         token 要序列内互相 attend（A 不能 attend B）→ 按请求拆开各算各<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p><strong>“selective” 的全部含义就在这</strong>：在一个 batch 流过 Transformer 层的过程中，<strong>算子被选择性地对待</strong>——能拍平的拍平、不能拍平的拆开。整层算下来是 <code>拍平 → 拆开 → 拍平</code> 来回切换。</p>
+<h3 id="3-1-Linear-层：变长拍平，不-padding">3.1 Linear 层：变长拍平，不 padding</h3>
+<p>把 batch 里所有请求的所有 token（不管 prefill 还是 decode）<strong>一行一行叠起来</strong>，凑成 <code>[total_token, H]</code>，一把 GEMM 算完。因为 d_model（H）都一样，叠加没有任何障碍，<strong>有几个 token 就叠几行，不需要 padding 对齐</strong>——这正好根治了病二。</p>
+<pre class="line-numbers language-none"><code class="language-none">decode 请求A：1 token ┐
+decode 请求B：1 token ├─ 一行一行叠 → [7, H] → 一把 GEMM
+prefill请求C：2 token │   （H 都一样，直接叠，无 padding）
+prefill请求D：3 token ┘<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>Linear 完全不在乎某行来自 prefill 还是 decode——<strong>&quot;prefill并行 vs decode逐token&quot;的差异在这里被无害地吸收掉了</strong>（详见 §4 的视角辨析）。</p>
+<h3 id="3-2-Attention-层：按请求拆开各算各">3.2 Attention 层：按请求拆开各算各</h3>
+<p>Linear 叠出来的 <code>[total_token, H]</code> 到了 attention <strong>必须重新按请求边界拆开</strong>。原因只有一个：attention 里 token 要互相 attend，<strong>请求 A 的 token 绝不能 attend 到请求 B 的 token</strong>。若把拍平的 7 行当成一条序列算，语义直接错乱。</p>
+<p>所以 attention 拆成每请求一个独立运算，各读各的 KV、各配各的 mask，算完再 Merge 拼回 <code>[total_token, H]</code> 继续走 Linear。</p>
+<blockquote>
+<p>💡 <strong>拆开 attention 一次性化解了三个&quot;看似不同&quot;的差异</strong>：你以为 prefill/decode 在 attention 上有三个麻烦——①prefill不读KV/decode读KV、②各请求prompt长度不齐、③各请求decode的index/mask不同——但这三条<strong>只在&quot;试图把多请求塞进同一个 attention 运算&quot;时才是问题</strong>。一旦拆开各算各，前提就不成立了：x1 读自己的 KV、配自己的 mask，x3 读自己的、配自己的，互不干扰。<strong>“惹不起就拆开”</strong> 把三个问题一次抹平。</p>
+</blockquote>
+<blockquote>
+<p>📌 <strong>图片占位</strong><br>
+<strong>文件名建议：<code>orca-selective-batching.png</code></strong><br>
+内容：Orca 论文 Figure 5（QKV Linear 把 7 个 token 拍平成 <code>[7,3H]</code> → Split 拆成 2/3/1/1 四份 → Attn x1~x4 各算各 → Merge 拼回 <code>[7,H]</code> → Attn Out Linear；右下 Attention K/V Manager 管各请求的 K/V 长度不一）。<br>
+一句话看图结论：<code>拍平(7) → Linear → 拆开(2,3,1,1) → Attention → 拼回(7) → Linear</code>，能 batch 的叠、不能 batch 的拆。</p>
+</blockquote>
+<h3 id="3-3-为什么不能-一刀切">3.3 为什么不能&quot;一刀切&quot;</h3>
+<p>如果对所有算子用同一种处理，两条死路：</p>
+<ul>
+<li><strong>全拆开（连 Linear 也拆）</strong>：Linear 退化成一个请求一个小 GEMM 串行过，明明能叠成一个大 GEMM 高效算，却拆成几十个小的，GPU 利用率暴跌。</li>
+<li><strong>全拍平（连 attention 也叠）</strong>：attention 语义算错，A 去 attend B。</li>
+</ul>
+<p>selective batching 就是在这两条死路中间走钢丝：<strong>Linear 叠（要效率）、attention 拆（要正确性）</strong>。</p>
+<hr>
+<h2 id="4-关键视角辨析：「prefill并行-vs-decode逐token」到底是不是问题？">4. 关键视角辨析：「prefill并行 vs decode逐token」到底是不是问题？</h2>
+<p>这是最容易张冠李戴的点。“prefill 是长序列并行计算、decode 是 token-by-token”——它的唯一后果是 <strong>prefill 一次贡献的 token 数远多于 decode（一个 prefill 几百 token，一个 decode 只 1 token）</strong>。这个事实在不同优化目标下是<strong>两种性质</strong>：</p>
+<pre class="line-numbers language-none"><code class="language-none">selective batching 视角（关心吞吐 throughput）：
+    prefill token 多 → batch 大 → GEMM 大 → GPU 满 → 是好事
+
+chunked prefill 视角（关心延迟 latency，尤其 decode 的 TBT）：
+    prefill token 多 → 这个 iteration 算得久 → 已结束的坑位换人被推迟 → 是坏事<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<blockquote>
+<p>⚠️ <strong>机制精度（必记，面试最爱抠、也最容易讲错）</strong>：长 prefill 的危害<strong>不是&quot;让同 batch 的 decode 请求出不了 token&quot;</strong>——每个请求是独立的，selective batching 下 prefill 和 decode 在同一个 forward 里一起算，老 decode 请求该出 token 照样出。<strong>真正被卡住的是&quot;新请求的进入 / 已结束坑位的换人&quot;</strong>。因为调度只在一次 forward（iteration）边界发生：某序列在做长 prefill（占很多 token、算得久），当前这步就迟迟不结束、到不了调度边界；与此同时另一个序列可能早就 <code>END</code> 腾出了坑，但新请求<strong>进不来</strong>，只能空等到长 prefill 跑完——这段空等就是 bubble。一句话：<strong>长 prefill 拖的是&quot;调度边界何时到来&quot;，从而拖慢新请求进入与 GPU 利用率，而非拖慢老 decode 出 token。</strong></p>
+</blockquote>
+<blockquote>
+<p>📌 <strong>图片占位</strong><br>
+<strong>文件名建议：<code>long-prefill-delays-new-request.png</code></strong><br>
+内容：沿用图2的格子风格（格子 = 一个 token，黄 = prefill/历史、蓝 = 最近 decode token、红 = END）。让 S2 做<strong>长 prefill</strong>（黄色 prefill 格一直延伸到很靠后，如 T1~T6）；S3 在很早的 T4 就 <code>END</code> 腾出坑，但其后若干格画成<strong>空的 bubble 格</strong>（红虚线框，区别于图2&quot;立刻被填上&quot;），新序列 S5 拖到很晚（如 T7）才进来。<br>
+一句话看图结论：S2 长 prefill 占住当前 iteration 不结束 → S3 早早 END 的坑空等（bubble）→ 新请求 S5 迟迟进不来。卡的是<strong>新请求进入 / GPU 利用率</strong>，不是老 decode 出 token。chunked prefill 把这段长 prefill 切成小块，让调度边界更频繁到来，坑就能及时换人。</p>
+</blockquote>
+<p><strong>结论：在 continuous batching 这一层，这个差异是被 GEMM 无害吸收的（Linear 不在乎，attention 反正都拆）——它根本不构成问题。它只在你从&quot;吞吐&quot;切到&quot;延迟&quot;视角时才显形为问题，而那是 chunked prefill 的事。</strong> 面经里很多人把&quot;prefill 拖慢 decode&quot;硬塞进 continuous batching 讲，就是没分清吞吐和延迟两个视角。</p>
+<hr>
+<h2 id="5-一句话串起来-埋钩子">5. 一句话串起来 &amp; 埋钩子</h2>
+<blockquote>
+<p><strong>selective batching 是&quot;能混&quot;，chunked prefill 是&quot;混得不卡&quot;。</strong></p>
+</blockquote>
+<ul>
+<li><strong>iteration-level scheduling</strong>：请求能动态进出 batch，prefill+decode 得以共处一个 batch（槽位不空占）。</li>
+<li><strong>selective batching</strong>：混了之后按算子区别对待——<strong>Linear 叠、attention 拆</strong>。</li>
+<li>这俩合起来 = <strong>能混</strong>。</li>
+</ul>
+<blockquote>
+<p>🔗 <strong>埋钩子（连接 Chunked Prefill）</strong>：</p>
+<ol>
+<li><strong>长 prefill 拖慢同 batch 的 decode（TBT↑）</strong>——continuous batching 能把长 prefill 混进来，但没解决它拖慢 decode。留到 Chunked Prefill 章。</li>
+<li><strong>PP（pipeline parallelism）的 bubble</strong>——prefill 阶段和 decode 阶段都有 PP bubble（根源是 stage 间依赖 + micro-batch 不足，与算 prefill 还是 decode 无关）。这同样留到 Chunked Prefill 章，本章不展开。</li>
+</ol>
+<p>📌 <strong>图片占位（PP / 副产品，放 Chunked Prefill 章用）</strong><br>
+<strong>文件名建议：<code>orca-pp-pipeline.png</code></strong><br>
+内容：Orca 论文 Figure 8（b）——FasterTransformer 的 PP 执行流水线（Partition1/2/3 三个 stage，A、B 两个 micro-batch 的多个 iteration 在时间轴上错位排布，stage 间出现空隙 = bubble）。<br>
+一句话看图结论：PP 的 stage 间依赖 + micro-batch 不足 → 流水线填不满 = bubble；chunked prefill 把长 prefill 切块后能更密地填进流水线，顺带压缩这个 bubble。</p>
+</blockquote>
+<blockquote>
+<p>🔑 <strong>一个关键认知（易错点 #9，重要）：为什么有了 continuous batching / chunked prefill，还需要它们？直接 PD 分离不是更好吗？</strong><br>
+prefill 是 <strong>compute-bound</strong>、decode 是 <strong>memory-bandwidth-bound</strong>，两者最优配置（batch size、并行切分、GPU 选型）互相打架——这正是 <strong>PD 分离（PD disaggregation）</strong> 的动机：把 prefill 池和 decode 池物理拆开，各用各的最优配置。<br>
+<strong>但 PD 分离不是免费的</strong>：prefill 算出的 KV 必须<strong>跨实例传给 decode 池</strong>（尤其跨机走 RDMA 时代价大，这正是 Kimi Mooncake 等系统主攻的问题）。所以是否分离，取决于 <strong>「KV 传输代价」 vs 「干扰 + 共用次优配置代价」</strong> 谁大：</p>
+<ul>
+<li>大规模在线服务（吃得起 KV 传输、受得了池子静态划分）→ 倾向 <strong>PD 分离</strong>。</li>
+<li>中小规模 / 弹性负载（省 KV 传输、资源弹性）→ 倾向 <strong>单实例 + chunked prefill</strong>。</li>
+<li><strong>chunked prefill 与 PD 分离是同一个病（prefill 干扰 decode）的两种药方</strong>：chunked prefill 靠&quot;时间交错&quot;（切块混进 decode batch），PD 分离靠&quot;空间隔离&quot;（拆到两个池）。</li>
+<li><strong>最关键</strong>：两者是<strong>不同层级、不互斥</strong>——即使做了 PD 分离，prefill 池内部多个 prefill 请求、decode 池内部多个 decode 请求，<strong>仍然各自在用 continuous batching</strong>。continuous batching 是底层批处理机制，PD 分离是上层部署架构，PD 分离<strong>不可能&quot;淘汰&quot;continuous batching</strong>。<br>
+🔗 详见 <a href="">PD 分离</a> 章（待写，链接待补）。</li>
+</ul>
+</blockquote>
+<hr>
+<h2 id="Continuous-Batching-易错点速查-List">Continuous Batching 易错点速查 List</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>易错点</th>
+<th>正确理解</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>static batching 慢只是因为不能动态进出？</td>
+<td>是两个病：①request-level 绑死 → 早结束空占坑（GPU 气泡）；②凑规则张量靠 padding → 算废 token。</td>
+</tr>
+<tr>
+<td>2</td>
+<td>selective batching 的动机是为了 PP？</td>
+<td><strong>不是</strong>。它是 iteration-level scheduling 的<strong>自然结果</strong>——动态重组后 batch 里天然混着 prefill+decode，必须处理。PP 只是顺便受益的场景。</td>
+</tr>
+<tr>
+<td>3</td>
+<td>selective batching 是什么高深机制？</td>
+<td>就是<strong>该叠的叠、该拆的拆</strong>：Linear/LayerNorm 拍平 batch，attention 按请求拆开。“selective” 指的就是这种算子级的区别对待。</td>
+</tr>
+<tr>
+<td>4</td>
+<td>attention 不能 batch 是因为各请求长度不齐？</td>
+<td><strong>错</strong>（流行误解）。根因是 attention 有<strong>序列内 token 交互</strong>（A 不能 attend B），长度不齐只是表象——padding 也解决不了，因为 pad 位不能让别的请求 attend。Linear 逐 token 独立，长度不齐根本无所谓。</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Linear 层要 padding 对齐成规则张量？</td>
+<td><strong>不用</strong>。变长 token <strong>一行一行叠</strong>成 <code>[total_token, H]</code>，H 都一样，直接叠、无 padding。这正是治病二的关键。</td>
+</tr>
+<tr>
+<td>6</td>
+<td>prefill/decode 在 attention 的三个差异（读KV/长度/mask）要专门解决？</td>
+<td>拆开各算各的就<strong>一次性全化解</strong>了——这三条只在&quot;塞进同一个 attention 运算&quot;时才是问题，拆开后前提不成立。</td>
+</tr>
+<tr>
+<td>7</td>
+<td>「prefill并行 vs decode逐token」是 continuous batching 要解决的问题？</td>
+<td><strong>不是</strong>。在吞吐视角下它被 GEMM 无害吸收（不疼）；只有切到延迟视角（decode 的 TBT）才显形——那是 <strong>chunked prefill</strong> 的事。</td>
+</tr>
+<tr>
+<td>8</td>
+<td>continuous batching 不依赖 PagedAttention？</td>
+<td><strong>依赖</strong>。请求动态进出要随时分配/释放显存，靠 paged block 才能&quot;动态进出不产生 external frag&quot;。</td>
+</tr>
+<tr>
+<td>9</td>
+<td>PD 分离更好，所以 continuous batching / chunked prefill 没必要？</td>
+<td><strong>不对，且这是关键认知</strong>。PD 分离动机是 prefill(compute-bound)/decode(memory-bound) 最优配置打架，但代价是<strong>跨实例 KV 传输</strong>（跨机尤贵，Mooncake 主攻此）。是否分离看 KV 传输代价 vs 干扰+次优配置代价。且两者<strong>不同层级不互斥</strong>：即便 PD 分离，prefill 池/decode 池<strong>内部仍在用 continuous batching</strong>。chunked prefill（时间交错）与 PD 分离（空间隔离）是同一个病的两种药方。</td>
+</tr>
+</tbody>
+</table>
+<h1>四、Chunked Prefill（待补充）</h1>
+<blockquote>
+<p>🚧 待讨论。要点占位：长 prefill 卡住 decode（TTFT/TBT 矛盾）→ 把 prefill 切块混进 decode batch → 这也是 V1 默认 recompute 抢占的支撑。</p>
+</blockquote>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        Author:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">Evan Guo</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        Link:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://gureumdot.github.io/2026/05/25/%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0/vllm/">https://gureumdot.github.io/2026/05/25/%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0/vllm/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        Reprint policy:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    All articles in this blog are used except for special statements
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    reprint policy. If reproduced, please indicate source
+                    <a href="/about" target="_blank">Evan Guo</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>Copied successfully, please follow the reprint policy of this article</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">more</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/%E6%8E%A8%E7%90%86%E4%BC%98%E5%8C%96/">
+                                    <span class="chip bg-color">推理优化</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;Previous</div>
+            <div class="card">
+                <a href="/2026/05/27/%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0/verl/">
+                    <div class="card-image">
+                        
+                        <img src="/img/covers/verl.png" class="responsive-img" alt="verl">
+                        
+                        <span class="card-title">verl</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2026-05-27
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0/" class="post-category">
+                                    技术笔记
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/RLHF/">
+                        <span class="chip bg-color">RLHF</span>
+                    </a>
+                    
+                    <a href="/tags/%E6%8E%A8%E7%90%86%E4%BC%98%E5%8C%96/">
+                        <span class="chip bg-color">推理优化</span>
+                    </a>
+                    
+                    <a href="/tags/%E8%AE%AD%E7%BB%83%E4%BC%98%E5%8C%96/">
+                        <span class="chip bg-color">训练优化</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                Next&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2026/05/23/%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0/flashattention/">
+                    <div class="card-image">
+                        
+                        <img src="/img/covers/fa_cover.png" class="responsive-img" alt="FlashAttention">
+                        
+                        <span class="card-title">FlashAttention</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+标准 attention 是 memory-bound：算力闲着，卡在 HBM 反复读写 S、P 两个 N×N 大矩阵上。FA 没有把它变成 compute-bound，而是把内存墙推开——降 HBM 流量，让这个 memory-boun
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2026-05-23
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0/" class="post-category">
+                                    技术笔记
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/%E7%AE%97%E6%B3%95/">
+                        <span class="chip bg-color">算法</span>
+                    </a>
+                    
+                    <a href="/tags/%E7%AC%94%E8%AE%B0/">
+                        <span class="chip bg-color">笔记</span>
+                    </a>
+                    
+                    <a href="/tags/infra/">
+                        <span class="chip bg-color">infra</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;TOC</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        // Give h1 headings an id so tocbot can link to them (Hexo only generates ids for h2+)
+        $('#articleContent h1').each(function () {
+            if (!this.id) {
+                this.id = $(this).text().trim().replace(/\s+/g, '-');
+            }
+        });
+
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('1'),
+            headingSelector: 'h1, h2, h3, h4',
+            scrollSmooth: true,
+            scrollSmoothOffset: -64
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2026</span>
+            
+            <a href="/about" target="_blank">Evan Guo</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;Total visits:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;Total visitors:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/blinkfox" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:1181062873@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=1181062873" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 1181062873" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;Search</span>
+            <input type="search" id="searchInput" name="s" placeholder="Please enter a search keyword"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+
+    
+    
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>
