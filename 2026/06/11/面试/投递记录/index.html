@@ -1,0 +1,3482 @@
+<!DOCTYPE HTML>
+<html lang="en">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="投递记录 + 面经总结, Evan&#39;s blogs">
+    <meta name="description" content="
+投递进度追踪 + 面经总结合并记录，方便复盘。
+分类标准：各领域知名公司单独列类，北京/外地按是否有大模型算法或 AI Infra 岗在北京划分。
+
+
+
+投递总览
+外企
+北京
+
+
+
+公司
+投递
+测评
+一面
+二面
+三面
+
+
+
+
+微软
+
+
+
+">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>投递记录 + 面经总结 | Evan&#39;s blogs</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<link rel="stylesheet" href="/libs/katex/katex.min.css">
+
+<style>
+#site-lock-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: #0f0f1a;
+  z-index: 99999;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  color: #fff; font-family: sans-serif;
+}
+#site-lock-overlay h2 { font-size: 22px; margin-bottom: 8px; letter-spacing: 2px; }
+#site-lock-overlay p  { color: #aaa; font-size: 14px; margin-bottom: 20px; }
+#site-lock-overlay input {
+  padding: 10px 16px; font-size: 16px;
+  border-radius: 8px; border: 1px solid #444;
+  background: #1e1e2e; color: #fff;
+  width: 260px; text-align: center; outline: none;
+  margin-bottom: 12px;
+}
+#site-lock-overlay button {
+  padding: 10px 40px;
+  background: #4a9eff; color: #fff;
+  border: none; border-radius: 8px;
+  cursor: pointer; font-size: 15px;
+  transition: background 0.2s;
+}
+#site-lock-overlay button:hover { background: #2278dd; }
+#site-lock-err { color: #ff6b6b; font-size: 13px; margin-top: 8px; min-height: 18px; }
+</style>
+
+<div id="site-lock-overlay">
+  <h2>🔒 访问受限</h2>
+  <p>请输入密码以继续访问</p>
+  <input type="password" id="site-password" placeholder="请输入密码"
+         onkeydown="if(event.key==='Enter') siteUnlock()">
+  <button onclick="siteUnlock()">确 认</button>
+  <div id="site-lock-err"></div>
+</div>
+
+<script>
+(function () {
+  // ★ 在这里修改你的访问密码 ★
+  var SITE_PASSWORD = 'qwe123456qwe';
+
+  if (sessionStorage.getItem('site_unlocked') === '1') {
+    document.getElementById('site-lock-overlay').style.display = 'none';
+  }
+
+  window.siteUnlock = function () {
+    var val = document.getElementById('site-password').value;
+    if (val === SITE_PASSWORD) {
+      sessionStorage.setItem('site_unlocked', '1');
+      document.getElementById('site-lock-overlay').style.display = 'none';
+    } else {
+      document.getElementById('site-lock-err').textContent = '密码错误，请重新输入';
+      document.getElementById('site-password').value = '';
+    }
+  };
+})();
+</script>
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">Evan&#39;s blogs</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>Index</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>Tags</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>Categories</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>Archives</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>About</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>Contact</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>Friends</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="Search" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">Evan&#39;s blogs</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			Index
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			Tags
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			Categories
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			Archives
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			About
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			Contact
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			Friends
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/blinkfox/hexo-theme-matery" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/blinkfox/hexo-theme-matery" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/16.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">投递记录 + 面经总结</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/%E9%9D%A2%E8%AF%95/">
+                                <span class="chip bg-color">面试</span>
+                            </a>
+                        
+                            <a href="/tags/%E6%B1%82%E8%81%8C/">
+                                <span class="chip bg-color">求职</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fas fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/%E9%9D%A2%E8%AF%95/" class="post-category">
+                                面试
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>Publish Date:&nbsp;&nbsp;
+                    2026-06-11
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <blockquote>
+<p>投递进度追踪 + 面经总结合并记录，方便复盘。<br>
+分类标准：各领域知名公司单独列类，北京/外地按<strong>是否有大模型算法或 AI Infra 岗在北京</strong>划分。</p>
+</blockquote>
+<span id="more"></span>
+<hr>
+<h2 id="投递总览">投递总览</h2>
+<h3 id="外企">外企</h3>
+<h4 id="北京">北京</h4>
+<table>
+<thead>
+<tr>
+<th>公司</th>
+<th>投递</th>
+<th>测评</th>
+<th>一面</th>
+<th>二面</th>
+<th>三面</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>微软</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Apple</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>nvidia</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>intel</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>amd</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>三星</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>谷歌</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="外地">外地</h4>
+<table>
+<thead>
+<tr>
+<th>公司</th>
+<th>投递</th>
+<th>测评</th>
+<th>一面</th>
+<th>二面</th>
+<th>三面</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>亚马逊</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>meta</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="大厂">大厂</h3>
+<h4 id="北京-2">北京</h4>
+<table>
+<thead>
+<tr>
+<th>公司</th>
+<th>投递</th>
+<th>测评</th>
+<th>一面</th>
+<th>二面</th>
+<th>三面</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>字节跳动</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>阿里巴巴</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>蚂蚁集团</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>腾讯</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>百度</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>美团</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>小红书</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>京东</td>
+<td>✅</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>快手</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>滴滴</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>小米</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>米哈游</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>虾皮（Shopee）</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>华为</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="外地-2">外地</h4>
+<table>
+<thead>
+<tr>
+<th>公司</th>
+<th>投递</th>
+<th>测评</th>
+<th>一面</th>
+<th>二面</th>
+<th>三面</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>拼多多</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>网易</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>哔哩哔哩</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="大模型初创">大模型初创</h3>
+<h4 id="北京-3">北京</h4>
+<table>
+<thead>
+<tr>
+<th>公司</th>
+<th>投递</th>
+<th>测评</th>
+<th>一面</th>
+<th>二面</th>
+<th>三面</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>月之暗面（Kimi）</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>智谱（GLM）</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>面壁智能</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>昆仑万维（AI 音乐）</td>
+<td>✅</td>
+<td></td>
+<td>✅</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="外地-3">外地</h4>
+<table>
+<thead>
+<tr>
+<th>公司</th>
+<th>投递</th>
+<th>测评</th>
+<th>一面</th>
+<th>二面</th>
+<th>三面</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DeepSeek（幻方）</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>MiniMax</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>阶跃星辰（Step）</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="机器人">机器人</h3>
+<h4 id="北京-4">北京</h4>
+<table>
+<thead>
+<tr>
+<th>公司</th>
+<th>投递</th>
+<th>测评</th>
+<th>一面</th>
+<th>二面</th>
+<th>三面</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>智元机器人</td>
+<td>✅</td>
+<td></td>
+<td>✅</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>银河通用</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>星海图</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>千寻智能</td>
+<td>✅</td>
+<td></td>
+<td>✅</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>灵心巧手</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>星动纪元</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>极佳视界</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>智平方</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="外地-4">外地</h4>
+<table>
+<thead>
+<tr>
+<th>公司</th>
+<th>投递</th>
+<th>测评</th>
+<th>一面</th>
+<th>二面</th>
+<th>三面</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>优必选</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>宇树科技</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>群核科技</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>自变量机器人</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>众擎机器人</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="量化">量化</h3>
+<h4 id="北京-5">北京</h4>
+<table>
+<thead>
+<tr>
+<th>公司</th>
+<th>投递</th>
+<th>测评</th>
+<th>一面</th>
+<th>二面</th>
+<th>三面</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>九坤（Ubiquant）</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>世坤（WorldQuant）</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>宽德投资（Wind Quant）</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>商汤科技</td>
+<td>✅</td>
+<td></td>
+<td>✅</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td>明汯投资</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="外地-5">外地</h4>
+<table>
+<thead>
+<tr>
+<th>公司</th>
+<th>投递</th>
+<th>测评</th>
+<th>一面</th>
+<th>二面</th>
+<th>三面</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>同花顺</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="车企">车企</h3>
+<h4 id="北京-6">北京</h4>
+<table>
+<thead>
+<tr>
+<th>公司</th>
+<th>投递</th>
+<th>测评</th>
+<th>一面</th>
+<th>二面</th>
+<th>三面</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>小鹏汽车</td>
+<td>✅</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>小马智行（<a target="_blank" rel="noopener" href="http://Pony.ai">Pony.ai</a>）</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>蔚来</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>比亚迪</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="外地-6">外地</h4>
+<table>
+<thead>
+<tr>
+<th>公司</th>
+<th>投递</th>
+<th>测评</th>
+<th>一面</th>
+<th>二面</th>
+<th>三面</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>理想汽车</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>零跑汽车</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="芯片">芯片</h3>
+<h4 id="北京-7">北京</h4>
+<table>
+<thead>
+<tr>
+<th>公司</th>
+<th>投递</th>
+<th>测评</th>
+<th>一面</th>
+<th>二面</th>
+<th>三面</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>寒武纪</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>地平线</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>壁仞科技</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>沐曦集成电路</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="外地-7">外地</h4>
+<table>
+<thead>
+<tr>
+<th>公司</th>
+<th>投递</th>
+<th>测评</th>
+<th>一面</th>
+<th>二面</th>
+<th>三面</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>黑芝麻智能</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>后摩智能</td>
+<td>✅</td>
+<td></td>
+<td>✅</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="消费电子厂">消费电子厂</h3>
+<h4 id="北京-8">北京</h4>
+<table>
+<thead>
+<tr>
+<th>公司</th>
+<th>投递</th>
+<th>测评</th>
+<th>一面</th>
+<th>二面</th>
+<th>三面</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OPPO</td>
+<td>✅</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>荣耀</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>vivo</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>联想</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="外地-8">外地</h4>
+<table>
+<thead>
+<tr>
+<th>公司</th>
+<th>投递</th>
+<th>测评</th>
+<th>一面</th>
+<th>二面</th>
+<th>三面</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>海康威视</td>
+<td>✅</td>
+<td></td>
+<td>✅</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td>安克创新（Anker）</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>科大讯飞</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>大疆</td>
+<td>✅</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="互联网非大厂">互联网非大厂</h3>
+<h4 id="北京-9">北京</h4>
+<table>
+<thead>
+<tr>
+<th>公司</th>
+<th>投递</th>
+<th>测评</th>
+<th>一面</th>
+<th>二面</th>
+<th>三面</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>爱奇艺</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>知乎</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>微博</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>搜狐</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Soul</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>贝壳</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Boss 直聘</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>58同城</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>汽车之家</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>猫眼娱乐</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>转转</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>度小满</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="外地-9">外地</h4>
+<table>
+<thead>
+<tr>
+<th>公司</th>
+<th>投递</th>
+<th>测评</th>
+<th>一面</th>
+<th>二面</th>
+<th>三面</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>优酷</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>芒果 TV</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>携程</td>
+<td>✅</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>虎牙</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>斗鱼</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>同程旅行</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="其他">其他</h3>
+<blockquote>
+<p>其他较小公司或不好分类的，不再细分北京/外地。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>公司</th>
+<th>投递</th>
+<th>测评</th>
+<th>一面</th>
+<th>二面</th>
+<th>三面</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>不知名小公司（GPU 推理引擎·sunrise）</td>
+<td>✅</td>
+<td></td>
+<td>✅</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>不知名小公司（算力租赁 / MaaS）</td>
+<td>✅</td>
+<td></td>
+<td>✅</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="各公司校招官网">各公司校招官网</h2>
+<h3 id="外企-2">外企</h3>
+<h4 id="北京-10">北京</h4>
+<p><strong>微软</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://careers.microsoft.com/">https://careers.microsoft.com/</a><br>
+官网目前没有大模型岗位 但是是有相关的工作室 只不过没有 hc</p>
+<p><strong>Apple</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://www.apple.com/careers/cn/students.html">https://www.apple.com/careers/cn/students.html</a><br>
+大模型 infra 都有</p>
+<p><strong>nvidia</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://jobs.nvidia.com/">https://jobs.nvidia.com/</a><br>
+有但是目前没有开放的</p>
+<p><strong>Intel</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://jobs.intel.cn/intel/home/index/#/campus/index">https://jobs.intel.cn/intel/home/index/#/campus/index</a><br>
+有 infra 但是目前没有开放的</p>
+<p><strong>amd</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://careers.amd.com/careers-home/jobs?city=Beijing">https://careers.amd.com/careers-home/jobs?city=Beijing</a><br>
+有 infra</p>
+<p><strong>三星</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://dearsamsung.zhiye.com/#/samsung/pc/intern">https://dearsamsung.zhiye.com/#/samsung/pc/intern</a><br>
+没有 ai infra 暂时 但是有机器人 具身智能</p>
+<p><strong>谷歌</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://careers.google.com/students/">https://careers.google.com/students/</a><br>
+北京 Google 貌似没有研发</p>
+<h4 id="外地-10">外地</h4>
+<p><strong>亚马逊</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://www.amazon.jobs/">https://www.amazon.jobs/</a><br>
+AWS 软件开发比较多 疑似没有 ai 岗位</p>
+<p><strong>Meta</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://www.metacareers.com/students-and-grads/">https://www.metacareers.com/students-and-grads/</a><br>
+国内无研究院，需申请境外岗位。</p>
+<hr>
+<h3 id="大厂-2">大厂</h3>
+<h4 id="北京-11">北京</h4>
+<p><strong>字节跳动</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://jobs.bytedance.com/campus">https://jobs.bytedance.com/campus</a><br>
+有大模型算法（豆包/Seed 团队）和 AI Infra 岗，均在北京。2026 春招开放超 5000 岗，AI 占比近半。</p>
+<p><strong>阿里巴巴</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://talent.alibaba.com/campus/home">https://talent.alibaba.com/campus/home</a><br>
+大模型相关岗位集中在阿里云、通义团队，北京有岗。AI 岗占比超 60%。</p>
+<p><strong>蚂蚁集团</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://campus.antgroup.com/">https://campus.antgroup.com/</a><br>
+从阿里脱离出来的独立公司，大模型方向较强（百灵 / Ling 等），北京有岗。</p>
+<p><strong>腾讯</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://join.qq.com/index.html">https://join.qq.com/index.html</a><br>
+混元大模型团队、AI Lab 均有北京岗位。</p>
+<p><strong>百度</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://talent.baidu.com/jobs/campus">https://talent.baidu.com/jobs/campus</a><br>
+文心基模、飞桨团队在北京，大模型算法/RL Infra 岗位多。AI 岗占比超 90%。</p>
+<p><strong>美团</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://zhaopin.meituan.com/web/home">https://zhaopin.meituan.com/web/home</a><br>
+LongCat 大模型团队，北京有大模型/Infra 岗。</p>
+<p><strong>小红书</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://job.xiaohongshu.com/">https://job.xiaohongshu.com/</a><br>
+总部上海，北京有大模型算法/AI Infra 岗。</p>
+<p><strong>京东</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://zhaopin.jd.com/home;jsessionid=7533559A66DB4F7A90FCE17180848DA4.s1">https://zhaopin.jd.com/home;jsessionid=7533559A66DB4F7A90FCE17180848DA4.s1</a><br>
+总部北京<br>
+infra只有人才计划</p>
+<p><strong>快手</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://zhaopin.kuaishou.cn/recruit/e/#/official/trainee/?workLocationCode=Beijing&amp;pageNum=30&amp;positionCategoryCode=J0012%2CJ0011">https://zhaopin.kuaishou.cn/recruit/e/#/official/trainee/?workLocationCode=Beijing&amp;pageNum=30&amp;positionCategoryCode=J0012%2CJ0011</a><br>
+可灵（Kling）视频生成大模型团队，多模态/Infra 方向，北京有岗。</p>
+<p><strong>滴滴</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://talent.didiglobal.com/">https://talent.didiglobal.com/</a><br>
+infra貌似只有校招 没有实习</p>
+<p><strong>小米</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://hr.xiaomi.com/">https://hr.xiaomi.com/</a><br>
+小米 AI 大模型团队在北京，有 LLM/AI Infra 岗。</p>
+<p><strong>米哈游</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://campus.mihoyo.com/">https://campus.mihoyo.com/</a><br>
+总部上海，北京有研发岗。游戏引擎/AIGC 技术方向，有图形渲染、AI NPC、具身智能等岗位，待遇顶尖，竞争极强。</p>
+<p><strong>虾皮（Shopee）</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://careers.shopee.com/">https://careers.shopee.com/</a><br>
+总部新加坡，国内研发主要在深圳/上海，电商搜推算法 + AI Infra（推理、训练平台）方向较强；北京有分公司，也招 AI Infra 岗。</p>
+<p><strong>华为</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://career.huawei.com/cn/campus-recruitment">https://career.huawei.com/cn/campus-recruitment</a><br>
+总部深圳</p>
+<h4 id="外地-11">外地</h4>
+<p><strong>拼多多</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://careers.pinduoduo.com/campus/grad">https://careers.pinduoduo.com/campus/grad</a><br>
+总部上海，大模型/AI Infra 岗位极少，主要是推荐广告算法。<br>
+目前没有开放实习岗位，只有秋招。</p>
+<p><strong>网易</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://campus.163.com/">https://campus.163.com/</a><br>
+总部杭州<br>
+infra部门在杭州 大部分ai也都在外地</p>
+<p><strong>哔哩哔哩</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://campus.bilibili.com/">https://campus.bilibili.com/</a><br>
+总部上海，北京有研发岗。视频/直播平台，AI 以推荐/视频理解/AIGC 为主，有大模型应用方向，Infra 岗较少。</p>
+<hr>
+<h3 id="大模型初创-2">大模型初创</h3>
+<blockquote>
+<p>头部基座模型创业公司。北京三家（智谱/月之暗面/面壁）是你&quot;北京真去&quot;清单里最该重视的。</p>
+</blockquote>
+<h4 id="北京-12">北京</h4>
+<p><strong>月之暗面（Kimi）</strong><br>
+官网：<a target="_blank" rel="noopener" href="https://www.moonshot.cn/">https://www.moonshot.cn/</a><br>
+总部北京，Kimi K2 万亿参数模型，基座 + Infra 岗，竞争极强。</p>
+<p><strong>智谱（GLM）</strong><br>
+官网：<a target="_blank" rel="noopener" href="https://www.zhipuai.cn/zh/joinus">https://www.zhipuai.cn/zh/joinus</a><br>
+总部北京</p>
+<p><strong>面壁智能</strong><br>
+官网：<a target="_blank" rel="noopener" href="https://modelbest.cn/">https://modelbest.cn/</a><br>
+总部北京<br>
+没有实习 只有校招目前</p>
+<p><strong>昆仑万维</strong><br>
+官网：<a target="_blank" rel="noopener" href="https://www.kunlun.com/">https://www.kunlun.com/</a><br>
+总部北京，深交所上市，AI 大模型（天工）/ AI 音乐（Mureka）/ AI 游戏等多业务；本次为 AI 音乐方向技术面。</p>
+<h4 id="外地-12">外地</h4>
+<p><strong>DeepSeek（幻方）</strong><br>
+官网：<a target="_blank" rel="noopener" href="https://www.deepseek.com/">https://www.deepseek.com/</a><br>
+总部杭州，全场天花板之一，算法/Infra 岗竞争极强。<strong>（从量化挪入此类）</strong></p>
+<p><strong>MiniMax</strong><br>
+官网：<a target="_blank" rel="noopener" href="https://www.minimaxi.com/careers">https://www.minimaxi.com/careers</a><br>
+总部上海</p>
+<p><strong>阶跃星辰（Step）</strong><br>
+官网：<a target="_blank" rel="noopener" href="https://app.mokahr.com/campus-recruitment/step/94905#/">https://app.mokahr.com/campus-recruitment/step/94905#/</a><br>
+总部上海，多模态理解生成一体化，聚焦智能终端 Agent，与 OPPO/智元等合作。</p>
+<hr>
+<h3 id="机器人-2">机器人</h3>
+<h4 id="北京-13">北京</h4>
+<p><strong>智元机器人</strong><br>
+招聘官网：<a target="_blank" rel="noopener" href="https://www.agibot.com.cn/join_us">https://www.agibot.com.cn/join_us</a><br>
+总部上海<br>
+北京有infra团队</p>
+<p><strong>银河通用</strong><br>
+招聘官网：<a target="_blank" rel="noopener" href="https://www.galbot.com/">https://www.galbot.com/</a><br>
+总部北京，估值约 210 亿（30 亿美元），具身大模型 + 机器人方向，第一梯队。</p>
+<p><strong>星海图</strong><br>
+招聘官网：<a target="_blank" rel="noopener" href="https://www.galaxyrobotics.com/">https://www.galaxyrobotics.com/</a><br>
+总部北京，估值 200 亿</p>
+<p><strong>千寻智能</strong><br>
+招聘官网：<a target="_blank" rel="noopener" href="https://www.spirit-ai.com/career">https://www.spirit-ai.com/career</a><br>
+总部北京，估值 200 亿<br>
+有infra 在北京</p>
+<p><strong>灵心巧手</strong><br>
+招聘官网：<a target="_blank" rel="noopener" href="https://www.linkerhand.com/">https://www.linkerhand.com/</a><br>
+总部北京，估值 100 亿，灵巧手 + 具身平台，第二梯队。</p>
+<p><strong>星动纪元</strong><br>
+招聘官网：<a target="_blank" rel="noopener" href="https://www.robotera.com/">https://www.robotera.com/</a><br>
+总部北京<br>
+没有infra 甚至没有具身？</p>
+<p><strong>极佳视界</strong><br>
+招聘官网：待确认<br>
+总部北京，估值 100 亿<br>
+没有infra</p>
+<p><strong>智平方</strong><br>
+招聘官网：<a target="_blank" rel="noopener" href="https://ai2robotics.com/joinus/">https://ai2robotics.com/joinus/</a><br>
+总部深圳<br>
+北京有具身团队 但是没有infra团队</p>
+<h4 id="外地-13">外地</h4>
+<p><strong>优必选</strong><br>
+招聘官网：<a target="_blank" rel="noopener" href="http://zhaopin.ubtrobot.com/campus">http://zhaopin.ubtrobot.com/campus</a><br>
+总部深圳<br>
+没有岗位流出</p>
+<p><strong>宇树科技</strong><br>
+招聘官网：<a target="_blank" rel="noopener" href="https://www.unitree.com/cn/position">https://www.unitree.com/cn/position</a><br>
+有infra 在杭州</p>
+<p><strong>群核科技</strong><br>
+招聘官网：<a target="_blank" rel="noopener" href="https://manycoretech.com/about?active=recruitment">https://manycoretech.com/about?active=recruitment</a><br>
+总部杭州<br>
+有infra 好像不在北京</p>
+<p><strong>自变量机器人</strong><br>
+招聘官网：<a target="_blank" rel="noopener" href="https://x2-robot.jobs.feishu.cn/912130/">https://x2-robot.jobs.feishu.cn/912130/</a><br>
+总部深圳<br>
+北京有infra 但是只有校招 没有实习</p>
+<p><strong>众擎机器人</strong><br>
+招聘官网：(<a target="_blank" rel="noopener" href="https://www.engineai.com.cn/career.html">https://www.engineai.com.cn/career.html</a>)<br>
+总部深圳<br>
+有infra团队 但是办公地点只有深圳</p>
+<hr>
+<h3 id="量化-2">量化</h3>
+<h4 id="北京-14">北京</h4>
+<p><strong>九坤投资（Ubiquant）</strong><br>
+官网：<a target="_blank" rel="noopener" href="http://www.ubiquant.com/">http://www.ubiquant.com/</a><br>
+总部北京<br>
+infra貌似只有校招 没有实习</p>
+<p><strong>世坤（WorldQuant）</strong><br>
+官网：<a target="_blank" rel="noopener" href="https://www.worldquant.com/">https://www.worldquant.com/</a></p>
+<p><strong>宽德投资（Wind Quant）</strong><br>
+官网：<a target="_blank" rel="noopener" href="https://www.windquantinvestment.com/">https://www.windquantinvestment.com/</a><br>
+总部北京，量化私募，AI/HPC 方向。</p>
+<p><strong>商汤科技</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://hr.sensetime.com/SU60fa3bdabef57c1023fc1cbc/pb/interns.html?workPlaceCode=0%2F4%2F7&amp;currentPage=2">https://hr.sensetime.com/SU60fa3bdabef57c1023fc1cbc/pb/interns.html?workPlaceCode=0%2F4%2F7&amp;currentPage=2</a><br>
+总部上海，北京有研发岗。</p>
+<p><strong>明汯投资</strong><br>
+官网：<a target="_blank" rel="noopener" href="https://join.mhfunds.com/index">https://join.mhfunds.com/index</a><br>
+总部上海<br>
+北京有infra</p>
+<h4 id="外地-14">外地</h4>
+<p><strong>同花顺</strong><br>
+官网：<a target="_blank" rel="noopener" href="https://www.10jqka.com.cn/">https://www.10jqka.com.cn/</a><br>
+总部杭州<br>
+办公地点只有外地</p>
+<hr>
+<h3 id="车企-2">车企</h3>
+<h4 id="北京-15">北京</h4>
+<p><strong>小鹏汽车</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://xiaopeng.jobs.feishu.cn/campus/">https://xiaopeng.jobs.feishu.cn/campus/</a><br>
+总部广州<br>
+但是算法组主要在北京 有infra组</p>
+<p><strong>小马智行（<a target="_blank" rel="noopener" href="http://Pony.ai">Pony.ai</a>）</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://campus.pony.ai/">https://campus.pony.ai/</a><br>
+总部广州<br>
+infra组在北京</p>
+<p><strong>蔚来</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://campus.nio.com/">https://campus.nio.com/</a><br>
+总部上海<br>
+没有infra组 infra混在算法里面</p>
+<p><strong>比亚迪</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="http://job.byd.com/portal/pc/#/home">http://job.byd.com/portal/pc/#/home</a><br>
+总部深圳<br>
+infra不给校招机会 只有社招<br>
+研发团队在北京</p>
+<h4 id="外地-15">外地</h4>
+<p><strong>理想汽车</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://www.lixiang.com/employ/campus.html">https://www.lixiang.com/employ/campus.html</a><br>
+总部北京<br>
+但是infra组貌似在上海</p>
+<p><strong>零跑汽车</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://leapmotor.zhiye.com/">https://leapmotor.zhiye.com/</a><br>
+总部杭州，完全没有北京办公地点</p>
+<hr>
+<h3 id="芯片-2">芯片</h3>
+<h4 id="北京-16">北京</h4>
+<p><strong>寒武纪</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://app.mokahr.com/campus-recruitment/cambricon/44201">https://app.mokahr.com/campus-recruitment/cambricon/44201</a><br>
+总部北京，AI 芯片，有大模型训练/推理 Infra 相关岗。</p>
+<p><strong>地平线</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://horizon-campus.hotjob.cn/">https://horizon-campus.hotjob.cn/</a><br>
+总部北京，车载 AI 芯片，编译器/算法岗。</p>
+<p><strong>壁仞科技</strong><br>
+官网：<a target="_blank" rel="noopener" href="https://www.birentech.com/">https://www.birentech.com/</a><br>
+总部上海，通用 GPU，CUDA 生态 / Infra 方向。</p>
+<p><strong>沐曦集成电路</strong><br>
+官网：<a target="_blank" rel="noopener" href="https://www.metax-tech.com/">https://www.metax-tech.com/</a><br>
+总部上海，通用 GPU。</p>
+<h4 id="外地-16">外地</h4>
+<p><strong>黑芝麻智能</strong><br>
+招聘官网：<a target="_blank" rel="noopener" href="https://www.blacksesame.com/join">https://www.blacksesame.com/join</a><br>
+总部上海<br>
+貌似岗位没开放？？</p>
+<p><strong>后摩智能</strong><br>
+官网：<a target="_blank" rel="noopener" href="https://www.houmo.ai/">https://www.houmo.ai/</a><br>
+总部南京（上海亦设点），存算一体 NPU，端侧/车端场景；算法组做量化、投机解码等加速，把模型适配到自家工具链在 NPU 上跑。</p>
+<hr>
+<h3 id="消费电子厂-2">消费电子厂</h3>
+<h4 id="北京-17">北京</h4>
+<p><strong>OPPO</strong><br>
+官网：<a target="_blank" rel="noopener" href="https://careers.oppo.com/university/oppo/campus">https://careers.oppo.com/university/oppo/campus</a><br>
+总部东莞/深圳<br>
+大量ai岗位<br>
+好像没有叫infra的 去算法组投可能得 infra在算法组</p>
+<p><strong>荣耀</strong><br>
+官网：<a target="_blank" rel="noopener" href="https://career.honor.com/">https://career.honor.com/</a><br>
+总部深圳，端侧大模型方向。</p>
+<p><strong>vivo</strong><br>
+官网：<a target="_blank" rel="noopener" href="https://hr.vivo.com/">https://hr.vivo.com/</a><br>
+总部东莞<br>
+大量ai岗位 有infra 叫做算法架构工程师，但是在外地</p>
+<p><strong>联想</strong><br>
+官网：<a target="_blank" rel="noopener" href="https://talent.lenovo.com.cn/">https://talent.lenovo.com.cn/</a><br>
+总部北京，AI 以端侧/AI PC 为主，多为高通/Intel/微软方案集成适配，自研 Infra 岗较少。</p>
+<h4 id="外地-17">外地</h4>
+<p><strong>海康威视</strong><br>
+官网：<a target="_blank" rel="noopener" href="https://campushr.hikvision.com/school?schoolType=nozxf&amp;activeTab=1">https://campushr.hikvision.com/school?schoolType=nozxf&amp;activeTab=1</a><br>
+总部浙江杭州<br>
+大量ai 有infra<br>
+但是ai岗基本都在杭州</p>
+<p><strong>安克创新（Anker）</strong><br>
+官网：<a target="_blank" rel="noopener" href="https://career.anker.com.cn/">https://career.anker.com.cn/</a><br>
+总部长沙<br>
+北京有ai 但是没有infra<br>
+具身智能infra 但是在外地</p>
+<p><strong>科大讯飞</strong><br>
+官网：<a target="_blank" rel="noopener" href="https://campus.iflytek.com/">https://campus.iflytek.com/</a><br>
+总部安徽合肥<br>
+研发基本都在合肥</p>
+<p><strong>大疆</strong><br>
+官网：<a target="_blank" rel="noopener" href="https://we.dji.com/zh-CN/campus">https://we.dji.com/zh-CN/campus</a><br>
+总部深圳</p>
+<hr>
+<h3 id="互联网非大厂-2">互联网非大厂</h3>
+<h4 id="北京-18">北京</h4>
+<p><strong>爱奇艺</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://careers.iqiyi.com/">https://careers.iqiyi.com/</a><br>
+总部北京，没有 AI 算法岗，基本上是 Agent 应用方向。</p>
+<p><strong>知乎</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://zhihu.zhiye.com/campus">https://zhihu.zhiye.com/campus</a><br>
+总部北京，没有 AI 算法岗，基本上是 Agent 应用方向。</p>
+<p><strong>微博</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://weibo.zhiye.com/campus">https://weibo.zhiye.com/campus</a><br>
+总部北京，没有 AI 算法岗，基本上是 Agent 应用方向。</p>
+<p><strong>搜狐</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://job.sohu.com/campus">https://job.sohu.com/campus</a><br>
+总部北京，门户/视频/搜狗业务，AI 以推荐/搜索/NLP 为主，大模型 Infra 岗较少。</p>
+<p><strong>Soul</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://soul.jobs/campus">https://soul.jobs/campus</a><br>
+总部上海，北京有研发，社交/陌生人交友 App，AI 以推荐/NLP/语音为主，有大模型应用方向，Infra 岗较少。</p>
+<p><strong>贝壳找房</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://campus.ke.com/">https://campus.ke.com/</a><br>
+总部北京，有 AI Infra 在北京，但规模不大，而且只有校招没有实习。</p>
+<p><strong>Boss 直聘</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://campus.zhipin.com/">https://campus.zhipin.com/</a><br>
+总部北京，招聘平台，AI 以搜索/匹配算法为主，大模型 Infra 岗较少。</p>
+<p><strong>58同城</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://campus.58.com/">https://campus.58.com/</a><br>
+总部北京，分类信息平台，AI 以搜索/推荐为主，大模型方向较弱。</p>
+<p><strong>汽车之家</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://campus.autohome.com.cn/">https://campus.autohome.com.cn/</a><br>
+总部北京，汽车垂直平台，AI 以推荐/NLP 为主，有大模型应用尝试，Infra 岗极少。</p>
+<p><strong>猫眼娱乐</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://campus.maoyan.com/">https://campus.maoyan.com/</a><br>
+总部北京，娱乐票务平台，AI 岗较少，以数据/推荐为主。</p>
+<p><strong>转转</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://campus.zhuanzhuan.com/">https://campus.zhuanzhuan.com/</a><br>
+总部北京，二手交易平台，AI 以图像识别/推荐为主，大模型 Infra 岗极少。</p>
+<p><strong>度小满</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://campus.duxiaoman.com/">https://campus.duxiaoman.com/</a><br>
+总部北京，原百度金融，AI 以风控/NLP 为主。没有实习，秋招可投。</p>
+<h4 id="外地-18">外地</h4>
+<p><strong>优酷</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://talent.alibaba.com/campus/home%EF%BC%88%E9%98%BF%E9%87%8C%E6%97%97%E4%B8%8B%EF%BC%8C%E8%B5%B0%E9%98%BF%E9%87%8C%E6%A0%A1%E6%8B%9B%E9%80%9A%E9%81%93%EF%BC%89">https://talent.alibaba.com/campus/home（阿里旗下，走阿里校招通道）</a><br>
+总部上海，归属阿里大文娱，视频理解/推荐算法方向。</p>
+<p><strong>芒果 TV</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://zhaopin.mango.tv/campus">https://zhaopin.mango.tv/campus</a><br>
+总部长沙，湖南广电旗下，AI 算法以内容推荐/视频理解为主，大模型 Infra 岗极少。</p>
+<p><strong>携程</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://campus.ctrip.com/">https://campus.ctrip.com/</a><br>
+总部上海，Agent 方向居多，貌似有 Infra 岗，不确定。</p>
+<p><strong>虎牙</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://campus.huya.com/">https://campus.huya.com/</a><br>
+总部广州，游戏直播平台，AI 以视频编解码/推荐为主，大模型 Infra 岗较少。</p>
+<p><strong>斗鱼</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://campus.douyu.com/">https://campus.douyu.com/</a><br>
+总部武汉，游戏直播平台，AI 岗较少，整体研发规模偏小。</p>
+<p><strong>同程旅行</strong><br>
+校招官网：<a target="_blank" rel="noopener" href="https://campus.ly.com/">https://campus.ly.com/</a><br>
+总部苏州，旅行平台，AI 以搜索/推荐/智能客服为主，Infra 岗极少。</p>
+<hr>
+<h3 id="其他-2">其他</h3>
+<blockquote>
+<p>没认出公司名的小公司，暂记于此，不再细分北京/外地。</p>
+</blockquote>
+<p><strong>不知名小公司（GPU 推理引擎·sunrise）</strong><br>
+GPU 厂商，总部杭州、团队主要在南京，做推理引擎 / 推理优化（面试官自述以前与摩尔线程一样做 GPU）。公司名暂未确认。</p>
+<p><strong>不知名小公司（算力租赁 / MaaS）</strong><br>
+总部杭州、团队在南京的算力租赁 / MaaS 创业团队，自研推理训练框架对接 MaaS 平台（2 机 8 卡 H800，团队约 5 人）。公司名暂未确认。</p>
+<hr>
+<h2 id="各公司面经">各公司面经</h2>
+<hr>
+<h3 id="外企-3">外企</h3>
+<h4 id="北京-19">北京</h4>
+<h5 id="微软">微软</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="Apple">Apple</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="nvidia">nvidia</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="intel">intel</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="amd">amd</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="三星">三星</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="谷歌">谷歌</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h4 id="外地-19">外地</h4>
+<h5 id="亚马逊">亚马逊</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="meta">meta</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h3 id="大厂-3">大厂</h3>
+<h4 id="北京-20">北京</h4>
+<h5 id="字节跳动">字节跳动</h5>
+<p><strong>net 面经</strong></p>
+<p>1面</p>
+<p>2面</p>
+<ul>
+<li>
+<p>linear attention 手撕</p>
+</li>
+<li>
+<p>moe 手撕</p>
+</li>
+<li>
+<p>mha 手撕</p>
+</li>
+<li>
+<p>mla 手撕</p>
+</li>
+<li>
+<p>上面这些手撕的访存计算</p>
+</li>
+<li>
+<p>deepseek v3 的结构伪代码手撕 + 参数量手算 + 每次推理访存量手算</p>
+</li>
+</ul>
+<p>3面</p>
+<ul>
+<li>觉得自己做过的什么工作正是该组所需要的</li>
+<li>重新写 moe torch 代码</li>
+<li>ep 并行、tp 并行的通信次数</li>
+<li>介绍一下现在投机解码和其局限性等等的展开讲讲</li>
+</ul>
+<p><strong>手撕</strong></p>
+<ul>
+<li>LeetCode 122 买卖股票的最佳时机 II（1面）</li>
+<li>LeetCode 4 两个有序数组找中位数（1面）</li>
+<li>cuda gemm + 优化方法 + 评估指标（1面）</li>
+<li>MLA（1面）</li>
+<li>linear attention（2面）</li>
+<li>moe（2面）</li>
+<li>mha（2面）</li>
+<li>mla（2面）</li>
+<li>上面这些手撕的访存计算（2面）</li>
+<li>deepseek v3 结构伪代码 + 参数量手算 + 每次推理访存量手算（2面）</li>
+<li>堆排序（2面）</li>
+<li>reduce 和 reduce 的优化（2面）</li>
+<li>两个有序数组找中位数（LeetCode 4）</li>
+<li>写 cuda：gemm，讲优化方法，讲评估指标</li>
+<li>手撕 MLA</li>
+</ul>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="阿里巴巴">阿里巴巴</h5>
+<p><strong>net 面经</strong></p>
+<p>1面</p>
+<ul>
+<li>序列并行在 attention 上、FFN 上有哪些不同</li>
+<li>attention 算子和矩阵计算算子上有什么不同</li>
+<li>推理性能优化：给定场景如何分析着手点，从哪个角度优化收益大</li>
+<li>prefill 和 decode 的差异，优化手段有哪些不同</li>
+<li>进程线程（以及一些其他操作系统拷打）</li>
+<li>一条指令执行的过程（如 load）、寄存器类型和作用（一堆计组拷打）</li>
+<li>编译期优化的一些方法，为什么循环展开可以提速</li>
+<li>mmap 是什么，什么情况会更慢</li>
+<li>梯度爆炸和梯度消失怎么办</li>
+<li>推理框架层的问题：PD 混合怎么做，具体到算子层怎么组织，前向怎么做</li>
+<li>EP 的 dispatch 和 combine</li>
+<li>vLLM 最近有什么新的比较好的特性</li>
+<li>DeepSeek 的结构</li>
+<li>TP 的 allreduce 的次数</li>
+<li>KV cache 的大小计算</li>
+</ul>
+<p>2面</p>
+<p><strong>手撕</strong></p>
+<ul>
+<li>reduce：block 版 → warp shuffle 优化版 → 还能再优化吗（不会了）（1面）</li>
+<li>MQA 和 GQA（1面）</li>
+<li>DecodeLayer（2面）</li>
+<li>LC 621. 任务调度器（2面）</li>
+</ul>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="蚂蚁集团">蚂蚁集团</h5>
+<p><strong>net 面经</strong></p>
+<p>1面</p>
+<ul>
+<li>询问 AI coding 的感想</li>
+<li>MLA 为什么比 MHA 好</li>
+<li>权重吸收中间遇到的问题</li>
+<li>KV cache 的离线计算，与非常用 KV cache 的卸载加载</li>
+<li>还有什么 KV cache 优化相关的 tricks</li>
+</ul>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="腾讯">腾讯</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="百度">百度</h5>
+<p><strong>net 面经</strong></p>
+<p>1面</p>
+<ul>
+<li>ZeRO 1/2/3 分片策略</li>
+<li>verl remove_padding 原理</li>
+<li>MoE 训推不一致</li>
+<li>Transformer 结构、softmax 的工程用法</li>
+<li>模型显存怎么计算、KV cache 大小</li>
+<li>手写 GEMM 并尽可能多的优化，讲清楚具体优化方法</li>
+<li>vLLM 推理框架原理、PagedAttention 和 beam search</li>
+<li>attention kernel 怎么分析性能、做 profile；对不同 batch、长度不一的 prompt 怎么处理；CUDA block 怎么设定分块大小</li>
+<li>模型根据 prompt 输出重复或相似度高的原因</li>
+<li>实习经历、难点分析</li>
+<li>有没有看过一些技术报告</li>
+<li>访存延时和计算时间怎么算</li>
+<li>FP16 和 BF16 区别</li>
+<li>CUDA 算矩阵乘流程为什么用 shared memory 快；分块大小不一样结果一样吗（float 和 int 数据格式）</li>
+<li>一个 kernel block 的 size 怎么划分</li>
+<li>bank conflict 描述一下</li>
+<li>cache line 了解吗</li>
+<li>flash-attention 描述一下</li>
+<li>online softmax 是近似还是等价</li>
+<li>prefill 和 decode 的优化手段</li>
+<li>谁是计算密集、谁是访存密集</li>
+<li>一个具体业务到底优化 prefill 还是 decode</li>
+<li>decode 有瓶颈有什么优化手段</li>
+</ul>
+<p>2面</p>
+<ul>
+<li>聊 RL：PPO / GRPO / DAPO / GSPO</li>
+<li>chunked-prefill size 选取</li>
+<li>了解 PD 分离吗</li>
+<li>flash-attention 了解吗</li>
+<li>MoE 架构在框架中是怎么做的</li>
+<li>组 batch 之后算子层是怎么做的</li>
+<li>拿到一个开源模型做框架部署后性能预期不达标，会怎么做</li>
+<li>C++ 多态：平时哪些地方用、具体怎么用</li>
+<li>模板类怎么用、怎么传入参数</li>
+<li>内存泄漏、内存池怎么用、怎么分配减少内存碎片</li>
+<li>new 和 malloc、指针和变量的区别和联系、引用和指针怎么用、set 和 unordered_set 底层</li>
+<li>进程间通信有哪些；共享内存和信号量优缺点；shared_ptr 怎么保证引用计数线程安全；指针传入两个函数内修改怎么保证引用安全；shared_ptr 指向不同对象引用计数加一时怎么保证线程安全</li>
+<li>模板类算子在 PyTorch 中怎么用；不同 attention 算子 forward 怎么用多态</li>
+<li>上锁的设计标准：什么时候上锁、什么时候解锁</li>
+<li>C 和 C++ 的区别和联系</li>
+<li>Linux：查看文件权限、修改权限、查看文件位置、查看磁盘容量、定位内存泄漏、查看代码中字符串位置</li>
+<li>虚函数（虚函数表）的使用</li>
+<li>指针指向的内存什么时候应该释放</li>
+<li>Git 命令使用方法（开发中的项目怎么修改、上传、同步）</li>
+<li>MoE + 投机解码（探讨方向）</li>
+</ul>
+<p>3面</p>
+<ul>
+<li>华为 NPU 对比 GPU 有什么优劣势</li>
+<li>如何 vibe coding</li>
+<li>DeepEP</li>
+<li>FlashAttention</li>
+<li>不会写算子是出于什么考量</li>
+</ul>
+<p><strong>手撕</strong></p>
+<ul>
+<li>LeetCode 88 原地合并有序数组</li>
+<li>最长回文子串（1面，ACM 格式）</li>
+<li>变形 0-1 背包（1面）</li>
+<li>CUDA：(1000000,128) 矩阵 reduce_sum 到 (1,128)，按列 reduce 会与 cache line 横向布局冲突，需优化访存（1面）</li>
+<li>判断链表是否有环 / 环的位置 / 环的长度（2面）</li>
+<li>矩阵水流最长距离：不考虑深搜怎么优化（2面）</li>
+</ul>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="美团">美团</h5>
+<p><strong>net 面经</strong></p>
+<p>1面</p>
+<ul>
+<li>自我介绍</li>
+<li>模型结构拷打</li>
+<li>TP、SP 并行</li>
+<li>PD 分离</li>
+<li>聊 vLLM 项目</li>
+<li>量化、投机解码简单聊聊</li>
+<li>介绍一下 Transformer 的架构，和传统 RNN 循环神经网络相比有何优势</li>
+<li>Transformer 中参数都分布在哪里，参数量最大的是哪部分？计算量最大的是哪部分，为什么？</li>
+<li>了解 GPU 的 cuda core、Tensor core 吗，你常用的 GPU 有哪些，他们的显存和显存带宽有多大？</li>
+<li>讲讲大模型的量化，讲量化算子</li>
+<li>详细讲 PD 分离</li>
+<li>详细讲 paged attention</li>
+<li>其余就是对简历问</li>
+</ul>
+<p><strong>手撕</strong></p>
+<ul>
+<li>GQA（1面）</li>
+<li>LC 25. K 个一组翻转链表（1面）</li>
+<li>写 cuda 算子：前缀和，实现一个 base 的，讲优化方法（1面）</li>
+<li>写 cuda 算子 gemm：实现一个 base 的，讲优化方法（1面）</li>
+</ul>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="小红书">小红书</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="京东">京东</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="快手">快手</h5>
+<p><strong>net 面经</strong></p>
+<p>1面</p>
+<ul>
+<li>kernel 性能分析：nsys 和 ncu 具体怎么用；kernel 怎么集成到大模型上</li>
+<li>warp；在哪个环节用 prefetch 实现异步加载；CUDA stream 用了几个、怎么用</li>
+<li>attention kernel 怎么优化（共享内存、分块 tile 不要太空泛）：输入是什么，tile_size 怎么划分，多序列 prompt 输入怎么处理</li>
+<li>m<em>n 矩阵通过算子转成 1</em>n，算子怎么设计</li>
+<li>GPU 内部逻辑结构、缓存机制、QKV 注意力计算的加载顺序</li>
+<li>C++ 内存泄漏怎么回事、怎么管理内存（结合具体场景）</li>
+<li>自我介绍</li>
+<li>为什么来做 AI Infra，实验室能用的算力</li>
+<li>nano-vllm 的二次开发项目拷打</li>
+<li>chunked-prefill 怎么做（prompt 在 waiting 序列经过一次 prefill 进 running 序列，按分配 token 的方式和 decode 混合调度，token 数和 chunked-size 取 min）</li>
+<li>schedule 怎么做，实现了 continuous batching 吗（decode 优先，混合批次 batching，每次 schedule 一些 request，前向后重新组 batch）</li>
+<li>flash-attention（v1-v3，原本 softmax/attention 的缺点，online-max 到不存储 scores 矩阵，V2 全程结果在 SRAM，V3 内部流水线 TMA 和 WGMMA）</li>
+<li>多卡：TP 怎么切分、通信原语（attention 按头切，out_proj 按行最后 all-reduce 合并，FFN 类似）</li>
+<li>写过算子吗（会写基本优化算子，框架里是调库）</li>
+<li>KV-cache 怎么存、怎么分配，有考虑过 CPU offload 吗（Tensor，warm-up 估算 block-num；PCIe 传 CPU 太慢，不如 preempt 重算；后续可能混合 offload 一部分）</li>
+<li>面试官似乎做 diffusion model，对框架拷打中感觉一部分是 nano-vllm 直接实现的</li>
+<li>熟悉 CUDA，描述如何优化 GEMM，计算时 shared memory 大小怎么取</li>
+</ul>
+<p>2面</p>
+<ul>
+<li>自我介绍</li>
+<li>模型结构以 Qwen3 为例（简单介绍模型结构，TP 怎么拆，比之前有什么变化）</li>
+<li>了解一些其他推理优化手段吗（attention 类、DeepSeek 模型结构 + MTP 怎么做的）</li>
+<li>介绍 CUDA 编程，如何软硬件协同（grid-block-thread、SM、SP、L1/L2 cache 等，大概讲流程）</li>
+<li>C++ 虚表、类模板（简单聊会用即可）</li>
+<li>Qwen3 decode 阶段 TPOT 怎么计算（decode 访存密集型，估 KV cache 搬运速度 + 模型权重）（2面）</li>
+</ul>
+<p><strong>手撕</strong></p>
+<ul>
+<li>n*n 矩阵（行升序、列升序）找第 k 大元素，分析时间复杂度（1面）</li>
+<li>最长公共前缀（直接 DP）（1面）</li>
+<li>给 n、m 两组点和它们连接的 cost 矩阵，求最小代价使每个节点都有连向对方组的边，n,m≤12（状压 + 子集 DP）（1面）</li>
+<li>CUDA 写 norm：input x[N]，norm=(x-μ)/σ，μ=mean(x)，σ=sqrt(mean((x-μ)^2))（1面）</li>
+<li>reduce：warp-reduce，数据很大怎么更快（two-pass 存中间结果）（2面）</li>
+</ul>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="滴滴">滴滴</h5>
+<p><strong>net 面经</strong></p>
+<p>1面</p>
+<ul>
+<li>大模型推理 KV cache，PD 分离的优化</li>
+<li>chunked prefill，GPTQ 量化</li>
+<li>7B 大模型估算显存占用、KV cache 大小</li>
+</ul>
+<p><strong>手撕</strong></p>
+<ul>
+<li>环形链表场景题（1面，未撕出）</li>
+<li>智力题：50 个黑球 50 个白球、两个桶，怎么放才能使任取一个球（白球）概率最大（1面）</li>
+</ul>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="小米">小米</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="米哈游">米哈游</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="虾皮（Shopee）">虾皮（Shopee）</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="华为">华为</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h4 id="外地-20">外地</h4>
+<h5 id="拼多多">拼多多</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="网易">网易</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="哔哩哔哩">哔哩哔哩</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h3 id="大模型初创-3">大模型初创</h3>
+<h4 id="北京-21">北京</h4>
+<h5 id="月之暗面（Kimi）">月之暗面（Kimi）</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="智谱（GLM）">智谱（GLM）</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="面壁智能">面壁智能</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="昆仑万维">昆仑万维</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<ul>
+<li>给定单卡 prefill 吞吐 A、decode 吞吐 B，一组请求（每个含 prompt 长度、output 长度），共 N 张卡，返回吞吐最优的 P/D 卡数配比（题目刚说完面试中断）（1面）</li>
+</ul>
+<p><strong>我的面经</strong></p>
+<p>1面</p>
+<ul>
+<li>自我介绍</li>
+<li>挑一个项目展开：背景、最终效果、你负责哪些、拿到哪些结果</li>
+<li>摩尔线程的卡技术参数（算力、带宽特点）；对标英伟达哪个系列 / 架构（Hopper / H100）</li>
+<li>CUDA Graph 解决什么问题；有什么限制（要求静态、输入维度固定）</li>
+<li>为什么要有 piecewise 模式、它解决什么问题（prefill / decode 的区别）</li>
+<li>写一段加 torch.compile 装饰器的代码，描述从代码到下发 GPU 指令经历哪些过程（编译 → 机器指令生成）</li>
+<li>摩尔线程 PD 分离：针对什么模型、参数规格（1T 以内、单机 8 卡）；单卡多少算力；怎么配比、能到什么吞吐；3P8D 已经跨机了，为什么考虑跨机</li>
+<li>verl 在 MUSA 平台适配：SGLang / vLLM 在强化训练里起什么作用；为什么强化训练框架要把推理框架放进去、为什么不直接用 DeepSpeed / Megatron 做推理（rollout 占整个流程时间比例大）</li>
+<li>YOLOv11 PTQ 具体做了哪些（架构微调、算子调度优化）；ONNX 导出、TorchFX 控制流（if/else）问题怎么处理</li>
+<li>PagedAttention 了解吗；SGLang 是不是也用 PagedAttention（引出 RadixAttention、vLLM 与 SGLang 已分家、token 级 vs block 级 KV cache）</li>
+</ul>
+<hr>
+<h4 id="外地-21">外地</h4>
+<h5 id="DeepSeek（幻方）">DeepSeek（幻方）</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="MiniMax">MiniMax</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<ul>
+<li>多层 MLP：包括类、梯度下降、loss 计算、正向反向（1面）</li>
+</ul>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="阶跃星辰（Step）">阶跃星辰（Step）</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h3 id="机器人-3">机器人</h3>
+<h4 id="北京-22">北京</h4>
+<h5 id="智元机器人">智元机器人</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="银河通用">银河通用</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="星海图">星海图</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="千寻智能">千寻智能</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="灵心巧手">灵心巧手</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="星动纪元">星动纪元</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="极佳视界">极佳视界</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="智平方">智平方</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h4 id="外地-22">外地</h4>
+<h5 id="优必选">优必选</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="宇树科技">宇树科技</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="群核科技">群核科技</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="自变量机器人">自变量机器人</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="众擎机器人">众擎机器人</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h3 id="量化-3">量化</h3>
+<h4 id="北京-23">北京</h4>
+<h5 id="九坤（Ubiquant）">九坤（Ubiquant）</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="世坤（WorldQuant）">世坤（WorldQuant）</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="宽德投资（Wind-Quant）">宽德投资（Wind Quant）</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="商汤科技">商汤科技</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="明汯投资">明汯投资</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h4 id="外地-23">外地</h4>
+<h5 id="同花顺">同花顺</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h3 id="车企-3">车企</h3>
+<h4 id="北京-24">北京</h4>
+<h5 id="小鹏汽车">小鹏汽车</h5>
+<p><strong>net 面经</strong></p>
+<p>2面</p>
+<ul>
+<li>vLLM 常规问题（PagedAttention 等，整体问得比较浅）</li>
+<li>PPO / GRPO / GSPO / DAPO 的区别与优化点</li>
+<li>国产卡优化相关问题探讨</li>
+</ul>
+<p><strong>手撕</strong></p>
+<ul>
+<li>最长回文子串（2面）</li>
+</ul>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="小马智行（Pony-ai）">小马智行（<a target="_blank" rel="noopener" href="http://Pony.ai">Pony.ai</a>）</h5>
+<p><strong>net 面经</strong></p>
+<p>每一面都是对着简历聊，每一面都有手撕题。</p>
+<p>1面</p>
+<ul>
+<li>什么是 cuda graph。为什么 cuda graph 会用到更多的显存。推理的什么阶段更适合 cuda graph</li>
+<li>讲跨 block 的内部通信，warp 原语。举一些 warp 原语的例子，讲讲都是什么</li>
+<li>讲一下对 nv 芯片的 ptx 机器模型的认识</li>
+<li>讲讲对 cuda 代码编译流程的认识</li>
+<li>讲讲 MLIR，以及为什么要设计 MLIR 出来</li>
+</ul>
+<p><strong>手撕</strong></p>
+<ul>
+<li>归并排序（1面，当时归并很久没写了，后来问了下能不能写 cuda 的双调排序，最后用 cuda 写了）</li>
+<li>另一道 LC 简单题（1面，没记录是哪道）</li>
+<li>LC 668. 乘法表中第 k 小的数（2面）</li>
+<li>类似打家劫舍的一道题，LC 无原题（3面）</li>
+</ul>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="蔚来">蔚来</h5>
+<p><strong>net 面经</strong></p>
+<p>1面</p>
+<ul>
+<li>多机多卡如何 debug</li>
+<li>MFU、吞吐、显存占用如何看</li>
+<li>哪些问题非你解不可、影响深刻的</li>
+<li>vibe coding 相关工具用过吗，好用的点和不好用的点</li>
+</ul>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="比亚迪">比亚迪</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h4 id="外地-24">外地</h4>
+<h5 id="理想汽车">理想汽车</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="零跑汽车">零跑汽车</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h3 id="芯片-3">芯片</h3>
+<h4 id="北京-25">北京</h4>
+<h5 id="寒武纪">寒武纪</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="地平线">地平线</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="壁仞科技">壁仞科技</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="沐曦集成电路">沐曦集成电路</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h4 id="外地-25">外地</h4>
+<h5 id="黑芝麻智能">黑芝麻智能</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="后摩智能">后摩智能</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<ul>
+<li>手撕多头注意力 layer（输入 X 为 (B, L, D)，变换成 (B, L, H, D) 后做多头注意力）（1面）</li>
+</ul>
+<p><strong>我的面经</strong></p>
+<p>1面</p>
+<ul>
+<li>自我介绍</li>
+<li>下学期没课吗、导师那边能不能延续实习</li>
+<li>自动化所在哪个组、导师是谁</li>
+<li>[YOLO 量化] 两个多月做了啥；部署到无人机；精度 / 速度测试在什么机器上测（3090 → A100）、怎么判断好坏；量化几 bit（FP32→INT8）；weight / activation 都量还是只量 weight；是不是每个 OP 都量 int8、怎么选量哪些层（backbone 量、检测/分类头不量）；自己分析还是和老师讨论；量化工具用什么框架（MQBench + QDrop）；改了 YOLO 模型结构吗（ONNX 导不出来等）</li>
+<li>多芯异构调度策略怎么设计；哪些适合 CPU、哪些适合 GPU；为什么有些适合 CPU、和 GPU 算子区别在哪（并行性、硬件特性、计算单元）</li>
+<li>[摩尔线程] 详细介绍工作；PD 分离是测试还是开发；涉不涉及 PD 调度（KV cache 用了 Kimi mooncake）；适配主要改什么（改模型 vs 改 MUSA）；MOE 具体改了什么、为什么原来 MUSA graph 不适配；用了字节 verl 吗</li>
+<li>大模型量化了解吗（KV cache 量化）</li>
+<li>介绍 PagedAttention（内部碎片 + 外部碎片怎么解决）</li>
+<li>PPO 和 GRPO 的区别（省显存、为什么还 work）</li>
+<li>千问 3.5 架构了解吗（MoE、是否混合 Mamba、adaptive thinking、linear 层）</li>
+<li>这次实习希望做什么</li>
+</ul>
+<hr>
+<h3 id="消费电子厂-3">消费电子厂</h3>
+<h4 id="北京-26">北京</h4>
+<h5 id="OPPO">OPPO</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="荣耀">荣耀</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="vivo">vivo</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="联想">联想</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h4 id="外地-26">外地</h4>
+<h5 id="海康威视">海康威视</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<p>1面（暑期实习，杭州 base）</p>
+<ul>
+<li>自我介绍（本科 + 研究生阶段做过的项目）</li>
+<li>简历没提研究生课题，研究生方向打算做什么；后续想从事什么方向</li>
+<li>[中科院 YOLO11 量化] 量化精度多少（FP32→INT8）；中间精度给到 32 是不是过剩；量化策略是定好的还是做过性能 / 效果评估后给的；效果测试用什么工具；部署到什么器件；无人机是不是 ARM 芯片；算子调优 + 图优化是不是全基于 ONNX（有没有考虑 Caffe / TF）；为什么不考虑切其他深度学习框架；多芯异构调度策略怎么设计、部署逻辑；用 CPU 做 NMS 需求不会更大吗</li>
+<li>[摩尔线程] 移植和健康验证是不是公司内部软件；把内部 PR 整合移植到开源框架（vLLM / SGLang）；主要工作量体现在哪；千问三开箱测试指什么、用了哪个 Qwen3 模型；Qwen3 / 3.5 的算子、模型维度（多少个头）有了解吗；PD 分离、切分流水参与了吗；为什么没用 continuous batching、为什么没遇到访存问题；卡算力多大（对标 Hopper）；PagedAttention 是为带宽优化吗、带宽性能数据关注过吗；开源贡献在 GitHub 上做的吗、模型在 HuggingFace 上吗；Flash Attention、attention 变体（MHA / GQA / MLA）了解吗、MHA 计算流程能不能手撕</li>
+<li>编程语言是按熟练度排的吗；C++ / C 用得多吗；Python 熟不熟</li>
+<li>介绍常见大语言模型；从算子层面讲 prefill / decode 阶段的推理特征和差异</li>
+<li>题外：美赛做的什么题目；发明专利第几作者；现在手里有没有其他 offer；对杭州 base 有没有不能接受的；家在哪；国庆实习什么时候能到岗；明年几月毕业</li>
+</ul>
+<hr>
+<h5 id="安克创新（Anker）">安克创新（Anker）</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="科大讯飞">科大讯飞</h5>
+<p><strong>net 面经</strong></p>
+<p>1面</p>
+<ul>
+<li>warp 定义：多少线程，执行同一指令处理不同数据（SIMT）</li>
+<li>vLLM 集成的 xformers 后端注意力怎么优化，是 global 函数还是 device 函数，FA 算子怎么设计，计算 FLOPs 是多少<br>
+global函数能被cpu调用，但是device只能被gpu调用</li>
+<li>内存分页机制是什么，虚拟内存讲一下，对 KV cache 这样管理的好处</li>
+<li>GPU 的逻辑结构、缓存结构，L1 cache 和 L2 cache 分别在什么位置，特点是什么</li>
+<li>内存泄漏是什么意思，怎么检查是否内存泄漏，内存管理的方法有哪些</li>
+<li>C++ 智能指针及适用范围</li>
+<li>NV 的卡对于 FP8 有哪些独特的优化</li>
+<li>FP8 的两种情况有什么区别，分别怎么计算</li>
+<li>计算 FP8 的 KV cache 大小</li>
+<li>H 卡有什么新的设计，和 L 卡有什么不一样</li>
+<li>讲讲最近推理上有什么新的 tricks</li>
+</ul>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="大疆">大疆</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h3 id="互联网非大厂-3">互联网非大厂</h3>
+<h4 id="北京-27">北京</h4>
+<h5 id="爱奇艺">爱奇艺</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="知乎">知乎</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="微博">微博</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="搜狐">搜狐</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="Soul">Soul</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="贝壳">贝壳</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="Boss-直聘">Boss 直聘</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="58同城">58同城</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="汽车之家">汽车之家</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="猫眼娱乐">猫眼娱乐</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="转转">转转</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="度小满">度小满</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h4 id="外地-27">外地</h4>
+<h5 id="优酷">优酷</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="芒果-TV">芒果 TV</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="携程">携程</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="虎牙">虎牙</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="斗鱼">斗鱼</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h5 id="同程旅行">同程旅行</h5>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h3 id="其他-3">其他</h3>
+<h5 id="不知名小公司（GPU-推理引擎·sunrise）">不知名小公司（GPU 推理引擎·sunrise）</h5>
+<blockquote>
+<p>GPU 厂商，总部杭州、团队主要在南京，做推理引擎 / 推理优化。公司名暂未确认。</p>
+</blockquote>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<p>1面</p>
+<ul>
+<li>自我介绍，聚焦实习的主要工作、成绩、技术栈</li>
+<li>现在毕业了还是在读；按国内节奏该找正式 offer 了，为什么还找实习</li>
+<li>[摩尔线程] MUSIFY 对卡的适配；适配过程遇到什么问题；MOE 问题是不是你做的；编译器层面的问题后来解决了吗</li>
+<li>基于摩尔卡做 PD 分离部署测试；最优 PD 节点配比怎么产出的；不需要按不同输入 / 输出长度做不同配比吗；最佳配比方案怎么确定；按你理解 PD 应该怎么配（coding 场景 vs agent 场景）</li>
+<li>自动化性能测试脚本是做什么的</li>
+<li>vLLM 和 SGLang 的差异、哪个性能更好；有没有深入了解底层原理 / 看过源码；vLLM 哪些工作比较特殊</li>
+<li>transformer 这些基础了解吧</li>
+<li>除了 vLLM / SGLang，TensorRT 等其他推理框架用过吗</li>
+<li>摩尔自家卡之外，英伟达用过什么卡（B / H 系列）</li>
+<li>能实习多长时间；六个月会不会错过秋招</li>
+<li>实验室平常做什么、你做不做相关的</li>
+</ul>
+<hr>
+<h5 id="不知名小公司（算力租赁-MaaS）">不知名小公司（算力租赁 / MaaS）</h5>
+<blockquote>
+<p>总部杭州、团队在南京的算力租赁 / MaaS 创业团队，自研推理训练框架对接 MaaS 平台（2 机 8 卡 H800，团队约 5 人）。公司名暂未确认。</p>
+</blockquote>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<ul>
+<li>写一个矩阵转置（Python，实现逻辑即可，不用算子版本）（1面）</li>
+</ul>
+<p><strong>我的面经</strong></p>
+<p>1面</p>
+<ul>
+<li>自我介绍；明年毕业吗</li>
+<li>PD 分离节点配比测试怎么设计的；KV cache 占显存比例（gpu memory utilization）参数改过吗；PD 节点分离基于哪个框架（讨论 SGLang 的 PD 分离 vs vLLM 混合）</li>
+<li>continuous batch 怎么实现的、解决什么问题</li>
+<li>TP / DP / PP / EP 各解决什么问题、区别、设计原理</li>
+<li>强化学习后训练方法的演进：PPO → DPO → GRPO 分别解决前一代什么问题</li>
+</ul>
+<hr>
+<h3 id="公司模板（复制使用）">公司模板（复制使用）</h3>
+<h5 id="公司名-·-岗位名">[公司名] · [岗位名]</h5>
+<ul>
+<li><strong>岗位</strong>：</li>
+<li><strong>进度</strong>：投递 → 测评 → 1面 → …</li>
+<li><strong>整体感受</strong>：</li>
+</ul>
+<p><strong>net 面经</strong></p>
+<p><strong>手撕</strong></p>
+<p><strong>我的面经</strong></p>
+<hr>
+<h2 id="反问话术">反问话术</h2>
+<h3 id="1面反问">1面反问</h3>
+<p>主要是 mentor 或者业务面试官，主要考察你是否兴趣意向相投，因此反问着重组内业务和卡资源。</p>
+<ul>
+<li>组内业务是什么</li>
+<li>组内卡多少，每个人平均能用多少？排队 8 卡一般多长时间（回复模糊不清就是没卡，卡少的组就是小组或者应用算法，钱少活多又卷）</li>
+<li>组内 base 地（可选）</li>
+<li>组内偏业务还是 research（可选，一般都是业务）</li>
+<li>进组后校招生会做些什么</li>
+</ul>
+<h3 id="2面反问">2面反问</h3>
+<p>一般是 leader，更关注你能带来的价值和岗位意向。</p>
+<ul>
+<li>部门未来有哪些方向</li>
+<li>我进组后您觉得会做哪些方向</li>
+<li>支持发论文吗（可选）</li>
+</ul>
+<h3 id="3面反问">3面反问</h3>
+<p>一般是总监或者部门老板，更多是聊天走流程，除非要加钱或者用更大价值换更高薪资。</p>
+<ul>
+<li>部门整体架构和业务</li>
+<li>对行业的看法以及未来如何改进</li>
+</ul>
+<hr>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        Author:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">Evan Guo</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        Link:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://gureumdot.github.io/2026/06/11/%E9%9D%A2%E8%AF%95/%E6%8A%95%E9%80%92%E8%AE%B0%E5%BD%95/">https://gureumdot.github.io/2026/06/11/%E9%9D%A2%E8%AF%95/%E6%8A%95%E9%80%92%E8%AE%B0%E5%BD%95/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        Reprint policy:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    All articles in this blog are used except for special statements
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    reprint policy. If reproduced, please indicate source
+                    <a href="/about" target="_blank">Evan Guo</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>Copied successfully, please follow the reprint policy of this article</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">more</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/%E9%9D%A2%E8%AF%95/">
+                                    <span class="chip bg-color">面试</span>
+                                </a>
+                            
+                                <a href="/tags/%E6%B1%82%E8%81%8C/">
+                                    <span class="chip bg-color">求职</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;Previous</div>
+            <div class="card">
+                <a href="/2026/06/12/%E6%89%8B%E6%92%95/CUDA%E7%AE%97%E5%AD%90/cuda-gotchas/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/19.jpg" class="responsive-img" alt="CUDA 算子易错点 / 易混淆点汇总">
+                        
+                        <span class="card-title">CUDA 算子易错点 / 易混淆点汇总</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2026-06-12
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/%E6%89%8B%E6%92%95/" class="post-category">
+                                    手撕
+                                </a>
+                            
+                            <a href="/categories/%E6%89%8B%E6%92%95/CUDA%E7%AE%97%E5%AD%90/" class="post-category">
+                                    CUDA算子
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/CUDA/">
+                        <span class="chip bg-color">CUDA</span>
+                    </a>
+                    
+                    <a href="/tags/GEMM/">
+                        <span class="chip bg-color">GEMM</span>
+                    </a>
+                    
+                    <a href="/tags/%E7%AE%97%E5%AD%90%E4%BC%98%E5%8C%96/">
+                        <span class="chip bg-color">算子优化</span>
+                    </a>
+                    
+                    <a href="/tags/%E6%98%93%E9%94%99%E7%82%B9/">
+                        <span class="chip bg-color">易错点</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                Next&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2026/06/10/%E7%AE%80%E5%8E%86/resume-detail/">
+                    <div class="card-image">
+                        
+                        <img src="/img/covers/mountain.jpg" class="responsive-img" alt="工作介绍">
+                        
+                        <span class="card-title">工作介绍</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+本文对简历中的每一条经历进行详细展开，为面试中的&quot;讲项目&quot;环节做准备。
+
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2026-06-10
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/%E7%AE%80%E5%8E%86/" class="post-category">
+                                    简历
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/%E7%AE%80%E5%8E%86/">
+                        <span class="chip bg-color">简历</span>
+                    </a>
+                    
+                    <a href="/tags/%E5%B7%A5%E4%BD%9C%E7%BB%8F%E5%8E%86/">
+                        <span class="chip bg-color">工作经历</span>
+                    </a>
+                    
+                    <a href="/tags/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E5%8E%86/">
+                        <span class="chip bg-color">项目经历</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;TOC</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        // Give h1 headings an id so tocbot can link to them (Hexo only generates ids for h2+)
+        $('#articleContent h1').each(function () {
+            if (!this.id) {
+                this.id = $(this).text().trim().replace(/\s+/g, '-');
+            }
+        });
+
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('1'),
+            headingSelector: 'h1, h2, h3, h4, h5',
+            scrollSmooth: true,
+            scrollSmoothOffset: -64
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2026</span>
+            
+            <a href="/about" target="_blank">Evan Guo</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;Total visits:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;Total visitors:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/blinkfox" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:1181062873@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=1181062873" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 1181062873" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;Search</span>
+            <input type="search" id="searchInput" name="s" placeholder="Please enter a search keyword"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+
+    
+    
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>

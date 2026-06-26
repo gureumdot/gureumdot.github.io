@@ -1,0 +1,1887 @@
+<!DOCTYPE HTML>
+<html lang="en">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="verl, Evan&#39;s blogs">
+    <meta name="description" content="一、RLHF 三阶段：verl 优化的对象
+verl 的所有优化，都是围绕 RLHF（以 PPO/GRPO 为例）的三个阶段展开的。一个训练 step 的骨架：
+for prompts in dataloader:
+    # Stage ">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>verl | Evan&#39;s blogs</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<link rel="stylesheet" href="/libs/katex/katex.min.css">
+
+<style>
+#site-lock-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: #0f0f1a;
+  z-index: 99999;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  color: #fff; font-family: sans-serif;
+}
+#site-lock-overlay h2 { font-size: 22px; margin-bottom: 8px; letter-spacing: 2px; }
+#site-lock-overlay p  { color: #aaa; font-size: 14px; margin-bottom: 20px; }
+#site-lock-overlay input {
+  padding: 10px 16px; font-size: 16px;
+  border-radius: 8px; border: 1px solid #444;
+  background: #1e1e2e; color: #fff;
+  width: 260px; text-align: center; outline: none;
+  margin-bottom: 12px;
+}
+#site-lock-overlay button {
+  padding: 10px 40px;
+  background: #4a9eff; color: #fff;
+  border: none; border-radius: 8px;
+  cursor: pointer; font-size: 15px;
+  transition: background 0.2s;
+}
+#site-lock-overlay button:hover { background: #2278dd; }
+#site-lock-err { color: #ff6b6b; font-size: 13px; margin-top: 8px; min-height: 18px; }
+</style>
+
+<div id="site-lock-overlay">
+  <h2>🔒 访问受限</h2>
+  <p>请输入密码以继续访问</p>
+  <input type="password" id="site-password" placeholder="请输入密码"
+         onkeydown="if(event.key==='Enter') siteUnlock()">
+  <button onclick="siteUnlock()">确 认</button>
+  <div id="site-lock-err"></div>
+</div>
+
+<script>
+(function () {
+  // ★ 在这里修改你的访问密码 ★
+  var SITE_PASSWORD = 'qwe123456qwe';
+
+  if (sessionStorage.getItem('site_unlocked') === '1') {
+    document.getElementById('site-lock-overlay').style.display = 'none';
+  }
+
+  window.siteUnlock = function () {
+    var val = document.getElementById('site-password').value;
+    if (val === SITE_PASSWORD) {
+      sessionStorage.setItem('site_unlocked', '1');
+      document.getElementById('site-lock-overlay').style.display = 'none';
+    } else {
+      document.getElementById('site-lock-err').textContent = '密码错误，请重新输入';
+      document.getElementById('site-password').value = '';
+    }
+  };
+})();
+</script>
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">Evan&#39;s blogs</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>Index</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>Tags</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>Categories</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>Archives</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>About</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>Contact</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>Friends</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="Search" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">Evan&#39;s blogs</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			Index
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			Tags
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			Categories
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			Archives
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			About
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			Contact
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			Friends
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/blinkfox/hexo-theme-matery" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/blinkfox/hexo-theme-matery" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/img/covers/verl.png')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">verl</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/RLHF/">
+                                <span class="chip bg-color">RLHF</span>
+                            </a>
+                        
+                            <a href="/tags/%E6%8E%A8%E7%90%86%E4%BC%98%E5%8C%96/">
+                                <span class="chip bg-color">推理优化</span>
+                            </a>
+                        
+                            <a href="/tags/%E8%AE%AD%E7%BB%83%E4%BC%98%E5%8C%96/">
+                                <span class="chip bg-color">训练优化</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fas fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0/" class="post-category">
+                                技术笔记
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>Publish Date:&nbsp;&nbsp;
+                    2026-05-27
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h1>一、RLHF 三阶段：verl 优化的对象</h1>
+<p>verl 的所有优化，都是围绕 RLHF（以 PPO/GRPO 为例）的<strong>三个阶段</strong>展开的。一个训练 step 的骨架：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">for</span> prompts <span class="token keyword">in</span> dataloader<span class="token punctuation">:</span>
+    <span class="token comment"># Stage 1: response 生成（rollout）</span>
+    batch <span class="token operator">=</span> actor<span class="token punctuation">.</span>generate_sequences<span class="token punctuation">(</span>prompts<span class="token punctuation">)</span>
+
+    <span class="token comment"># Stage 2: 训练数据准备</span>
+    batch <span class="token operator">=</span> critic<span class="token punctuation">.</span>compute_values<span class="token punctuation">(</span>batch<span class="token punctuation">)</span>
+    batch <span class="token operator">=</span> reference<span class="token punctuation">.</span>compute_log_prob<span class="token punctuation">(</span>batch<span class="token punctuation">)</span>
+    batch <span class="token operator">=</span> reward<span class="token punctuation">.</span>compute_reward<span class="token punctuation">(</span>batch<span class="token punctuation">)</span>
+    batch <span class="token operator">=</span> compute_advantages<span class="token punctuation">(</span>batch<span class="token punctuation">)</span>
+
+    <span class="token comment"># Stage 3: actor 和 critic 训练</span>
+    critic_metrics <span class="token operator">=</span> critic<span class="token punctuation">.</span>update_critic<span class="token punctuation">(</span>batch<span class="token punctuation">)</span>
+    actor_metrics  <span class="token operator">=</span> actor<span class="token punctuation">.</span>update_actor<span class="token punctuation">(</span>batch<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>先把这三阶段的<strong>计算性质</strong>钉死，后面所有优化的&quot;为什么&quot;都从这里推出来。</p>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>名字</th>
+<th>在干什么</th>
+<th>计算性质</th>
+<th>bound</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1</strong></td>
+<td>Rollout（生成）</td>
+<td>actor 自回归生成 response</td>
+<td><strong>decode</strong>（逐 token 串行，复用 KV）</td>
+<td><strong>memory-bound</strong></td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td>训练数据准备</td>
+<td>算 old_logprob / ref_logprob / reward / value</td>
+<td><strong>prefill</strong>（喂完整 seq，一次 forward）</td>
+<td><strong>compute-bound</strong></td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td>模型训练</td>
+<td>actor / critic 的 forward + backward + update</td>
+<td><strong>prefill</strong>（+ backward，重复 ppo_epochs 次）</td>
+<td><strong>compute-bound</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>💡 <strong>三阶段的本质对立：stage1 是 decode，stage2/3 是 prefill。</strong> 这是 verl 一切设计的根。</p>
+<ul>
+<li>stage1 rollout：第 t 个 token 依赖第 t-1 个的输出，必须串行、每步只算一个新 token、复用前面的 KV → batch 维度小、算力喂不饱 → <strong>memory-bound</strong>。</li>
+<li>stage2/3：(prompt+response) 整条 seq 在 stage1 就已知，forward 时<strong>所有 token 并行</strong>进去算大矩阵乘，无自回归依赖 → <strong>compute-bound</strong>。</li>
+</ul>
+</blockquote>
+<h3 id="易错点：stage3-“多轮训练”-≠-decode-性质">易错点：stage3 “多轮训练” ≠ decode 性质</h3>
+<p>stage3 有&quot;一次 exp 多轮训练&quot;（PPO 的 ppo_epochs：同一批 rollout 数据重复喂、做多次梯度更新）。<strong>别把&quot;多轮&quot;误判成 decode。</strong></p>
+<pre class="line-numbers language-none"><code class="language-none">两个正交维度，别混：
+  &quot;算一条 seq 的方式&quot;:  并行(prefill) vs 自回归(decode)  ← 决定 compute&#x2F;memory bound
+  &quot;这个动作做几次&quot;:     一次 vs 多次(ppo_epochs)         ← 和 bound 无关<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<ul>
+<li>decode 的&quot;下一步&quot;输入依赖&quot;上一步&quot;的<strong>输出</strong>（生成的 token）——数据依赖的串行。</li>
+<li>ppo_epochs 的&quot;下一轮&quot;输入还是<strong>那条原始 seq</strong>，只是模型参数变了——同一份数据多次利用，没有 token 级串行。</li>
+</ul>
+<p><strong>判据：看&quot;单次 forward 内 token 是并行算还是自回归串行&quot;，而不是&quot;做几次&quot;。</strong> 重复多次 prefill 不会让单次 prefill 变成 decode。所以 stage3 每一次 forward 都是 prefill 性质、compute-bound，只是多了 backward + 重复若干次。</p>
+<hr>
+<h1>二、Stage1 优化：Rollout</h1>
+<p>Rollout 的优化分两条主线，两条都和&quot;引入 vLLM 当推理后端&quot;绑定：</p>
+<ol>
+<li><strong>引入 vLLM</strong>（2.1 / 2.2 共同的大前提）——把 rollout 从&quot;直接 <code>actor.generate()</code>&quot; 换成 vLLM 引擎。</li>
+<li><strong>魔改 vLLM 以适配 RL 场景</strong>——vLLM 原本为&quot;独占整卡的 serving 服务&quot;设计，塞进 RL 后水土不服，要改一堆。按训练后端不同分两条路径：
+<ul>
+<li><strong>2.1 vLLM + FSDP</strong></li>
+<li><strong>2.2 vLLM + Megatron</strong></li>
+</ul>
+</li>
+</ol>
+<h2 id="2-0-为什么-rollout-要引入-vLLM：vLLM-帮在哪">2.0 为什么 rollout 要引入 vLLM：vLLM 帮在哪</h2>
+<blockquote>
+<p>本节只列 list、点到为止。vLLM 各机制的细节见另一篇《vLLM》笔记 → [PagedAttention / Prefix Caching]。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>vLLM 机制</th>
+<th>对 rollout 有没有用</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>PagedAttention / KV cache 管理</strong></td>
+<td>✅ <strong>最大头</strong></td>
+<td>动态分配代替静态预分配，省显存 + 消碎片。RLHF 一个 batch 内 prompt 长度方差极大，静态预分配 max_len 浪费巨量显存 → 分页后能塞更大 rollout batch。</td>
+</tr>
+<tr>
+<td><strong>高效算子</strong>（FlashAttention、sampling kernel）</td>
+<td>✅</td>
+<td>纯加速。</td>
+</tr>
+<tr>
+<td><strong>Prefix caching</strong></td>
+<td>✅（GRPO 场景天然命中）</td>
+<td>parallel sampling（一个 prompt 采 n 个回答，GRPO 就这么干）时，n 个 sample 共享同一段 prompt 的 KV，只存一份。</td>
+</tr>
+<tr>
+<td><strong>Continuous batching</strong></td>
+<td>❌</td>
+<td>rollout 不是推理服务，没有&quot;请求陆续到达、动态塞进来&quot;的场景——一批 prompt 进去、一次性生成完整批交给 stage2/3。动态进出的价值用不上。</td>
+</tr>
+<tr>
+<td><strong>Chunked prefill</strong></td>
+<td>❌</td>
+<td>它解决 prefill 卡 decode 的混合调度，rollout 不混（一步做完进 stage2/3，不会有新 prefill 进来）。</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>💡 一句话：<strong>rollout 加 vLLM，本质收益 = KV cache 管理（省显存）+ 快算子 + GRPO 下 prefix caching 自然命中。</strong> continuous batching / chunked prefill 这俩 serving 的招在 rollout 用不上。</p>
+</blockquote>
+<blockquote>
+<p>🔗 <strong>埋钩子（异步 RL）</strong>：现在有一类异步 RL（rollout 与 train 解耦、各跑各的），但那需要 rollout engine 和 train engine <strong>各持一份权重</strong>（拿显存换时间）。verl 经典的 HybridEngine 是<strong>共享卡、串行</strong>的，所以不异步。留待后面展开。</p>
+</blockquote>
+<h2 id="2-1-vLLM-FSDP">2.1 vLLM + FSDP</h2>
+<blockquote>
+<p>大前提：verl 用 HybridEngine 让训练和推理跑在<strong>同一批 GPU</strong> 上（不是分开两套卡）。所以 vLLM 这个 serving 引擎被塞进 RL 后，几个&quot;独占整卡&quot;的默认假设全失效，要逐个魔改。下面每个魔改点都对应&quot;一个原假设在 RL 下失效&quot;。</p>
+</blockquote>
+<h3 id="2-1-0-占位-Ray-→-SPMD">2.1.0 [占位] Ray → SPMD</h3>
+<blockquote>
+<p>🚧 <strong>待补充。</strong> vLLM 原本自带一套基于 Ray 的多卡调度（单独 server 进程），verl 要把它改造成 SPMD 模式、移除 Ray 依赖、保持 torchrun 方式，才能塞进 verl 的训练框架统一调度。这块较大且复杂，先留位，以后单独补。</p>
+</blockquote>
+<h3 id="2-1-1-魔改-gpu-memory-utilization：从-占整卡-改成-占剩余">2.1.1 魔改 gpu_memory_utilization：从&quot;占整卡&quot;改成&quot;占剩余&quot;</h3>
+<p><strong>原生 vLLM 的设计与隐含假设</strong>：vLLM 启动时一次性吃掉 <code>total × util</code> 的显存圈成地盘，内部分两块：</p>
+<pre class="line-numbers language-none"><code class="language-none">total × util  这块地盘  &#x3D;  模型权重+激活 (dummy_usage，试跑一次 dummy input 测出的峰值)
+                        +  KV cache 配额 (剩下的全给 KV)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p>剩下的 <code>total × (1 − util)</code> 留作<strong>安全缓冲</strong>——serving 跑起来显存会临时波动（长序列激活变大、NCCL/CUDA context、碎片），util=1.0 吃满会 OOM，留 10% 当缓冲垫才稳。</p>
+<p><strong>隐含假设：整张卡只有 vLLM 一个住户。</strong> util 含义很自然——“我占整卡的 90%，留 10% 给自己波动”。</p>
+<p><strong>RL 下假设崩了</strong>：同一张卡还住着 actor / critic / ref / reward。这时&quot;剩下的空间&quot;角色变了——它不再是 vLLM 的私有缓冲，而要分给训练模型。于是 <code>util</code>（占整卡比例）这个旋钮失效了：你真正想控制的是&quot;vLLM 在<strong>扣掉自己权重后、剩下的可分配空间</strong>里吃多少&quot;，但这隔着一个&quot;其它模型占了多少&quot;的变量。换并行配置（TP/PP/DP）→ 其它模型显存变 → 得手算 vLLM 还剩多少 → 反推 util → 试错。这正是博主那句痛点：</p>
+<blockquote>
+<p>“否则需要时刻关注不同并行情况下其它部分的显存占用，反复调整 gpu_memory_utilization。”</p>
+</blockquote>
+<p><strong>verl 的改法</strong>：把 util 重定义成<strong>剩余显存的比例</strong>——先扣掉 vLLM 自己的 dummy_usage，再在剩下的里按 util 切。</p>
+<table>
+<thead>
+<tr>
+<th>分配策略</th>
+<th>原生 vLLM</th>
+<th>verl 改进版</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>总可用显存</td>
+<td><code>total × util</code></td>
+<td><code>total − dummy_usage</code></td>
+</tr>
+<tr>
+<td>KV cache 配额</td>
+<td><code>total × util − dummy_usage</code></td>
+<td><code>(total − dummy_usage) × util</code></td>
+</tr>
+</tbody>
+</table>
+<p>举例（80G 卡，dummy_usage=20G，util=0.5）：原生给 KV <code>80×0.5−20=20G</code>；verl 给 <code>(80−20)×0.5=30G</code>。</p>
+<blockquote>
+<p>💡 <strong>本质</strong>：改的不是数值，是把基准从&quot;整卡&quot;换成&quot;扣掉自己权重后的剩余&quot;。util 语义从&quot;占整卡&quot;变成&quot;占我自己的自留地&quot;，<strong>和别的模型占多少解耦</strong>——设 util=0.5 永远是&quot;自留地的一半给 KV&quot;，不管邻居怎么变并行，含义不变，不用反复手调。这是适配&quot;多模型共享一张卡&quot;的关键。</p>
+</blockquote>
+<h3 id="2-1-2-占位-显存生命周期：offload-free-cache-engine">2.1.2 [占位] 显存生命周期：offload + free_cache_engine</h3>
+<blockquote>
+<p>🚧 <strong>待补充/待确认。</strong> 这块涉及几个&quot;用时间换显存&quot;的动作，需要和你进一步对齐后再写准：</p>
+<ul>
+<li><strong>offload_model_weights</strong>：rollout 前后把 vLLM 权重在 GPU↔CPU 间挪（&quot;指向 CPU empty tensor + empty_cache 回收&quot;的语义，以及 vLLM 权重究竟何时在 GPU、何时在 CPU 的完整潮汐周期，待确认）。</li>
+<li><strong>free_cache_engine</strong>：generate 结束即释放 vLLM 预分配的 KV cache engine，下次再 build。本质时间换显存，默认开启，收益大。</li>
+</ul>
+<p>共同目的：rollout 结束后让 GPU 腾出<strong>完整大块显存</strong>交给 stage2/3。先留白。</p>
+</blockquote>
+<h3 id="2-1-3-sync-model-weights-resharding（核心）">2.1.3 sync_model_weights = resharding（核心）</h3>
+<p><strong>sync 和 resharding 是一回事。</strong> 从 actor 把权重灌进 vLLM 这个&quot;灌&quot;的动作，本身就要做布局转换——因为 actor 的布局（FSDP）和 vLLM 的布局（TP）不一样。布局相同，sync 只是 copy；布局不同，sync 的核心难点就是 <strong>resharding</strong>。所以：<strong>resharding 是 sync 的最大问题，sync 是 resharding 的发生场景。</strong></p>
+<p>resharding 要处理<strong>两样东西的转换</strong>：<strong>权重</strong>（布局不同）+ <strong>数据</strong>（DP 并行度不同）。</p>
+<h4 id="本质矛盾：训练布局-≠-推理布局">本质矛盾：训练布局 ≠ 推理布局</h4>
+<p>同一份逻辑权重（如某个 <code>q_proj</code>），在训练侧和推理侧被切成<strong>不同的物理碎片、分布在不同 GPU 上</strong>。resharding 就是把&quot;按训练方式切碎、散在各卡的权重&quot;，重新组装、再按&quot;推理方式切碎、散到各卡&quot;。</p>
+<p>以博主的配置为例：<code>world_size=8</code>，<code>vllm tp_size=4</code>，<code>FULL_SHARD</code>（ZeRO-3）。</p>
+<pre class="line-numbers language-none"><code class="language-none">训练侧：           推理侧：
+8 卡 FSDP 分片  →  8 卡 &#x3D; tp_size(4) × dp_size(2)
+(每卡存 1&#x2F;8,        TP 组0: GPU0-3  → 4 卡合存 1 份完整模型,按 TP 切
+ 无语义结构)        TP 组1: GPU4-7  → 另 4 卡存另 1 份完整模型,按 TP 切
+                    两组之间是 DP(各跑不同 rollout 数据)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>注意：训练侧 <strong>8 卡全参与切分</strong>（每卡 1/8），推理侧 <strong>tp=4</strong>。8 和 4 对不上，中间差的因子 2 就是 vLLM 侧的 dp。</p>
+<h4 id="关键易错点：FSDP（FULL-SHARD）的切法不是-TP，是-压平后平分">关键易错点：FSDP（FULL_SHARD）的切法不是 TP，是&quot;压平后平分&quot;</h4>
+<p>这是整条线最容易讲错、也最值得讲透的点。</p>
+<p><strong>先分清 FSDP 计算时 ≠ PP/TP</strong>：FSDP 每卡存 1/8 的<strong>全部参数</strong>（压平的），但计算时<strong>先 all-gather 把权重凑回完整</strong>，然后所有卡<strong>各自用完整权重算不同的 data</strong>——本质是 <strong>DP</strong>。压平分片<strong>只是存储手段，不是计算手段</strong>。它既不是 TP（不是每层切片协作算同一份数据）也不是 PP（不是按层切流水）。</p>
+<p><strong>为什么 FSDP 非要压平平分，而不像 TP 那样按 weight 切？</strong> 两个原因，后者才是根本：</p>
+<ul>
+<li><strong>（顺带好处）通用性</strong>：传统 TP 有结构约束（按 head 切要整除 head 数、按 dim 切要整除 hidden）。压平后纯按字节平分，任何 shape 都能切 N 份。</li>
+<li><strong>（根本原因）集合通信的字节绝对均衡</strong>：FSDP 的核心操作是 all-gather 凑权重 / reduce-scatter 散梯度，是<strong>集合通信</strong>，耗时由<strong>最慢的卡</strong>决定（木桶效应）。要无短板，每卡持有的字节数必须<strong>严格相等</strong>。而传统 TP 的&quot;按语义切&quot;做不到严格相等——layernorm 这种一维小张量不切、每卡复制一份，加上不规则 shape，各卡字节必然有差异。要严格相等，唯一干净的办法就是：<strong>无视 layer / 语义 / shape，把所有参数首尾拼成一根一维长向量，按总字节 ÷ N 一刀切。</strong></li>
+</ul>
+<blockquote>
+<p>📌 <strong>[图：TP 按 weight 各切片 vs FSDP 压平平分]</strong> — 已绘制，对比两种切法。重点：FSDP 的切口（按字节平分的边界）与原 weight 边界<strong>完全不对齐</strong>，所以 GPU0 拿到的是&quot;完整 q_proj + 半截 k_proj&quot;这种<strong>横跨多个 weight、无语义</strong>的碎块。</p>
+</blockquote>
+<blockquote>
+<p>🔗 <strong>埋钩子（TP 字节不均衡）</strong>：传统 TP 因小张量复制 / 不规则 shape，各卡字节并非严格均衡——FSDP 压平正是为消除这种不均衡。细节待展开。</p>
+</blockquote>
+<h4 id="后果：FSDP-必须-full-tensor-还原，Megatron-不用">后果：FSDP 必须 full_tensor() 还原，Megatron 不用</h4>
+<p>vLLM 的 TP 组（GPU0-3）要的是&quot;<strong>完整的 q_proj</strong>，再按 TP 规则切 4 份&quot;。但 q_proj 被压平后碎成几段、散在<strong>全部 8 张卡</strong>上（不只 0-3，因为压平是跨全部 rank 平分的）。于是：</p>
+<ul>
+<li><strong>FSDP 路径</strong>：必须先 <code>full_tensor()</code>——把全部 8 卡的分片 all-gather 拼回完整一维向量、reshape 还原成 q_proj 等真 tensor，<strong>这一步在显存里产生一份完整权重的峰值占用</strong>，然后才能按 vLLM 的 TP 重新切（走 ColumnParallel / RowParallel 的 weight_loader，按 tp_rank narrow 出自己那段）。sync 完立刻 <code>del</code> + <code>empty_cache()</code> 释放这份临时完整权重。</li>
+<li><strong>Megatron 路径</strong>：切分本来就是<strong>结构化</strong>的（q_proj 按 head/dim 规则切，和 vLLM TP 同构），能更直接地对应过去，<strong>不需要&quot;先还原成完整权重&quot;这个 all-gather 峰值</strong>。（细节见 2.2。）</li>
+</ul>
+<blockquote>
+<p>💡 这就是你最早那个易错点的精确版：<strong>“FSDP 要多存一份 vLLM 参数、Megatron 不用”</strong> 的本质是——<strong>FSDP reshard 必须先 all-gather 出完整权重（产生峰值副本），Megatron 因切分与 vLLM TP 同构可省掉这一步。</strong></p>
+</blockquote>
+<h4 id="weight-loader：name-对齐-layout-对齐">weight_loader：name 对齐 + layout 对齐</h4>
+<p>把 actor 权重灌进 vLLM 不只是&quot;切对分片&quot;，还要解决 actor model 和 vLLM 内部模型实现<strong>对不上</strong>的问题。verl 对每个模型架构 hard-code 一个 loader（<code>llama_dtensor_weight_loader</code> / <code>deepseekv2_dtensor_weight_loader</code> 等），吃掉两层差异：</p>
+<ul>
+<li><strong>name 对齐</strong>：vLLM 的参数命名规则和 HF 开源模型不同，要查表翻译（如 <code>layers.0.qkv</code> ↔ vLLM 内部名）。</li>
+<li><strong>layout 对齐（更麻烦）</strong>：vLLM 为 kernel 效率会把权重 concat。最典型 <strong>QKV</strong>——HF 里 q/k/v 常是<strong>三个分开</strong>的权重，vLLM 内部合并成<strong>一个 qkv_proj</strong>。MoE 的 FFN 也有 concat vs separate 的差异。loader 要处理&quot;三个 tensor 怎么拼成 vLLM 要的那一个&quot;。</li>
+</ul>
+<blockquote>
+<p>一句话：对齐有两层——<strong>name 对齐</strong>（改名字）+ <strong>layout 对齐</strong>（qkv 该 concat 还是 separate、moe 怎么排），后者才是真麻烦。</p>
+</blockquote>
+<h4 id="数据侧-resharding：8-份-→-2-份-→-8-份">数据侧 resharding：8 份 → 2 份 → 8 份</h4>
+<p>权重布局转换的同时，<strong>数据也要 reshard</strong>，因为并行度对不上：非 vLLM 组件是 <strong>dp=8</strong>（8 卡各吃不同数据），vLLM 是 <strong>dp2×tp4</strong>（只有 2 份完整模型）。</p>
+<pre class="line-numbers language-none"><code class="language-none">进 generate 前 (preprocess)：
+  GPU0-3 各自 bs&#x3D;4 的数据  ──concat──&gt;  data0 (bs&#x3D;16),喂 TP 组0
+  GPU4-7 各自 bs&#x3D;4 的数据  ──concat──&gt;  data1 (bs&#x3D;16),喂 TP 组1
+  (TP 组内 4 个 rank 必须吃【相同】输入 → 打包成一份;
+   用 allgather_dict_tensors 沿 dim&#x3D;0&#x2F;batch 维聚合)
+
+generate 后 (postprocess)：
+  bs&#x3D;16 结果  ──split──&gt;  切回 4 个 bs&#x3D;4,发回各 rank
+  (恢复 dp&#x3D;8 布局,后续 stage 各 rank 又吃不同数据)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<blockquote>
+<p>💡 <strong>为什么 TP 组内必须吃相同输入</strong>：TP 是把<strong>一份模型</strong>切到 4 卡上<strong>协作算同一份数据</strong>。所以同一 TP 组的 4 个 rank 必须吃完全相同的 batch，否则 4 张卡的分片对不上、算出来的东西无意义。这是 TP “协作算一份” 语义的直接推论。</p>
+</blockquote>
+<h3 id="2-1-小结：相比-actor-generate-改了什么">2.1 小结：相比 <code>actor.generate()</code> 改了什么</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>改动</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>架构解耦</td>
+<td>分离 actor model 与 rollout model，vLLM 当推理后端，吃它的快算子 + KV cache 管理</td>
+</tr>
+<tr>
+<td>框架适配</td>
+<td>vLLM 改造成 SPMD、移除 Ray、保持 torchrun（[占位 2.1.0]）</td>
+</tr>
+<tr>
+<td>显存配额</td>
+<td>gpu_memory_utilization 重定义为&quot;占剩余&quot;（2.1.1）</td>
+</tr>
+<tr>
+<td>显存生命周期</td>
+<td>offload + free_cache_engine，用时间换显存（[占位 2.1.2]）</td>
+</tr>
+<tr>
+<td>参数同步</td>
+<td>sync = resharding：FSDP full_tensor 还原 → weight_loader 按 tp_rank 分区加载（2.1.3）</td>
+</tr>
+<tr>
+<td>数据流</td>
+<td>DP-TP 混合并行下数据 concat/split 重打包（2.1.3 数据侧）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-2-vLLM-Megatron">2.2 vLLM + Megatron</h2>
+<p>与 2.1 同级，是 stage1 的另一条 resharding 路径。<strong>和 FSDP 的核心区别</strong>：FSDP 是&quot;DP + 伪 TP&quot;（压平平分，不同构于 vLLM TP），Megatron 的切分更丰富、且本身就<strong>结构化、与 vLLM TP 同构</strong>。这带来两个新问题，也带来一个新优化空间。</p>
+<h3 id="2-2-1-前置事实：推理侧的并行策略-≠-训练侧">2.2.1 前置事实：推理侧的并行策略 ≠ 训练侧</h3>
+<p>训练学的那套并行（TP/PP/DP/EP）是为<strong>训练</strong>设计的；搬到<strong>推理</strong>，不是全都能用：</p>
+<table>
+<thead>
+<tr>
+<th>并行方式</th>
+<th>vLLM 推理是否用</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>TP</strong></td>
+<td>✅ 主力</td>
+<td>推理切分基本靠 TP。</td>
+</tr>
+<tr>
+<td><strong>DP</strong></td>
+<td>✅</td>
+<td>多份完整模型各跑不同数据。</td>
+</tr>
+<tr>
+<td><strong>PP</strong></td>
+<td>❌ <strong>不用</strong></td>
+<td>pipeline bubble 大 + 通信复杂；decode 每步算量极小，bubble 占比被放大到无法接受，microbatch 流水在自回归 decode 下也难填满。</td>
+</tr>
+<tr>
+<td><strong>EP</strong>（MoE）</td>
+<td>✅（MoE 专属）</td>
+<td>dense 模型用不到，先留钩子，本节按 dense 讲。</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>💡 <strong>结论：vLLM 推理侧只有 TP + DP（dense 模型）。</strong> 训练侧 Megatron 用了 PP，推理侧 PP 维度<strong>消失</strong>——这就是下面 “PP→DP” 转换的来源。</p>
+</blockquote>
+<h3 id="2-2-2-Megatron-比-FSDP-多出来的转换：两个维度叠加">2.2.2 Megatron 比 FSDP 多出来的转换：两个维度叠加</h3>
+<pre class="line-numbers language-none"><code class="language-none">训练侧 (Megatron, stage2&#x2F;3 共用):  TP4 × DP2 × PP(若干)   ← prefill 性质,compute-bound
+            ↓ resharding (两个变化叠加)
+推理侧 (vLLM, stage1 rollout):     TP2 × DP4 (无 PP)       ← 主要服务 decode,memory-bound<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p><strong>变化一：PP 维度消失 → PP→DP（不是 PP→TP）</strong></p>
+<p>PP 是按<strong>层</strong>切的（pp_rank=0 存前 N 层、pp_rank=1 存中间 N 层……每个 pp stage 是模型的一段连续 layer，不是完整模型）。而 vLLM 一个 TP 组要的是<strong>一份完整模型（所有层）</strong>。</p>
+<p>为什么走 PP→DP 而不是 PP→TP？因为<strong>一条完整的 pp 流水线（pp_rank 0→1→2 串起来）天然就是一份完整模型的所有层</strong>——把这一整条流水线当成 DP 的一路即可，TP 维度可保持不变，几乎是自然转换。而 PP→TP 要把&quot;按层纵切&quot;打破、改成&quot;按矩阵横切&quot;（PP 切的是层归属/模型深度，TP 切的是矩阵内部分片/矩阵宽度，两者正交），是昂贵的重排。所以走 PP→DP 最省。</p>
+<p><img src="/img/notes/verl/pp_to_dp_general.png" alt="PP→DP rank 映射示意"><br>
+<img src="/img/notes/verl/pp_to_dp_detail0.png" alt="PP→DP 步骤一"><br>
+<img src="/img/notes/verl/pp_to_dp_detail1.png" alt="PP→DP 步骤二"><br>
+<img src="/img/notes/verl/pp_to_dp_detail2.png" alt="PP→DP 步骤三"></p>
+<p><strong>变化二：TP/DP 配比改变（TP4×DP2 → TP2×DP4）</strong></p>
+<p>同样是 TP+DP，但训练（prefill/compute-bound）和推理（decode/memory-bound）的瓶颈不同，最优配比就不同：</p>
+<ul>
+<li><strong>prefill（compute-bound）</strong>：计算是瓶颈，TP 开大（TP=4），每卡分到的计算量小、算得快；all-reduce 通信变多，但被远大于它的计算时间<strong>掩盖</strong>，划算。</li>
+<li><strong>decode（memory-bound）</strong>：计算本就不是瓶颈，开大 TP 省计算没用，反而每步都要的 all-reduce 通信<strong>无法被掩盖、暴露成新瓶颈</strong>。所以 decode 偏好<strong>小 TP + 大 DP</strong>：小 TP 省通信，大 DP 增大有效 batch、把权重搬运成本摊薄（算术强度↑、更接近 compute-bound）。</li>
+</ul>
+<blockquote>
+<p>注意：rollout 内部 prefill+decode 都有，但 vLLM <strong>整个 rollout 用同一套配比</strong>（不在 generate 中途 reshard，否则要多转两次）。这套配比向 <strong>decode 倾斜</strong>，因为 rollout 耗时绝大部分在 decode（prefill 只是 prompt 那一下，decode 要生成几百上千 token）。</p>
+<p>🔗 prefill/decode 的瓶颈差异、roofline 推导留到专门的《Prefill vs Decode》章展开，这里只点到为止。</p>
+</blockquote>
+<h3 id="2-2-3-核心优化：micro-DP-组（HybridFlow-的精髓）">2.2.3 核心优化：micro-DP 组（HybridFlow 的精髓）</h3>
+<p>这是 Megatron 路径相比 FSDP “省” 的真正来源——<strong>但要破除一个常见误述：不是&quot;Megatron 天生省&quot;，而是 HybridFlow 这个设计省；而这个设计能成立，前提恰恰是 Megatron 的 TP 切分与 vLLM TP 同构。</strong></p>
+<p><strong>朴素做法（HybridFlow-V）</strong>：训练侧每个 rank 持权重的一个 TP 分片，转推理时做一次<strong>全 TP 组 all-gather</strong> 凑出<strong>完整权重</strong>，再丢弃不属于自己的部分。这一步 all-gather 出完整权重，<strong>产生完整权重峰值显存——和 FSDP 的 <code>full_tensor()</code> 一个性质</strong>。</p>
+<p><strong>优化做法（HybridFlow）</strong>：verl 重新设计 rank 分组规则（<code>MICRO_DATA_PARALLEL_GROUP</code>），让 <strong>TP&lt;DP</strong>，使组内两个 rank 持有<strong>互补</strong>分片。这样只需在 <strong>micro-DP 小组内 gather</strong>，凑出推理需要的那部分即可，不必凑完整权重。</p>
+<p><img src="/img/notes/verl/tp_to_tp_original.png" alt="朴素全量 all-gather（HybridFlow-V）"><br>
+<img src="/img/notes/verl/tp_to_tp_verl.png" alt="micro-DP 组内 gather（HybridFlow）"></p>
+<blockquote>
+<p>例：tp=2 时分片排布让 rank0/1 互补、rank2/3 互补 → rank0/1 组内 gather 凑出 [m_0,m_1]，rank2/3 组内 gather 凑出 [m_2,m_3]。<strong>通信量减半，且不产生完整权重峰值。</strong></p>
+</blockquote>
+<blockquote>
+<p>⚠️ <strong>易错点（作者也常讲错）</strong>：这个优化<strong>不是&quot;改切分优先级&quot;就能解释的</strong>。</p>
+<ul>
+<li>光改优先级，只改变 rank 的<strong>编号排布</strong>（谁和谁组 DP 组：默认 {0,2}/{1,3} → 改后 {0,1}/{2,3}），<strong>不改变&quot;该 gather 完整权重的还是得 gather 完整权重&quot;的本质</strong>，解释不了通信减半。</li>
+<li>真正的创新是 <strong>micro-DP 组</strong>：把 gather 范围从&quot;全 TP 组（凑完整权重）“缩小到&quot;micro-DP 小组（凑互补的那部分）”。改优先级只是让&quot;该互补的 rank 排进同一小组&quot;的<strong>前提之一</strong>，不是全部——还要配上 micro-DP 组的 gather 逻辑（<code>MICRO_DATA_PARALLEL_GROUP</code>，而非 vLLM/Megatron 默认 group）。</li>
+</ul>
+</blockquote>
+<h3 id="2-2-4-FSDP-vs-Megatron-resharding-最终对照">2.2.4 FSDP vs Megatron resharding 最终对照</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>切分性质</th>
+<th>与 vLLM TP</th>
+<th>reshard 怎么凑完整</th>
+<th>完整权重峰值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>FSDP (FULL_SHARD)</strong></td>
+<td>压平按字节平分（伪 TP）</td>
+<td><strong>不同构</strong></td>
+<td>必须 <code>full_tensor()</code> <strong>全量 all-gather</strong> 还原</td>
+<td><strong>有</strong>（绕不开）</td>
+</tr>
+<tr>
+<td><strong>Megatron 朴素 (HybridFlow-V)</strong></td>
+<td>结构化 TP/PP</td>
+<td>同构</td>
+<td>全 TP 组 all-gather 凑完整再丢弃</td>
+<td><strong>有</strong></td>
+</tr>
+<tr>
+<td><strong>Megatron 优化 (HybridFlow)</strong></td>
+<td>结构化 TP/PP</td>
+<td>同构</td>
+<td>micro-DP <strong>组内</strong> gather 凑互补部分</td>
+<td><strong>无</strong>，通信减半</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>💡 <strong>“FSDP 多存一份、Megatron 不用” 的精确版</strong>：不是&quot;Megatron 不 gather&quot;，而是——FSDP 压平后不同构，没法做小组互补，只能<strong>全量还原出完整权重</strong>（峰值）；Megatron 同构，HybridFlow 才能把 gather 缩到 <strong>micro-DP 组内、不凑完整权重</strong>，从而避开峰值、通信减半。<strong>省的根因是&quot;切分同构&quot;使小组互补成为可能。</strong></p>
+</blockquote>
+<h2 id="Megatron-路径易错点速查-List">Megatron 路径易错点速查 List</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>易错点</th>
+<th>正确理解</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>推理和训练的并行策略一样？</td>
+<td><strong>不一样</strong>。vLLM 推理（dense）只用 TP+DP，<strong>不用 PP</strong>（bubble 大 + decode 算量小放大 bubble）。EP 是 MoE 专属。</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Megatron→vLLM 为什么是 PP→DP 不是 PP→TP？</td>
+<td>一条完整 pp 流水线天然=一份完整模型所有层，当成 DP 一路即可（TP 不变），几乎免费；PP→TP 要打破层归属重新横切，昂贵。</td>
+</tr>
+<tr>
+<td>3</td>
+<td>TP4×DP2→TP2×DP4 发生在哪？</td>
+<td><strong>stage 之间</strong>（训练↔推理），不是 rollout 内部 prefill/decode 之间（否则要多转两次）。配比变是因 prefill/decode 瓶颈不同。</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Megatron 比 FSDP 省，是 Megatron 天生省？</td>
+<td><strong>不是</strong>。是 HybridFlow（micro-DP 组）设计省；前提是 Megatron 切分<strong>与 vLLM TP 同构</strong>，分片才能小组互补。FSDP 不同构故省不了。</td>
+</tr>
+<tr>
+<td>5</td>
+<td>HybridFlow 的优化=改切分优先级？</td>
+<td><strong>不是</strong>。改优先级只改 rank 编号排布，不改&quot;要不要 gather 完整权重&quot;。真正创新是 <strong>micro-DP 组</strong>把 gather 缩到组内、凑互补部分（通信减半）。</td>
+</tr>
+<tr>
+<td>6</td>
+<td>朴素 Megatron 路径没有完整权重峰值？</td>
+<td><strong>有</strong>。朴素 HybridFlow-V 全组 all-gather 凑完整权重再丢弃，和 FSDP full_tensor 一个性质。只有优化版（组内 gather）才避开峰值。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="FSDP-路径易错点速查-List">FSDP 路径易错点速查 List</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>易错点</th>
+<th>正确理解</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>stage3 多轮训练是 decode 性质？</td>
+<td><strong>不是</strong>。多轮(ppo_epochs)只是重复 prefill-forward；判据看&quot;单次 forward 内 token 并行还是自回归&quot;，stage3 是 prefill、compute-bound。</td>
+</tr>
+<tr>
+<td>2</td>
+<td>rollout 加 vLLM 用到了 continuous batching / chunked prefill？</td>
+<td><strong>没用上</strong>。rollout 不是推理服务，无动态进出 / prefill-decode 混合。收益是 KV cache 管理 + 快算子 + GRPO 下 prefix caching。</td>
+</tr>
+<tr>
+<td>3</td>
+<td>gpu_memory_utilization 改的是数值？</td>
+<td><strong>不是</strong>。改的是<strong>基准</strong>：从&quot;占整卡&quot;换成&quot;占扣掉自己权重后的剩余&quot;，让旋钮在多住户场景下语义稳定、不随邻居变。</td>
+</tr>
+<tr>
+<td>4</td>
+<td>FSDP(FULL_SHARD) 的切分是 TP？</td>
+<td><strong>不是</strong>。是&quot;所有参数压平成一维向量后按字节平分&quot;，分片横跨多个 weight、无语义。TP 是每个 weight 各自切片。</td>
+</tr>
+<tr>
+<td>5</td>
+<td>FSDP 压平平分是为了通用性？</td>
+<td>通用性只是顺带好处。<strong>根本原因是集合通信(all-gather/reduce-scatter)要字节绝对均衡</strong>(木桶效应)，TP 按语义切做不到(小张量复制/不规则 shape)。</td>
+</tr>
+<tr>
+<td>6</td>
+<td>FSDP 压平后变成了 PP / 异步计算？</td>
+<td><strong>不是</strong>。压平只是<strong>存储布局</strong>；计算时仍 all-gather 凑完整权重做 <strong>DP</strong>。既非 PP 也非 TP。</td>
+</tr>
+<tr>
+<td>7</td>
+<td>reshard 时 FSDP 能直接从某几张卡捞出完整 q_proj？</td>
+<td><strong>不能</strong>。q_proj 碎片散在全部 8 卡，必须 <code>full_tensor()</code> all-gather 还原（产生完整权重峰值显存）才能用。</td>
+</tr>
+<tr>
+<td>8</td>
+<td>&quot;FSDP 多存一份、Megatron 不用&quot;指什么？</td>
+<td>FSDP reshard 必须先 all-gather 出<strong>完整权重峰值副本</strong>；Megatron 切分与 vLLM TP <strong>同构</strong>，可省掉这步还原。</td>
+</tr>
+<tr>
+<td>9</td>
+<td>weight_loader 只是改名字？</td>
+<td><strong>不止</strong>。两层：name 对齐(改名) + <strong>layout 对齐</strong>(qkv concat vs separate、moe 排布)，后者更麻烦。</td>
+</tr>
+<tr>
+<td>10</td>
+<td>TP 组内各 rank 可以吃不同输入？</td>
+<td><strong>不能</strong>。TP 是协作算同一份数据，组内必须吃相同 batch（所以数据要 concat 成一份），否则分片对不上。</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h1>三、Stage2/3 优化：数据准备 + 训练</h1>
+<p>stage2（compute_log_prob / compute_values / compute_reward）和 stage3（update_actor / update_critic）的 forward 都是 <strong>prefill 性质、compute-bound</strong>，且共用很多优化，合在一起讲。</p>
+<h2 id="3-1-为什么-stage2-用训练逻辑，而不是-vLLM">3.1 为什么 stage2 用训练逻辑，而不是 vLLM</h2>
+<p><strong>唯一硬约束：数值自洽。</strong> stage2 算的 old_logprob / ref_logprob / value 是 stage3 loss 的输入，PPO/GRPO 的 importance ratio = <code>exp(new_logprob − old_logprob)</code> 对数值差异极其敏感。若 stage2 用 vLLM、stage3 用训练框架，两套实现的 logprob 有数值 diff → 训练崩 / reward hacking。用<strong>同一框架、同一套权重布局</strong>算 stage2/3 才数值一致。</p>
+<p>（&quot;计算模式相同&quot;只是&quot;可以这么做&quot;的前提；&quot;省一次 resharding&quot;不成立——怎么都要转一次——故都不是独立理由。）</p>
+<h3 id="易错点：verl-强制在-stage2-重算-logprob，不用-generate-给的">易错点：verl 强制在 stage2 重算 logprob，不用 generate 给的</h3>
+<p>generate 其实能返回每个 token 的 prob，但 verl <strong>强制重算</strong>。两个具体原因（即&quot;数值自洽&quot;的细化）：</p>
+<ol>
+<li><strong>后处理精度</strong>：generate 时若用了 sampling 后处理（repetition penalty 等），返回的 logits 是<strong>被策略改过的值</strong>，不是模型原始输出。</li>
+<li><strong>算子 diff</strong>：vLLM 算子优化激进，同参数算出的 logits 和 actor model 有数值 diff。这个 diff 可能不改变 candidate 排序（不影响采样结果），但一旦 logits <strong>数值</strong>进入后续 loss 计算，就给本就不稳的 RL 加了不确定性。</li>
+</ol>
+<blockquote>
+<p>💡 重算的代价：多花一次 inference 时间&quot;保平安&quot;。而时间大头在 generate（decode 几百上千 token），这点 prefill 重算不心疼。</p>
+</blockquote>
+<h2 id="3-2-Remove-padding：让真-token-全程不和-pad-同框">3.2 Remove padding：让真 token 全程不和 pad 同框</h2>
+<h3 id="3-2-1-pad-从哪来：为了把变长序列堆成规整张量">3.2.1 pad 从哪来：为了把变长序列堆成规整张量</h3>
+<p>单条序列天然是规整矩阵 <code>[seq_len, d_model]</code>，不用 pad。<strong>pad 的必要性出现在&quot;多条序列堆成一个 batch&quot;那一步。</strong></p>
+<p>GPU 要高吞吐，得一次算一个 batch = 一个三维张量 <code>[batch_size, seq_len, d_model]</code>。要把多条序列沿 batch 维 <code>stack</code> 成规整立方块，<strong>中间 seq_len 这一维对整个 batch 只能有一个值</strong>。但各序列长度不一（100 vs 4），堆不齐 → 短的补 pad 垫到 max_len。</p>
+<pre class="line-numbers language-none"><code class="language-none">✗ 堆不齐 (seq_len 不等)        ✓ pad 对齐后能堆
+[100, d]                       [100, d]
+[100, d]            pad 到100   [100, d]
+[4,   d]            ────────→   [100, d] (4真+96pad)
+→ 不是规整立方块                → [3, 100, d] 规整 ✓<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><strong>为什么非要规整张量？</strong> 三层递进（最关键是第二层）：</p>
+<table>
+<thead>
+<tr>
+<th>层面</th>
+<th>内容</th>
+<th>决定</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>物理（寻址）</td>
+<td>规整 → 统一 stride（<code>b×(S×d)</code> 里 S 是固定常数）→ GPU 能按公式索引每条序列</td>
+<td><strong>能不能算</strong></td>
+</tr>
+<tr>
+<td>性能（并行）★</td>
+<td>规整 → 整块走同一条指令流（SIMT），所有线程齐步并行、GPU 打满；不规整 → 各序列循环边界不同 → 线程发散（warp divergence）→ 并行度暴跌</td>
+<td><strong>算得快不快</strong></td>
+</tr>
+<tr>
+<td>现象</td>
+<td><code>torch.stack</code> 不等长直接报错</td>
+<td>上两层的表现</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>💡 pad 的终极目的：<strong>喂饱 GPU 并行算力 → 打包成大 batch 齐步算 → batch 必须规整 → 变长序列对齐 seq_len → 短的补 pad。</strong> 规整只是手段，并行才是目的。</p>
+</blockquote>
+<h3 id="3-2-2-pad-token-是-先全算再丢弃-，不是-被跳过">3.2.2 pad token 是&quot;先全算再丢弃&quot;，不是&quot;被跳过&quot;</h3>
+<p>matmul 是稠密运算，<strong>不认识谁真谁假</strong>——它看到 100 行就把 100 行全算了，包括 96 行 pad。我们事后用 attention mask 把 pad 位置的<strong>结果</strong>遮掉，但<strong>计算已经发生</strong>，mask 只能丢弃结果、<strong>救不回算力</strong>。</p>
+<p>→ 既然 mask 救不回算力，那就<strong>从一开始别让 pad 进矩阵乘</strong> = remove padding。</p>
+<h3 id="3-2-3-怎么做到：分层处理">3.2.3 怎么做到：分层处理</h3>
+<p>把所有真 token 首尾拼成一根长条 <code>[total_tokens, d]</code>（零 pad），然后分层看：</p>
+<ul>
+<li><strong>FFN / LayerNorm / projection 等</strong>：对<strong>每个 token 独立</strong>计算（<code>out[i]</code> 只看 <code>x[i]</code>），token 之间不耦合 → &quot;长条 vs 方阵&quot;对它们毫无区别，直接照算，pad 消失。</li>
+<li><strong>Attention（唯一例外）</strong>：是唯一让 token 互相<strong>耦合</strong>的层（i 要 attend j）。拼成长条后危险——seq0 的 token 会去 attend seq1 的 token（串味）。</li>
+</ul>
+<p><strong>Attention 的特殊处理：<code>flash_attn_varlen_func</code> + <code>cu_seqlens</code></strong></p>
+<p>把分段信息从&quot;张量形状（靠 pad 体现的 S 维）&quot;转移到 <strong><code>cu_seqlens</code> 索引表</strong>里。<code>cu_seqlens</code> = 各样本实际长度的累积和，标记长条里每段的边界：</p>
+<pre class="line-numbers language-none"><code class="language-none">bs&#x3D;2，长度 3 和 4，拼成 7 个 token：[t0 t1 t2 | t3 t4 t5 t6]
+cu_seqlens &#x3D; [0, 3, 7]
+              ↑  ↑  └ seq1 结束
+              │  └─── seq0 结束 &#x2F; seq1 开始
+              └────── 起点
+相邻两数框定一段：[0,3)&#x3D;seq0，[3,7)&#x3D;seq1<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><code>flash_attn_varlen_func</code> 拿到这张表，只在<strong>段内</strong> attend、绝不跨边界 → 串味解决，且全程无 pad、无需 mask 遮 pad。</p>
+<blockquote>
+<p>💡 <strong>全程无 pad</strong>：输入拼成长条 → FFN/LN 不需要方阵 → attention 用 varlen 也不需要方阵 → 输出。整个 forward 保持无 pad 长条，pad 陪算的浪费被彻底省掉。</p>
+</blockquote>
+<h3 id="3-2-4-是-RLHF-专属优化吗？">3.2.4 是 RLHF 专属优化吗？</h3>
+<p><strong>不是。</strong> flash-attn varlen + cu_seqlens 是处理变长序列的<strong>通用手段</strong>，预训练 / SFT 早就在用（sequence packing）。但<strong>收益大小 ∝ batch 内长度方差</strong>：</p>
+<blockquote>
+<p>remove padding 是通用训练优化，机制非 RLHF 发明。但 RLHF 的 rollout response 长度方差<strong>极大</strong>（短的几十、长 CoT 上千），pad 占比远高于普通训练，加上 attention 是 O(S²)（一条长4的序列 pad 到 1500，attention 算量从 4² 涨到 1500²），所以 remove padding 在 RLHF 收益被放大，几乎必备。</p>
+</blockquote>
+<h2 id="3-3-大-logits-的显存问题（反直觉）">3.3 大 logits 的显存问题（反直觉）</h2>
+<p>compute_log_prob 的输出 logits：</p>
+<pre class="line-numbers language-none"><code class="language-none">logits: [total_tokens, vocab_size]   ← 与模型大小【无关】，只看 token 数 × 词表<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>vocab_size 是固定大数（约 15 万），不管模型 0.5B 还是 70B 词表一样大。例：bs=16、平均长 1000、vocab=15万、fp32 → <code>16000×150000×4B ≈ 9.6G</code>，<strong>一个中间张量就近 10G</strong>。</p>
+<blockquote>
+<p>⚠️ <strong>反直觉现象：“训 0.5B 模型也 OOM。”</strong> 因为瓶颈不在模型权重而在 <strong>logits 中间激活</strong>：小模型省了权重显存，大家就把 batch 开更大 → <code>total_tokens</code> 涨 → logits 更大 → OOM。</p>
+</blockquote>
+<p><strong>老写法的坑（trl）</strong>：</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">logp <span class="token operator">=</span> F<span class="token punctuation">.</span>log_softmax<span class="token punctuation">(</span>logits<span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span>   <span class="token comment"># 又造一个 [total_tokens, vocab] 大张量 → 双倍峰值！</span>
+logpy <span class="token operator">=</span> gather_from_labels<span class="token punctuation">(</span>logp<span class="token punctuation">,</span> labels<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p><strong>解法：selective log-softmax</strong>。利用 <code>log_softmax(x)_i = x_i − logsumexp(x)</code>，<code>logsumexp</code> 把 vocab 维<strong>归约成标量</strong>（每 token 一个数）→ 中间张量从 <code>[total_tokens, vocab]</code> 降到 <code>[total_tokens]</code>。</p>
+<blockquote>
+<p>💡 本质：<strong>我们只需要 label 那 1 个 token 的 log-prob，不必先算出整个 vocab 的 log-softmax 再 gather 一个丢弃。</strong> verl 用 flash-attn 的 cross_entropy 或 logsumexp 公式实现。</p>
+</blockquote>
+<h2 id="3-4-dynamic-bsz：按-token-切，一招解决负载不均-OOM">3.4 dynamic_bsz：按 token 切，一招解决负载不均 + OOM</h2>
+<blockquote>
+<p>📌 <strong>[图：按条数切（静态 bsz）vs 按 token 切（dynamic bsz）]</strong> — 已绘制。木桶效应 + OOM vs 均衡封顶，附带 selective log-softmax 对比。</p>
+</blockquote>
+<p>remove padding 带来<strong>新问题</strong>：序列长度方差大时，<strong>按&quot;条数&quot;切分导致 token 数严重不均</strong>。</p>
+<pre class="line-numbers language-none"><code class="language-none">按条数切（每组 4 条）：
+  rank0: [1500,1200,1400,1300]&#x3D;5400 tokens  ← 累死
+  rank3: [12,30,8,45]&#x3D;95 tokens             ← 闲死<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>两个层面的后果：</p>
+<ol>
+<li><strong>跨 rank（DP）→ 木桶效应</strong>：DP all-reduce 同步梯度，<strong>必须所有 rank 都算完才能 reduce</strong>。rank3 算完干等 rank0 → GPU 空转。</li>
+<li><strong>单 rank 内 micro-batch → OOM</strong>：某 micro-batch 恰好全长序列 → token 爆 → 大 logits → OOM。</li>
+</ol>
+<p><strong>解法：切分标准从&quot;条数&quot;换成&quot;token 数&quot;。</strong></p>
+<pre class="line-numbers language-none"><code class="language-none">固定条数（静态）：  每 micro-batch &#x3D; 4 条        → token 不可控,可能爆
+固定 token（dynamic）：每 micro-batch &#x3D; max_token_len → 条数浮动,token 封顶<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p>每组凑够 <code>max_token_len</code>（即 <code>ppo_max_token_len_per_gpu</code>）个 token 成一组，<strong>条数因此浮动</strong>（全长序列装几条、全短序列装几百条）——这就是 <code>use_dynamic_bsz</code> 里 “dynamic” 的由来。token 封顶 → logits 大小封顶（不 OOM）；各组 token 数相近 → 负载均衡。<strong>一招解决两个问题。</strong></p>
+<h2 id="Stage2-3-易错点速查-List">Stage2/3 易错点速查 List</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>易错点</th>
+<th>正确理解</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>stage2 为什么不用 vLLM？</td>
+<td>唯一硬约束<strong>数值自洽</strong>：logprob 要和 stage3 用同框架同布局算，否则 importance ratio 数值 diff → 训练崩。</td>
+</tr>
+<tr>
+<td>2</td>
+<td>stage2 能直接用 generate 返回的 prob？</td>
+<td><strong>不能</strong>，强制重算。generate 的 logits 被 sampling 后处理改过 + vLLM 算子有 diff，数值不可靠。</td>
+</tr>
+<tr>
+<td>3</td>
+<td>单条变长序列要 pad？</td>
+<td><strong>不要</strong>。单条天然是规整矩阵。pad 只在<strong>多条堆成 batch</strong> 时为对齐 seq_len 维才需要。</td>
+</tr>
+<tr>
+<td>4</td>
+<td>要规整张量只是为了能寻址？</td>
+<td>寻址是门槛（能不能算），<strong>最关键是并行</strong>（SIMT 齐步算、GPU 打满）；不规整会线程发散、并行暴跌。</td>
+</tr>
+<tr>
+<td>5</td>
+<td>pad token 会被 GPU 跳过不算？</td>
+<td><strong>不会</strong>。matmul 不认识真假，先全算，再用 mask 遮结果。mask 救不回算力 → 故要 remove padding。</td>
+</tr>
+<tr>
+<td>6</td>
+<td>remove padding 后所有层都要特殊处理？</td>
+<td><strong>不是</strong>。FFN/LN 等 token 独立的层直接照算；只有 <strong>attention</strong>（token 耦合）要 varlen + cu_seqlens 防跨序列 attend。</td>
+</tr>
+<tr>
+<td>7</td>
+<td>remove padding 是 RLHF 专属？</td>
+<td><strong>不是</strong>。通用变长优化（预训练/SFT 都用）。但 RLHF 长度方差极大 + attention O(S²)，收益被放大。</td>
+</tr>
+<tr>
+<td>8</td>
+<td>大 logits 显存 ∝ 模型大小？</td>
+<td><strong>无关</strong>。logits = [tokens, vocab]，只看 token 数 × 词表。小模型开大 batch 照样 OOM。</td>
+</tr>
+<tr>
+<td>9</td>
+<td>老 log_softmax 写法的问题？</td>
+<td>造一个和 logits 同大的中间张量 → 双倍峰值。selective（logsumexp 归约 vocab 维）省掉。</td>
+</tr>
+<tr>
+<td>10</td>
+<td>dynamic_bsz 的 “dynamic” 指什么？</td>
+<td>指<strong>条数浮动</strong>：按 token 数（max_token_len）切而非条数 → token 封顶不 OOM + 各 rank 均衡。</td>
+</tr>
+</tbody>
+</table>
+<h1>四、后续待补充</h1>
+<p>明天继续。stage2/3 还有以下要点占位（待讨论）：</p>
+<blockquote>
+<p>🚧 <strong>待讨论占位</strong>（明天展开）：</p>
+<ul>
+<li><strong>use_liger</strong>：用 Liger Kernel 替换 transformers 组件（性能更好的融合算子）。</li>
+<li><strong>ulysses_sequence_parallel</strong>（DeepSpeed Ulysses）：序列并行，处理超长序列。</li>
+<li>gradient checkpointing 等通用训练优化。</li>
+<li>（其它你预告要补的内容）</li>
+</ul>
+</blockquote>
+<hr>
+<h1>附：全文待补充占位汇总</h1>
+<ul>
+<li><strong>2.1.0</strong> Ray → SPMD 改造（vLLM 嵌入 verl 的底层机制）</li>
+<li><strong>2.1.2</strong> offload + free_cache_engine 显存生命周期（offload 语义、vLLM 权重 GPU↔CPU 潮汐周期待确认）</li>
+<li><strong>2.2</strong> micro-DP 分片&quot;互补 vs 相同&quot;待核对代码；TP4×DP2→TP2×DP4 与 FSDP 节示例配置是否统一</li>
+<li><strong>三</strong> use_liger / ulysses_sequence_parallel 等</li>
+<li><strong>异步 RL</strong> 钩子（rollout/train 解耦需各持一份权重）</li>
+</ul>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        Author:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">Evan Guo</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        Link:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://gureumdot.github.io/2026/05/27/%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0/verl/">https://gureumdot.github.io/2026/05/27/%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0/verl/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        Reprint policy:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    All articles in this blog are used except for special statements
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    reprint policy. If reproduced, please indicate source
+                    <a href="/about" target="_blank">Evan Guo</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>Copied successfully, please follow the reprint policy of this article</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">more</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/RLHF/">
+                                    <span class="chip bg-color">RLHF</span>
+                                </a>
+                            
+                                <a href="/tags/%E6%8E%A8%E7%90%86%E4%BC%98%E5%8C%96/">
+                                    <span class="chip bg-color">推理优化</span>
+                                </a>
+                            
+                                <a href="/tags/%E8%AE%AD%E7%BB%83%E4%BC%98%E5%8C%96/">
+                                    <span class="chip bg-color">训练优化</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;Previous</div>
+            <div class="card">
+                <a href="/2026/05/30/%E6%89%8B%E6%92%95/LLM%E7%AE%97%E6%B3%95/attention-variants/">
+                    <div class="card-image">
+                        
+                        <img src="/img/covers/fa_cover.png" class="responsive-img" alt="Attention 变体手撕：MHA / MQA / GQA / MLA">
+                        
+                        <span class="card-title">Attention 变体手撕：MHA / MQA / GQA / MLA</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            面试高频手撕，Attention 系列从 MHA 到 MQA、GQA，再加 KV Cache，考察对 head 分组、显存节省原理的理解。
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2026-05-30
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/%E6%89%8B%E6%92%95/" class="post-category">
+                                    手撕
+                                </a>
+                            
+                            <a href="/categories/%E6%89%8B%E6%92%95/LLM%E7%AE%97%E6%B3%95/" class="post-category">
+                                    LLM算法
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/%E6%89%8B%E6%92%95/">
+                        <span class="chip bg-color">手撕</span>
+                    </a>
+                    
+                    <a href="/tags/attention/">
+                        <span class="chip bg-color">attention</span>
+                    </a>
+                    
+                    <a href="/tags/transformer/">
+                        <span class="chip bg-color">transformer</span>
+                    </a>
+                    
+                    <a href="/tags/kv-cache/">
+                        <span class="chip bg-color">kv-cache</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                Next&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2026/05/25/%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0/vllm/">
+                    <div class="card-image">
+                        
+                        <img src="/img/covers/vllm.png" class="responsive-img" alt="vLLM">
+                        
+                        <span class="card-title">vLLM</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2026-05-25
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0/" class="post-category">
+                                    技术笔记
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/%E6%8E%A8%E7%90%86%E4%BC%98%E5%8C%96/">
+                        <span class="chip bg-color">推理优化</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;TOC</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        // Give h1 headings an id so tocbot can link to them (Hexo only generates ids for h2+)
+        $('#articleContent h1').each(function () {
+            if (!this.id) {
+                this.id = $(this).text().trim().replace(/\s+/g, '-');
+            }
+        });
+
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('1'),
+            headingSelector: 'h1, h2, h3, h4, h5',
+            scrollSmooth: true,
+            scrollSmoothOffset: -64
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2026</span>
+            
+            <a href="/about" target="_blank">Evan Guo</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;Total visits:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;Total visitors:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/blinkfox" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:1181062873@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=1181062873" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 1181062873" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;Search</span>
+            <input type="search" id="searchInput" name="s" placeholder="Please enter a search keyword"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+
+    
+    
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>
