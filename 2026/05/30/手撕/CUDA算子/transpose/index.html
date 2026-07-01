@@ -1,0 +1,1470 @@
+<!DOCTYPE HTML>
+<html lang="en">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="Transpose, Evan&#39;s blogs">
+    <meta name="description" content="一、问题与 naive 的两个版本
+转置 B[j][i] = A[i][j]。逻辑一行的事，难点全在访存：输入按行连续、输出按列连续，行列在转置里天然对立，naive 无论如何都有一头跳跃。
+naive 有两个写法，区别就在&amp;quot;把跳">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>Transpose | Evan&#39;s blogs</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<link rel="stylesheet" href="/libs/katex/katex.min.css">
+
+<style>
+#site-lock-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: #0f0f1a;
+  z-index: 99999;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  color: #fff; font-family: sans-serif;
+}
+#site-lock-overlay h2 { font-size: 22px; margin-bottom: 8px; letter-spacing: 2px; }
+#site-lock-overlay p  { color: #aaa; font-size: 14px; margin-bottom: 20px; }
+#site-lock-overlay input {
+  padding: 10px 16px; font-size: 16px;
+  border-radius: 8px; border: 1px solid #444;
+  background: #1e1e2e; color: #fff;
+  width: 260px; text-align: center; outline: none;
+  margin-bottom: 12px;
+}
+#site-lock-overlay button {
+  padding: 10px 40px;
+  background: #4a9eff; color: #fff;
+  border: none; border-radius: 8px;
+  cursor: pointer; font-size: 15px;
+  transition: background 0.2s;
+}
+#site-lock-overlay button:hover { background: #2278dd; }
+#site-lock-err { color: #ff6b6b; font-size: 13px; margin-top: 8px; min-height: 18px; }
+</style>
+
+<div id="site-lock-overlay">
+  <h2>🔒 访问受限</h2>
+  <p>请输入密码以继续访问</p>
+  <input type="password" id="site-password" placeholder="请输入密码"
+         onkeydown="if(event.key==='Enter') siteUnlock()">
+  <button onclick="siteUnlock()">确 认</button>
+  <div id="site-lock-err"></div>
+</div>
+
+<script>
+(function () {
+  // ★ 在这里修改你的访问密码 ★
+  var SITE_PASSWORD = 'qwe123456qwe';
+
+  if (sessionStorage.getItem('site_unlocked') === '1') {
+    document.getElementById('site-lock-overlay').style.display = 'none';
+  }
+
+  window.siteUnlock = function () {
+    var val = document.getElementById('site-password').value;
+    if (val === SITE_PASSWORD) {
+      sessionStorage.setItem('site_unlocked', '1');
+      document.getElementById('site-lock-overlay').style.display = 'none';
+    } else {
+      document.getElementById('site-lock-err').textContent = '密码错误，请重新输入';
+      document.getElementById('site-password').value = '';
+    }
+  };
+})();
+</script>
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">Evan&#39;s blogs</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>Index</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>Tags</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>Categories</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>Archives</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>About</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>Contact</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>Friends</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="Search" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">Evan&#39;s blogs</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			Index
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			Tags
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			Categories
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			Archives
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			About
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			Contact
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			Friends
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/blinkfox/hexo-theme-matery" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/blinkfox/hexo-theme-matery" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/img/covers/coding.png')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">Transpose</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/%E6%89%8B%E6%92%95/">
+                                <span class="chip bg-color">手撕</span>
+                            </a>
+                        
+                            <a href="/tags/cuda/">
+                                <span class="chip bg-color">cuda</span>
+                            </a>
+                        
+                            <a href="/tags/gpu/">
+                                <span class="chip bg-color">gpu</span>
+                            </a>
+                        
+                            <a href="/tags/transpose/">
+                                <span class="chip bg-color">transpose</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fas fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/%E6%89%8B%E6%92%95/" class="post-category">
+                                手撕
+                            </a>
+                        
+                            <a href="/categories/%E6%89%8B%E6%92%95/CUDA%E7%AE%97%E5%AD%90/" class="post-category">
+                                CUDA算子
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>Publish Date:&nbsp;&nbsp;
+                    2026-05-30
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h1>一、问题与 naive 的两个版本</h1>
+<p>转置 <code>B[j][i] = A[i][j]</code>。逻辑一行的事，难点全在<strong>访存</strong>：输入按行连续、输出按列连续，<strong>行列在转置里天然对立</strong>，naive 无论如何都有一头跳跃。</p>
+<p>naive 有两个写法，区别就在&quot;把跳跃放在读端还是写端&quot;：</p>
+<pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp"><span class="token comment">// NaiveRow：按行读、按列写</span>
+__global__ <span class="token keyword">void</span> <span class="token function">transposeNaiveRow</span><span class="token punctuation">(</span><span class="token keyword">float</span><span class="token operator">*</span> A<span class="token punctuation">,</span> <span class="token keyword">float</span><span class="token operator">*</span> B<span class="token punctuation">,</span> <span class="token keyword">const</span> <span class="token keyword">int</span> M<span class="token punctuation">,</span> <span class="token keyword">const</span> <span class="token keyword">int</span> N<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+  <span class="token keyword">int</span> ix <span class="token operator">=</span> blockIdx<span class="token punctuation">.</span>x <span class="token operator">*</span> blockDim<span class="token punctuation">.</span>x <span class="token operator">+</span> threadIdx<span class="token punctuation">.</span>x<span class="token punctuation">;</span>
+  <span class="token keyword">int</span> iy <span class="token operator">=</span> blockIdx<span class="token punctuation">.</span>y <span class="token operator">*</span> blockDim<span class="token punctuation">.</span>y <span class="token operator">+</span> threadIdx<span class="token punctuation">.</span>y<span class="token punctuation">;</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>iy <span class="token operator">&lt;</span> M <span class="token operator">&amp;&amp;</span> ix <span class="token operator">&lt;</span> N<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span> B<span class="token punctuation">[</span>ix <span class="token operator">*</span> M <span class="token operator">+</span> iy<span class="token punctuation">]</span> <span class="token operator">=</span> A<span class="token punctuation">[</span>iy <span class="token operator">*</span> N <span class="token operator">+</span> ix<span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token comment">// NaiveCol：按列读、按行写</span>
+__global__ <span class="token keyword">void</span> <span class="token function">transposeNaiveCol</span><span class="token punctuation">(</span><span class="token keyword">float</span><span class="token operator">*</span> A<span class="token punctuation">,</span> <span class="token keyword">float</span><span class="token operator">*</span> B<span class="token punctuation">,</span> <span class="token keyword">const</span> <span class="token keyword">int</span> M<span class="token punctuation">,</span> <span class="token keyword">const</span> <span class="token keyword">int</span> N<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+  <span class="token keyword">int</span> ix <span class="token operator">=</span> blockIdx<span class="token punctuation">.</span>x <span class="token operator">*</span> blockDim<span class="token punctuation">.</span>x <span class="token operator">+</span> threadIdx<span class="token punctuation">.</span>x<span class="token punctuation">;</span>
+  <span class="token keyword">int</span> iy <span class="token operator">=</span> blockIdx<span class="token punctuation">.</span>y <span class="token operator">*</span> blockDim<span class="token punctuation">.</span>y <span class="token operator">+</span> threadIdx<span class="token punctuation">.</span>y<span class="token punctuation">;</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>iy <span class="token operator">&lt;</span> N <span class="token operator">&amp;&amp;</span> ix <span class="token operator">&lt;</span> M<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span> B<span class="token punctuation">[</span>iy <span class="token operator">*</span> M <span class="token operator">+</span> ix<span class="token punctuation">]</span> <span class="token operator">=</span> A<span class="token punctuation">[</span>ix <span class="token operator">*</span> N <span class="token operator">+</span> iy<span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><strong>用 warp 视角拆</strong>（warp 内 x 递增 → ix 递增、iy 不变）：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>读 A</th>
+<th>写 B</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>NaiveRow</strong> <code>B[ix*M+iy]=A[iy*N+ix]</code></td>
+<td>ix 在低位 → 连续 ✓</td>
+<td>ix 在高位（×M）→ 相差 M，跳跃 ✗</td>
+</tr>
+<tr>
+<td><strong>NaiveCol</strong> <code>B[iy*M+ix]=A[ix*N+iy]</code></td>
+<td>ix 在高位（×N）→ 跳跃 ✗</td>
+<td>ix 在低位 → 连续 ✓</td>
+</tr>
+</tbody>
+</table>
+<p>一句话：<strong>Row = 读连续写跳跃，Col = 写连续读跳跃。</strong> 两个都逃不掉&quot;必有一头跳跃&quot;——这正是下一步要用 shared memory 解决的：让读写<strong>两头都连续</strong>。</p>
+<blockquote>
+<p>⚠️ <strong>面试爱抠：Row 和 Col 谁快？</strong> 一般 <strong>NaiveRow（跳跃写）更快</strong>。因为 GPU 的写有 write-back 合并缓冲，跳跃写的延迟更容易被掩盖；而跳跃读会直接拖慢后续依赖它的计算（读延迟在关键路径上）。但两者都远不如 shared memory 版，这个差异属于&quot;锦上添花&quot;级别的细节。</p>
+</blockquote>
+<blockquote>
+<p>📌 <strong>图片占位：naive 访存（一头连续一头跳跃）</strong><br>
+文件名建议：<code>naive-coalesce-asymmetry.png</code></p>
+</blockquote>
+<hr>
+<h1>二、最终优化版本</h1>
+<p>直接给选定版本（模板版，含全部三个优化），先看代码和调用，再逐条拆。</p>
+<pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp"><span class="token keyword">template</span><span class="token operator">&lt;</span><span class="token keyword">int</span> Bm<span class="token punctuation">,</span> <span class="token keyword">int</span> Bn<span class="token operator">></span>
+__global__ <span class="token keyword">void</span> <span class="token function">transposeSharedSwizzling</span><span class="token punctuation">(</span><span class="token keyword">float</span><span class="token operator">*</span> A<span class="token punctuation">,</span> <span class="token keyword">float</span><span class="token operator">*</span> B<span class="token punctuation">,</span> <span class="token keyword">const</span> <span class="token keyword">int</span> M<span class="token punctuation">,</span> <span class="token keyword">const</span> <span class="token keyword">int</span> N<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+  __shared__ <span class="token keyword">float</span> tile<span class="token punctuation">[</span>Bm<span class="token punctuation">]</span><span class="token punctuation">[</span>Bn<span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+  <span class="token comment">/* -------- 读取阶段 -------- */</span>
+  <span class="token keyword">int</span> r0 <span class="token operator">=</span> blockIdx<span class="token punctuation">.</span>y <span class="token operator">*</span> Bm<span class="token punctuation">;</span>
+  <span class="token keyword">int</span> c0 <span class="token operator">=</span> blockIdx<span class="token punctuation">.</span>x <span class="token operator">*</span> Bn<span class="token punctuation">;</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">pragma</span> <span class="token expression">unroll</span></span>
+  <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> y <span class="token operator">=</span> threadIdx<span class="token punctuation">.</span>y<span class="token punctuation">;</span> y <span class="token operator">&lt;</span> Bm<span class="token punctuation">;</span> y <span class="token operator">+=</span> blockDim<span class="token punctuation">.</span>y<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">int</span> r <span class="token operator">=</span> r0 <span class="token operator">+</span> y<span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>r <span class="token operator">>=</span> M<span class="token punctuation">)</span> <span class="token keyword">break</span><span class="token punctuation">;</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">pragma</span> <span class="token expression">unroll</span></span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> x <span class="token operator">=</span> threadIdx<span class="token punctuation">.</span>x<span class="token punctuation">;</span> x <span class="token operator">&lt;</span> Bn<span class="token punctuation">;</span> x <span class="token operator">+=</span> blockDim<span class="token punctuation">.</span>x<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+      <span class="token keyword">int</span> c <span class="token operator">=</span> c0 <span class="token operator">+</span> x<span class="token punctuation">;</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>c <span class="token operator">&lt;</span> N<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span> tile<span class="token punctuation">[</span>y<span class="token punctuation">]</span><span class="token punctuation">[</span>x <span class="token operator">^</span> y<span class="token punctuation">]</span> <span class="token operator">=</span> A<span class="token punctuation">[</span>r <span class="token operator">*</span> N <span class="token operator">+</span> c<span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+  <span class="token punctuation">&#125;</span>
+
+  <span class="token function">__syncthreads</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token comment">/* -------- 写入阶段 -------- */</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">pragma</span> <span class="token expression">unroll</span></span>
+  <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> y <span class="token operator">=</span> threadIdx<span class="token punctuation">.</span>y<span class="token punctuation">;</span> y <span class="token operator">&lt;</span> Bn<span class="token punctuation">;</span> y <span class="token operator">+=</span> blockDim<span class="token punctuation">.</span>y<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">int</span> c <span class="token operator">=</span> c0 <span class="token operator">+</span> y<span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>c <span class="token operator">>=</span> N<span class="token punctuation">)</span> <span class="token keyword">break</span><span class="token punctuation">;</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">pragma</span> <span class="token expression">unroll</span></span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> x <span class="token operator">=</span> threadIdx<span class="token punctuation">.</span>x<span class="token punctuation">;</span> x <span class="token operator">&lt;</span> Bm<span class="token punctuation">;</span> x <span class="token operator">+=</span> blockDim<span class="token punctuation">.</span>x<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+      <span class="token keyword">int</span> r <span class="token operator">=</span> r0 <span class="token operator">+</span> x<span class="token punctuation">;</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>r <span class="token operator">&lt;</span> M<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span> B<span class="token punctuation">[</span>c <span class="token operator">*</span> M <span class="token operator">+</span> r<span class="token punctuation">]</span> <span class="token operator">=</span> tile<span class="token punctuation">[</span>x<span class="token punctuation">]</span><span class="token punctuation">[</span>x <span class="token operator">^</span> y<span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+  <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><strong>调用配置</strong>：</p>
+<pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp"><span class="token keyword">constexpr</span> <span class="token keyword">int</span> Bm <span class="token operator">=</span> <span class="token number">32</span><span class="token punctuation">,</span> Bn <span class="token operator">=</span> <span class="token number">32</span><span class="token punctuation">;</span>
+dim3 <span class="token function">block</span><span class="token punctuation">(</span><span class="token number">32</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">)</span><span class="token punctuation">;</span>                          <span class="token comment">// x=32 对齐 warp，y=8 → 每线程搬 32/8=4 个元素</span>
+dim3 <span class="token function">grid</span><span class="token punctuation">(</span><span class="token punctuation">(</span>N <span class="token operator">+</span> Bn <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">/</span> Bn<span class="token punctuation">,</span> <span class="token punctuation">(</span>M <span class="token operator">+</span> Bm <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">/</span> Bm<span class="token punctuation">)</span><span class="token punctuation">;</span>
+transposeSharedSwizzling<span class="token operator">&lt;</span>Bm<span class="token punctuation">,</span> Bn<span class="token operator">></span><span class="token operator">&lt;&lt;</span><span class="token operator">&lt;</span>grid<span class="token punctuation">,</span> block<span class="token operator">>></span><span class="token operator">></span><span class="token punctuation">(</span>A<span class="token punctuation">,</span> B<span class="token punctuation">,</span> M<span class="token punctuation">,</span> N<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<blockquote>
+<p>💡 <strong>block 形状本身就是优化</strong>：<code>blockDim.x = 32</code> 保证一个 warp 恰好覆盖 32 列、coalescing 完美对齐；<code>blockDim.y = 8</code> 让 block 有 8 个 warp，每线程用循环（<code>y += blockDim.y</code>）搬 4 个元素。若 <code>blockDim.x &lt; 32</code>，一个 warp 会横跨多行、x 不再独占连续维，coalescing 立刻打折。</p>
+</blockquote>
+<hr>
+<h2 id="优化点逐条拆解">优化点逐条拆解</h2>
+<h3 id="优化-1：一个-tid-负责多个元素（打满算力）">优化 1：一个 tid 负责多个元素（打满算力）</h3>
+<p>代码里的 <code>for (y = threadIdx.y; y &lt; Bm; y += blockDim.y)</code> 双层循环就是它——block 是 <code>32×8</code>，tile 是 <code>32×32</code>，所以 y 方向要循环 <code>32/8 = 4</code> 次，<strong>一个线程负责 4 个元素</strong>。</p>
+<p>目的：用更少的线程/block 覆盖更大的 tile，提高每线程的计算访存比，减少 block 调度开销，把算力喂饱。</p>
+<p><img src="/img/notes/cuda_transpose/one_tid_multiple_elements.png" alt="一个 tid 负责多个元素"></p>
+<h3 id="优化-2：shared-memory-→-读写两头都连续">优化 2：shared memory → 读写两头都连续</h3>
+<p><strong>这是 transpose 的核心。先把术语钉死（极易接反）：</strong></p>
+<ul>
+<li><strong>HBM = GPU 显存</strong>（<code>A</code>/<code>B</code>，慢、大、远）。global memory 在此。<strong>coalescing 是 HBM 的概念</strong>——按&quot;连续地址凑一次事务&quot;工作。</li>
+<li><strong>SRAM = 片上高速存储</strong>（shared memory / L1L2 / 寄存器）。shared memory 是 SRAM。<strong>bank 是 shared memory 的概念</strong>。</li>
+</ul>
+<blockquote>
+<p>💡 <strong>为什么 shared memory 能解决问题</strong>：coalescing 只对 HBM 有要求。shared memory <strong>没有 coalescing 这回事</strong>——它按 bank 工作，一次访问只要 32 个地址落在 32 个<strong>不同 bank</strong>，就是一次事务，<strong>完全不要求地址连续</strong>。于是把&quot;HBM 必须连续&quot;这个硬约束，转移到 shared memory 上：<strong>HBM 两头（读 A、写 B）都连续，跳跃被吸进 shared memory，而 shared memory 用 bank 机制天然消化掉了跨行访问。</strong></p>
+</blockquote>
+<p><strong>转置发生在哪？</strong> 写进 shared 时按 <code>[行][列]</code> 正常存，<strong>从 shared 读出来时按转置读</strong>（读一列当一行用），再正常按行写回 HBM。即&quot;<strong>列读行写</strong>&quot;。</p>
+<p><strong>为什么写 HBM 必须按行</strong>：HBM 没有 bank、只认地址连不连续，所以写出去那头必须连续 → 只能&quot;列变行&quot;。</p>
+<p><img src="/img/notes/cuda_transpose/shared_memory.png" alt="shared memory 中转"></p>
+<p><strong>读写两阶段为什么 x/y 绑的轴会反？</strong>（最绕、最值得讲透）</p>
+<p>行列语义是程序员<strong>自由定义</strong>的，coalescing 不强制语义。但只有&quot;<strong>让 threadIdx.x 绑到当前要连续那个矩阵的低位</strong>&quot;才能 coalesce：</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>要哪个 HBM 连续</th>
+<th>该矩阵低位（连续维）</th>
+<th>x 绑</th>
+<th>y 绑</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>读 A</td>
+<td>A</td>
+<td>A 的<strong>列</strong></td>
+<td>列 <code>c=c0+x</code></td>
+<td>行 <code>r=r0+y</code></td>
+</tr>
+<tr>
+<td>写 B</td>
+<td>B</td>
+<td>B 的<strong>行</strong>（转置后行才是低位）</td>
+<td>行 <code>r=r0+x</code></td>
+<td>列 <code>c=c0+y</code></td>
+</tr>
+</tbody>
+</table>
+<p>所以 <strong>x 在读阶段绑列、写阶段绑行——不是 bug，是为 coalescing 主动牺牲了&quot;两阶段语义一致&quot;</strong>。你也可以写&quot;语义工整版&quot;（两阶段都 <code>r=r0+y,c=c0+x</code>），结果完全正确，但写 B 那头会变成跳跃写、慢约 32 倍。</p>
+<p>而 shared 的索引：<strong>shared 第一维永远是 shared 的行（= A 的行 = B 的列），第二维永远是 shared 的列</strong>。</p>
+<ul>
+<li>写 shared：数据来自 A，A 的行是 <code>y</code> → <code>tile[y][...]</code></li>
+<li>读 shared：要写到 B[c][r]，而 B[c][r]=A[r][c]，在 shared 里坐标 =（A 行, A 列）=（<code>r=r0+x</code>, <code>c=c0+y</code>）→ 第一维是 x → <code>tile[x][...]</code></li>
+</ul>
+<p><strong>这就是 <code>tile[y][..]</code> 写、<code>tile[x][..]</code> 读、第一维从 y 变 x 的来源——第一维的 y→x 切换本身就是转置。</strong></p>
+<h3 id="优化-3：swizzle（x-y）解决-bank-conflict">优化 3：swizzle（<code>x ^ y</code>）解决 bank conflict</h3>
+<p>引入 shared memory 后冒出第三个问题：<strong>bank conflict</strong>。若 tile 是 <code>[32][32]</code>、按列访问，同一列的 32 个元素地址相差 32，全部落到<strong>同一个 bank</strong> → 32 路冲突、串行 32 次。</p>
+<p>两条解决路线：</p>
+<ul>
+<li><strong>padding</strong>（<code>tile[32][33]</code>，+1）：加一列，把列元素<strong>物理错开</strong>到不同 bank。代价：浪费显存 + tile 不再是 2 的幂。</li>
+<li><strong>swizzle</strong>（<code>tile[y][x ^ y]</code>）：不加列，用 <code>列 ^ 行</code> <strong>打乱列在 bank 里的落点</strong>，让同一逻辑列散到不同 bank。<strong>零显存浪费，tile 保持 <code>[32][32]</code>。</strong></li>
+</ul>
+<p><code>x ^ y</code> 的妙处是<strong>对称</strong>：按行扫（x 变 y 固定）不撞 bank，按列扫（y 变 x 固定）也不撞 bank——所以读写两阶段能<strong>共用同一个 <code>x ^ y</code> 表达式</strong>。</p>
+<p><img src="/img/notes/cuda_transpose/swizzling.png" alt="swizzle 前后 bank 落点对比"></p>
+<blockquote>
+<p>核心：更换每一列的存储位置，进而达到按虽然列读取数据，但由于存储位置不同而导致bank不同，所以可以合并为一次内存事务，解决bank conflict</p>
+</blockquote>
+<hr>
+<h1>三、易错点速查 List</h1>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>易错点</th>
+<th>正确理解</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>threadIdx 的 x/y 对应矩阵行列？</td>
+<td>x/y 是<strong>笛卡尔坐标</strong>（x 横 y 纵）。换算矩阵：<strong>y=行，x=列</strong>。</td>
+</tr>
+<tr>
+<td>2</td>
+<td>warp 内&quot;x 连续变化&quot;是无条件的？</td>
+<td><strong>不是</strong>。warp 按线性 ID（x 最低位、行主序）每 32 个切一刀。只有 <code>blockDim.x ≥ 32</code> 时一个 warp 才落在&quot;同 y、x 连续 0~31&quot;；否则横跨多行、y 也变。</td>
+</tr>
+<tr>
+<td>3</td>
+<td>&quot;按行/按列读取&quot;是时间顺序？</td>
+<td><strong>不是</strong>。SIMT 无先后。它描述<strong>同一拍 32 个线程同时访问的地址在空间上连成横/竖</strong>，是空间形状不是时间次序。</td>
+</tr>
+<tr>
+<td>4</td>
+<td>NaiveRow 和 NaiveCol 哪个是 naive？</td>
+<td><strong>都是</strong>。Row=读连续写跳跃，Col=写连续读跳跃，都有一头跳跃。</td>
+</tr>
+<tr>
+<td>5</td>
+<td>naive 能靠调 block 形状救回来？</td>
+<td><strong>不能</strong>。转置行列对立，读连续则写必跳，根因是布局不是配置。要 shared memory 中转。</td>
+</tr>
+<tr>
+<td>6</td>
+<td>HBM 就是 shared memory / SRAM？</td>
+<td><strong>接反了</strong>。HBM=显存（慢大远，coalescing 概念）；SRAM=片上（shared/cache/寄存器，bank 概念）。shared memory 是 SRAM。</td>
+</tr>
+<tr>
+<td>7</td>
+<td>shared memory 也要考虑 coalescing？</td>
+<td><strong>不要</strong>。shared memory 没有 coalescing，只有 bank。跨行访问只要不撞 bank 就是一次事务，不要求连续。</td>
+</tr>
+<tr>
+<td>8</td>
+<td>转置发生在写 shared 还是读 shared？</td>
+<td>写 shared 正常存，<strong>读 shared 时转置</strong>（列读），再按行写回 HBM。即&quot;列读行写&quot;。</td>
+</tr>
+<tr>
+<td>9</td>
+<td>读写两阶段 x/y 绑的轴一样？</td>
+<td><strong>不一样</strong>。x 始终绑&quot;当前要连续矩阵的低位&quot;——读阶段绑 A 的列、写阶段绑 B 的行。为 coalescing 主动牺牲语义一致性。</td>
+</tr>
+<tr>
+<td>10</td>
+<td>行列语义是 warp/硬件强制的？</td>
+<td><strong>不是</strong>。语义程序员自由定，结果都对。但只有 x 绑低位的那种定法能 coalesce，其它定法慢约 32×。</td>
+</tr>
+<tr>
+<td>11</td>
+<td><code>tile[y][..]</code> 写、<code>tile[x][..]</code> 读写错了？</td>
+<td><strong>没错</strong>。shared 第一维=shared 行（=A 行=B 列）。写来自 A 用 y，读去往 B 用 x，第一维 y→x 的切换就是转置。</td>
+</tr>
+<tr>
+<td>12</td>
+<td>swizzle 和 padding 是一回事？</td>
+<td>解决同一问题（bank conflict）的<strong>两条路线</strong>。padding 物理错开（费显存）；swizzle 用 <code>x^y</code> 打乱落点（零浪费、tile 保持 2 的幂）。</td>
+</tr>
+<tr>
+<td>13</td>
+<td>swizzle 读写要用不同表达式？</td>
+<td><strong>不用</strong>。<code>x^y</code> 对称，按行扫、按列扫都不撞 bank，两阶段共用同一 <code>x^y</code>。</td>
+</tr>
+</tbody>
+</table>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        Author:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">Evan Guo</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        Link:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://gureumdot.github.io/2026/05/30/%E6%89%8B%E6%92%95/CUDA%E7%AE%97%E5%AD%90/transpose/">https://gureumdot.github.io/2026/05/30/%E6%89%8B%E6%92%95/CUDA%E7%AE%97%E5%AD%90/transpose/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        Reprint policy:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    All articles in this blog are used except for special statements
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    reprint policy. If reproduced, please indicate source
+                    <a href="/about" target="_blank">Evan Guo</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>Copied successfully, please follow the reprint policy of this article</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">more</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/%E6%89%8B%E6%92%95/">
+                                    <span class="chip bg-color">手撕</span>
+                                </a>
+                            
+                                <a href="/tags/cuda/">
+                                    <span class="chip bg-color">cuda</span>
+                                </a>
+                            
+                                <a href="/tags/gpu/">
+                                    <span class="chip bg-color">gpu</span>
+                                </a>
+                            
+                                <a href="/tags/transpose/">
+                                    <span class="chip bg-color">transpose</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;Previous</div>
+            <div class="card">
+                <a href="/2026/05/30/%E6%89%8B%E6%92%95/%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B/system-programming/">
+                    <div class="card-image">
+                        
+                        <img src="/img/covers/coding.png" class="responsive-img" alt="系统编程手撕：线程池 / 读写锁 / 生产者消费者">
+                        
+                        <span class="card-title">系统编程手撕：线程池 / 读写锁 / 生产者消费者</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            Infra 岗位必考的 C++ 并发手撕，考察对 mutex、condition_variable、RAII 的掌握。
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2026-05-30
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/%E6%89%8B%E6%92%95/" class="post-category">
+                                    手撕
+                                </a>
+                            
+                            <a href="/categories/%E6%89%8B%E6%92%95/%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B/" class="post-category">
+                                    系统编程
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B/">
+                        <span class="chip bg-color">系统编程</span>
+                    </a>
+                    
+                    <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/">
+                        <span class="chip bg-color">多线程</span>
+                    </a>
+                    
+                    <a href="/tags/%E7%BA%BF%E7%A8%8B%E6%B1%A0/">
+                        <span class="chip bg-color">线程池</span>
+                    </a>
+                    
+                    <a href="/tags/%E8%AF%BB%E5%86%99%E9%94%81/">
+                        <span class="chip bg-color">读写锁</span>
+                    </a>
+                    
+                    <a href="/tags/%E6%89%8B%E6%92%95/">
+                        <span class="chip bg-color">手撕</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                Next&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2026/05/30/%E6%89%8B%E6%92%95/LeetCode/hot100/">
+                    <div class="card-image">
+                        
+                        <img src="/img/covers/coding.png" class="responsive-img" alt="Hot 100 手撕思路">
+                        
+                        <span class="card-title">Hot 100 手撕思路</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            按题型归类的 Hot 100 思路速记。只记思路和易错点，不写代码。带 ⚠️ 的是当时踩过的坑。
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2026-05-30
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/%E6%89%8B%E6%92%95/" class="post-category">
+                                    手撕
+                                </a>
+                            
+                            <a href="/categories/%E6%89%8B%E6%92%95/LeetCode/" class="post-category">
+                                    LeetCode
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/%E7%AE%97%E6%B3%95/">
+                        <span class="chip bg-color">算法</span>
+                    </a>
+                    
+                    <a href="/tags/%E6%89%8B%E6%92%95/">
+                        <span class="chip bg-color">手撕</span>
+                    </a>
+                    
+                    <a href="/tags/leetcode/">
+                        <span class="chip bg-color">leetcode</span>
+                    </a>
+                    
+                    <a href="/tags/hot100/">
+                        <span class="chip bg-color">hot100</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;TOC</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        // Give h1 headings an id so tocbot can link to them (Hexo only generates ids for h2+)
+        $('#articleContent h1').each(function () {
+            if (!this.id) {
+                this.id = $(this).text().trim().replace(/\s+/g, '-');
+            }
+        });
+
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('1'),
+            headingSelector: 'h1, h2, h3, h4, h5',
+            scrollSmooth: true,
+            scrollSmoothOffset: -64
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2026</span>
+            
+            <a href="/about" target="_blank">Evan Guo</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;Total visits:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;Total visitors:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/blinkfox" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:1181062873@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=1181062873" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 1181062873" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;Search</span>
+            <input type="search" id="searchInput" name="s" placeholder="Please enter a search keyword"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+
+    
+    
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>
