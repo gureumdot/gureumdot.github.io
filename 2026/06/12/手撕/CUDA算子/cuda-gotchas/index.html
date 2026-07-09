@@ -1,0 +1,1473 @@
+<!DOCTYPE HTML>
+<html lang="en">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="CUDA 算子易错点 / 易混淆点汇总, Evan&#39;s blogs">
+    <meta name="description" content="
+持续更新。专收那些「乍看懂了、面试一追问就露馅」的点。每条配图。
+
+
+易错点 1：内存事务 vs 访存量（两套正交的度量）
+一句话：内存事务不改变「访存量」（计算访存比的分母），但决定搬运效率；访存量靠 warp 复用 / 广播来压低，从">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>CUDA 算子易错点 / 易混淆点汇总 | Evan&#39;s blogs</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<link rel="stylesheet" href="/libs/katex/katex.min.css">
+
+<style>
+#site-lock-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: #0f0f1a;
+  z-index: 99999;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  color: #fff; font-family: sans-serif;
+}
+#site-lock-overlay h2 { font-size: 22px; margin-bottom: 8px; letter-spacing: 2px; }
+#site-lock-overlay p  { color: #aaa; font-size: 14px; margin-bottom: 20px; }
+#site-lock-overlay input {
+  padding: 10px 16px; font-size: 16px;
+  border-radius: 8px; border: 1px solid #444;
+  background: #1e1e2e; color: #fff;
+  width: 260px; text-align: center; outline: none;
+  margin-bottom: 12px;
+}
+#site-lock-overlay button {
+  padding: 10px 40px;
+  background: #4a9eff; color: #fff;
+  border: none; border-radius: 8px;
+  cursor: pointer; font-size: 15px;
+  transition: background 0.2s;
+}
+#site-lock-overlay button:hover { background: #2278dd; }
+#site-lock-err { color: #ff6b6b; font-size: 13px; margin-top: 8px; min-height: 18px; }
+</style>
+
+<div id="site-lock-overlay">
+  <h2>🔒 访问受限</h2>
+  <p>请输入密码以继续访问</p>
+  <input type="password" id="site-password" placeholder="请输入密码"
+         onkeydown="if(event.key==='Enter') siteUnlock()">
+  <button onclick="siteUnlock()">确 认</button>
+  <div id="site-lock-err"></div>
+</div>
+
+<script>
+(function () {
+  // ★ 在这里修改你的访问密码 ★
+  var SITE_PASSWORD = 'qwe123456qwe';
+
+  if (sessionStorage.getItem('site_unlocked') === '1') {
+    document.getElementById('site-lock-overlay').style.display = 'none';
+  }
+
+  window.siteUnlock = function () {
+    var val = document.getElementById('site-password').value;
+    if (val === SITE_PASSWORD) {
+      sessionStorage.setItem('site_unlocked', '1');
+      document.getElementById('site-lock-overlay').style.display = 'none';
+    } else {
+      document.getElementById('site-lock-err').textContent = '密码错误，请重新输入';
+      document.getElementById('site-password').value = '';
+    }
+  };
+})();
+</script>
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">Evan&#39;s blogs</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>Index</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>Tags</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>Categories</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>Archives</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>About</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>Contact</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>Friends</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="Search" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">Evan&#39;s blogs</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			Index
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			Tags
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			Categories
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			Archives
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			About
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			Contact
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			Friends
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/blinkfox/hexo-theme-matery" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/blinkfox/hexo-theme-matery" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/19.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">CUDA 算子易错点 / 易混淆点汇总</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/CUDA/">
+                                <span class="chip bg-color">CUDA</span>
+                            </a>
+                        
+                            <a href="/tags/GEMM/">
+                                <span class="chip bg-color">GEMM</span>
+                            </a>
+                        
+                            <a href="/tags/%E7%AE%97%E5%AD%90%E4%BC%98%E5%8C%96/">
+                                <span class="chip bg-color">算子优化</span>
+                            </a>
+                        
+                            <a href="/tags/%E6%98%93%E9%94%99%E7%82%B9/">
+                                <span class="chip bg-color">易错点</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fas fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/%E6%89%8B%E6%92%95/" class="post-category">
+                                手撕
+                            </a>
+                        
+                            <a href="/categories/%E6%89%8B%E6%92%95/CUDA%E7%AE%97%E5%AD%90/" class="post-category">
+                                CUDA算子
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>Publish Date:&nbsp;&nbsp;
+                    2026-06-12
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <blockquote>
+<p>持续更新。专收那些「乍看懂了、面试一追问就露馅」的点。每条配图。</p>
+</blockquote>
+<hr>
+<h2 id="易错点-1：内存事务-vs-访存量（两套正交的度量）">易错点 1：内存事务 vs 访存量（两套正交的度量）</h2>
+<p><strong>一句话</strong>：内存事务<strong>不改变</strong>「访存量」（计算访存比的分母），但<strong>决定搬运效率</strong>；访存量靠 warp 复用 / 广播来压低，从而抬高计算访存比。这是两条<strong>正交</strong>的优化线，缺一不可。</p>
+<h3 id="1-1-先分清「访存量」到底指哪个">1.1 先分清「访存量」到底指哪个</h3>
+<p>「访存量」这个词在两个层级上含义完全不同，混了就全乱：</p>
+<p><svg width="100%" viewBox="0 0 680 250" role="img" xmlns="http://www.w3.org/2000/svg"><title>逻辑读出量 vs 真实搬运字节</title><desc>访存比的分母是逻辑读出的 float 个数,不是硬件事务搬的字节</desc></p>
+<style>
+.t{font-family:sans-serif;font-size:14px;fill:#3d3d3a}
+.th{font-family:sans-serif;font-size:14px;font-weight:500;fill:#3d3d3a}
+.ts{font-family:sans-serif;font-size:12px;fill:#73726c}
+.bx1{fill:#E1F5EE;stroke:#0F6E56;stroke-width:0.5}
+.bx2{fill:#FAEEDA;stroke:#854F0B;stroke-width:0.5}
+.h1{font-family:sans-serif;font-size:14px;font-weight:500;fill:#0F6E56}
+.h2{font-family:sans-serif;font-size:14px;font-weight:500;fill:#854F0B}
+.s1{font-family:sans-serif;font-size:12px;fill:#0F6E56}
+.s2{font-family:sans-serif;font-size:12px;fill:#854F0B}
+@media (prefers-color-scheme:dark){.t,.th{fill:#e8e6df}.ts{fill:#b4b2a9}.bx1{fill:#085041;stroke:#5DCAA5}.bx2{fill:#633806;stroke:#EF9F27}.h1{fill:#9FE1CB}.s1{fill:#5DCAA5}.h2{fill:#FAC775}.s2{fill:#EF9F27}}
+</style>
+<p><text class="th" x="20" y="28">同一次 warp 读 tileB,两种数法</text><br>
+<rect class="bx1" x="20" y="44" width="310" height="150" rx="8"/><br>
+<text class="h1" x="175" y="72" text-anchor="middle">逻辑读出量（算法层）</text><br>
+<text class="s1" x="175" y="98" text-anchor="middle">warp 要喂给 ALU 多少个独立 float</text><br>
+<text class="s1" x="175" y="120" text-anchor="middle">16 个不同 col → 算 16</text><br>
+<text class="s1" x="175" y="142" text-anchor="middle">这就是访存比的分母</text><br>
+<text class="s1" x="175" y="168" text-anchor="middle">只跟「算法怎么复用」有关</text><br>
+<rect class="bx2" x="350" y="44" width="310" height="150" rx="8"/><br>
+<text class="h2" x="505" y="72" text-anchor="middle">真实搬运量（硬件层）</text><br>
+<text class="s2" x="505" y="98" text-anchor="middle">DRAM/L2 实际搬了多少字节</text><br>
+<text class="s2" x="505" y="120" text-anchor="middle">16 个连续 → 合并成 1 次事务</text><br>
+<text class="s2" x="505" y="142" text-anchor="middle">这是「搬得快不快」</text><br>
+<text class="s2" x="505" y="168" text-anchor="middle">只跟「访问连不连续」有关</text><br>
+<text class="ts" x="340" y="222" text-anchor="middle">你把「访存量」理解成右边的事务/字节,所以才觉得「都是 1 次,怎么会变」——其实分母数的是左边</text><br>
+</svg></p>
+<ul>
+<li><strong>左边（逻辑读出量）</strong>：warp 这一拍逻辑上要读出多少个<strong>不同的</strong> float 值喂给计算单元。<strong>这才是计算访存比的分母。</strong> 它由算法决定，跟硬件用几次事务搬过来无关。</li>
+<li><strong>右边（真实搬运量）</strong>：硬件实际从 DRAM/L2 搬了多少字节。这由访问是否连续、对齐决定，对应内存事务 / 合并（coalescing）。</li>
+</ul>
+<blockquote>
+<p>⚠️ 16 个连续 float <strong>物理上确实合并成 1 次事务</strong>，你这个直觉没错。但「合并成几次事务」是搬运打包问题，不改变「逻辑上读了 16 个值」这件事。<strong>分母数的是逻辑值的个数，不是事务数。</strong></p>
+</blockquote>
+<h3 id="1-2-事务数影响什么：同样-32-个-float，1-次-vs-2-次事务">1.2 事务数影响什么：同样 32 个 float，1 次 vs 2 次事务</h3>
+<p>事务<strong>不改访存比的分母</strong>，但直接决定耗时和带宽利用率：</p>
+<p><svg width="100%" viewBox="0 0 680 230" role="img" xmlns="http://www.w3.org/2000/svg"><title>1次事务 vs 2次事务</title><desc>事务数影响耗时和带宽利用率,不影响逻辑读出量</desc></p>
+<style>
+.t2{font-family:sans-serif;font-size:14px;fill:#3d3d3a}
+.th2{font-family:sans-serif;font-size:14px;font-weight:500;fill:#3d3d3a}
+.ts2{font-family:sans-serif;font-size:12px;fill:#73726c}
+.gx{fill:#E1F5EE;stroke:#0F6E56;stroke-width:0.5}
+.rx{fill:#FCEBEB;stroke:#A32D2D;stroke-width:0.5}
+.gh{font-family:sans-serif;font-size:14px;font-weight:500;fill:#0F6E56}
+.gs{font-family:sans-serif;font-size:12px;fill:#0F6E56}
+.rh{font-family:sans-serif;font-size:14px;font-weight:500;fill:#A32D2D}
+.rs{font-family:sans-serif;font-size:12px;fill:#A32D2D}
+@media (prefers-color-scheme:dark){.t2,.th2{fill:#e8e6df}.ts2{fill:#b4b2a9}.gx{fill:#085041;stroke:#5DCAA5}.gh{fill:#9FE1CB}.gs{fill:#5DCAA5}.rx{fill:#791F1F;stroke:#F09595}.rh{fill:#F7C1C1}.rs{fill:#F09595}}
+</style>
+<p><text class="th2" x="20" y="28">读同样 32 个 float = 128 字节，两种打包</text><br>
+<rect class="gx" x="20" y="44" width="310" height="150" rx="8"/><br>
+<text class="gh" x="175" y="72" text-anchor="middle">连续 → 1 次事务</text><br>
+<text class="gs" x="175" y="98" text-anchor="middle">恰好凑满 1 个 128B 内存块</text><br>
+<text class="gs" x="175" y="120" text-anchor="middle">真实搬运：128 字节</text><br>
+<text class="gs" x="175" y="142" text-anchor="middle">耗时：1 拍</text><br>
+<text class="gs" x="175" y="168" text-anchor="middle">带宽利用率：100%</text><br>
+<rect class="rx" x="350" y="44" width="310" height="150" rx="8"/><br>
+<text class="rh" x="505" y="72" text-anchor="middle">分散 → 2 次事务</text><br>
+<text class="rs" x="505" y="98" text-anchor="middle">跨 2 个 128B 块（跨界 / stride）</text><br>
+<text class="rs" x="505" y="120" text-anchor="middle">真实搬运：256 字节（浪费一半）</text><br>
+<text class="rs" x="505" y="142" text-anchor="middle">耗时：2 拍</text><br>
+<text class="rs" x="505" y="168" text-anchor="middle">带宽利用率：50%</text><br>
+</svg></p>
+<p>事务有最小粒度（典型 128B 一块）。32 个 float 散落在 2 个块里，硬件必须发 2 次事务、每次都搬整块 128B，<strong>搬 256B 才拿到要的 128B，多搬的一半纯浪费</strong>，耗时翻倍。</p>
+<h3 id="1-3-在一次事务内，用-warp-优化访存量">1.3 在一次事务内，用 warp 优化访存量</h3>
+<p>真正减少<strong>逻辑读出量</strong>的机制是 shared memory 的<strong>广播</strong>——同一 warp 内多个线程读<strong>同一地址</strong>只算一次。它发生在数据复用的方向上。GEMM 里 warp 排布形状决定了广播省在哪一维：</p>
+<table>
+<thead>
+<tr>
+<th>warp 形状</th>
+<th>tileB 读出（沿 x，Wx）</th>
+<th>tileA 读出（沿 y，Wy）</th>
+<th>分母 Wx+Wy</th>
+<th>计算访存比 = 128/(Wx+Wy)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>16×2</td>
+<td>16</td>
+<td>2</td>
+<td>18</td>
+<td>7.1</td>
+</tr>
+<tr>
+<td>8×4</td>
+<td>8</td>
+<td>4</td>
+<td>12</td>
+<td><strong>10.7</strong> ✅</td>
+</tr>
+</tbody>
+</table>
+<p>分子（算力）固定：32 线程 × 64 乘加 × 2，与 warp 形状无关。变的只有分母。<strong>Wx×Wy=32 约束下，和最小 → 越接近正方形越优</strong>（和定积、积定和），所以 8×4 / 4×8 最佳。这条「正方形最优」原理一路向上同样适用于 thread tile（Tm×Tn 选 8×8）和 block tile。</p>
+<h3 id="1-4-两套度量正交：哪个优化手段服务于哪一头">1.4 两套度量正交：哪个优化手段服务于哪一头</h3>
+<p>这张表是分清两套度量的试金石，也是面试高频追问点：</p>
+<table>
+<thead>
+<tr>
+<th>优化手段</th>
+<th>服务于</th>
+<th>原理</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tiling（block/warp/thread tile）</td>
+<td><strong>访存比</strong>（压分母）</td>
+<td>把数据搬进 shared/寄存器后反复复用</td>
+</tr>
+<tr>
+<td>广播（broadcast）</td>
+<td><strong>访存比</strong>（压分母）</td>
+<td>同 warp 读同地址只算一次</td>
+</tr>
+<tr>
+<td><code>FLOAT4</code> 向量化读取（LDS.128）</td>
+<td><strong>事务</strong>（提带宽利用率）</td>
+<td>一条指令搬 4 个连续 float，压缩访问次数</td>
+</tr>
+<tr>
+<td><strong>As 转置存储</strong>（<code>As[k][m]</code>）</td>
+<td><strong>事务</strong>（让访问连续）</td>
+<td>外积时 A 的列变连续，才能 float4 合并读</td>
+</tr>
+<tr>
+<td>内存合并（coalescing）</td>
+<td><strong>事务</strong>（提带宽利用率）</td>
+<td>让 warp 访问落在连续地址</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>🎯 <strong>超高频坑</strong>：「As 为什么要转置存储？」——转置是为了让该读的 4 个 float 在地址上<strong>连续</strong>，从而合并成一次 128 位事务，纯<strong>事务层面</strong>的理由。很多人误以为「转置是为了减少读取量 / 优化访存比」——<strong>错，转置一个 float 都不会少读</strong>，逻辑读出量纹丝不动。能不能分清这点，就看你有没有真把两套度量拆开。</p>
+</blockquote>
+<h3 id="1-5-coalescing-broadcast-bank-conflict-辨析">1.5 coalescing / broadcast / bank conflict 辨析</h3>
+<p>三个概念极易混为一谈，但分属不同层级：</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>发生层级</th>
+<th>触发条件</th>
+<th>解决什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>coalescing（合并）</strong></td>
+<td>global → L2/DRAM</td>
+<td>同 warp 访问<strong>连续对齐</strong>地址</td>
+<td>减少事务数、提带宽利用率</td>
+</tr>
+<tr>
+<td><strong>broadcast（广播）</strong></td>
+<td>shared memory</td>
+<td>同 warp 多线程读<strong>同一地址</strong></td>
+<td>降低逻辑读出量（省一次读）</td>
+</tr>
+<tr>
+<td><strong>bank conflict（冲突）</strong></td>
+<td>shared memory</td>
+<td>同 warp 多线程读<strong>同 bank 不同地址</strong></td>
+<td>避免则单次完成，否则串行</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>⚠️ 易记反：广播只在 <strong>shared</strong> 且 <strong>同一 warp</strong> 内成立；不同 warp 读同地址<strong>不</strong>广播，global memory 也<strong>没有</strong>广播（global 那层叫 coalescing）。broadcast 与 bank conflict 是一对：同 bank <strong>同</strong>地址 = 广播不冲突；同 bank <strong>不同</strong>地址 = 冲突串行。</p>
+</blockquote>
+<hr>
+<h2 id="易错点-2：计算访存比-vs-SM-占有率">易错点 2：计算访存比 vs SM 占有率</h2>
+<p><strong>一句话</strong>：访存比定<strong>上限（天花板有多高）</strong>，占有率定<strong>能否爬到上限</strong>。两个都要高，缺一不可。</p>
+<p><svg width="100%" viewBox="0 0 680 420" role="img" xmlns="http://www.w3.org/2000/svg"><title>访存比与占有率各自的角色</title><desc>访存比决定性能天花板,占有率决定能否达到天花板</desc></p>
+<style>
+.t3{font-family:sans-serif;font-size:14px;fill:#3d3d3a}
+.th3{font-family:sans-serif;font-size:14px;font-weight:500;fill:#3d3d3a}
+.ts3{font-family:sans-serif;font-size:12px;fill:#73726c}
+.px{fill:#EEEDFE;stroke:#534AB7;stroke-width:0.5}
+.tx{fill:#E1F5EE;stroke:#0F6E56;stroke-width:0.5}
+.rx2{fill:#FCEBEB;stroke:#A32D2D;stroke-width:0.5}
+.ax{fill:#FAEEDA;stroke:#854F0B;stroke-width:0.5}
+.ph{font-family:sans-serif;font-size:14px;font-weight:500;fill:#534AB7}.ps{font-family:sans-serif;font-size:12px;fill:#534AB7}
+.tch{font-family:sans-serif;font-size:14px;font-weight:500;fill:#0F6E56}.tcs{font-family:sans-serif;font-size:12px;fill:#0F6E56}
+.r2h{font-family:sans-serif;font-size:14px;font-weight:500;fill:#A32D2D}.r2s{font-family:sans-serif;font-size:12px;fill:#A32D2D}
+.a2h{font-family:sans-serif;font-size:14px;font-weight:500;fill:#854F0B}.a2s{font-family:sans-serif;font-size:12px;fill:#854F0B}
+@media (prefers-color-scheme:dark){.t3,.th3{fill:#e8e6df}.ts3{fill:#b4b2a9}
+.px{fill:#3C3489;stroke:#AFA9EC}.ph{fill:#CECBF6}.ps{fill:#AFA9EC}
+.tx{fill:#085041;stroke:#5DCAA5}.tch{fill:#9FE1CB}.tcs{fill:#5DCAA5}
+.rx2{fill:#791F1F;stroke:#F09595}.r2h{fill:#F7C1C1}.r2s{fill:#F09595}
+.ax{fill:#633806;stroke:#EF9F27}.a2h{fill:#FAC775}.a2s{fill:#EF9F27}}
+</style>
+<p><text class="th3" x="20" y="26">两个指标,回答两个不同的问题</text><br>
+<rect class="px" x="20" y="42" width="310" height="150" rx="8"/><br>
+<text class="ph" x="175" y="70" text-anchor="middle">计算访存比（算术强度）</text><br>
+<text class="ps" x="175" y="96" text-anchor="middle">FLOP / Byte，算法本身决定</text><br>
+<text class="ps" x="175" y="118" text-anchor="middle">回答：这活儿最快能多快</text><br>
+<text class="ps" x="175" y="142" text-anchor="middle">→ 决定性能「上限 / 天花板」</text><br>
+<text class="ps" x="175" y="166" text-anchor="middle">低 = 卡带宽，堆线程也没用</text><br>
+<text class="ps" x="175" y="186" text-anchor="middle">靠 tiling / 复用 / 广播 抬升</text><br>
+<rect class="tx" x="350" y="42" width="310" height="150" rx="8"/><br>
+<text class="tch" x="505" y="70" text-anchor="middle">SM 占有率</text><br>
+<text class="tcs" x="505" y="96" text-anchor="middle">活跃 warp 数 / 硬件上限</text><br>
+<text class="tcs" x="505" y="118" text-anchor="middle">回答：能不能跑满那个上限</text><br>
+<text class="tcs" x="505" y="142" text-anchor="middle">→ 决定「能否逼近天花板」</text><br>
+<text class="tcs" x="505" y="166" text-anchor="middle">太低 = warp 不够掩盖延迟</text><br>
+<text class="tcs" x="505" y="186" text-anchor="middle">靠控制寄存器/shared 用量抬升</text><br>
+<text class="th3" x="20" y="232">为什么两个都要高（缺一不可）</text><br>
+<rect class="rx2" x="20" y="248" width="310" height="138" rx="8"/><br>
+<text class="r2h" x="175" y="276" text-anchor="middle">访存比高 + 占有率低</text><br>
+<text class="r2s" x="175" y="302" text-anchor="middle">天花板很高，却够不着</text><br>
+<text class="r2s" x="175" y="324" text-anchor="middle">warp 太少，延迟掩盖不住</text><br>
+<text class="r2s" x="175" y="346" text-anchor="middle">计算单元大量空转</text><br>
+<text class="r2s" x="175" y="372" text-anchor="middle">✗ 不行</text><br>
+<rect class="ax" x="350" y="248" width="310" height="138" rx="8"/><br>
+<text class="a2h" x="505" y="276" text-anchor="middle">占有率高 + 访存比低</text><br>
+<text class="a2s" x="505" y="302" text-anchor="middle">warp 塞满，可天花板很低</text><br>
+<text class="a2s" x="505" y="324" text-anchor="middle">全卡在搬数据上</text><br>
+<text class="a2s" x="505" y="346" text-anchor="middle">再多 warp 也突破不了带宽墙</text><br>
+<text class="a2s" x="505" y="372" text-anchor="middle">✗ 不行</text><br>
+</svg></p>
+<ul>
+<li><strong>访存比（算术强度）决定天花板有多高</strong>：roofline 模型里那条斜线 + 平台线，FLOP/Byte 越高，理论峰值越高。</li>
+<li><strong>占有率决定能不能爬到天花板</strong>：它提供足够的活跃 warp 来<strong>掩盖访存 / 指令延迟</strong>，把硬件喂饱。占有率低 → 延迟掩盖不住 → 实际性能远低于天花板。</li>
+</ul>
+<blockquote>
+<p>✅ <strong>准确口诀</strong>：访存比定上限，占有率定<strong>能否达到上限</strong>。</p>
+<p>🧭 <strong>直觉对照（防止自己记反）</strong>：我最初记成「占有率定下限」。这个直觉<strong>可以保留，但要理解对</strong>——它<strong>不是</strong>说占有率给性能设了个保底地板（占有率高也<strong>不保证</strong>性能好，见右下角「占有率高+访存比低」照样慢）。正确含义是：<strong>占有率太低会把实际性能从天花板拖到很惨的位置</strong>。占有率更像「达成率 / 利用率」，不是「保底线」。</p>
+</blockquote>
+<hr>
+<h2 id="待补充">待补充</h2>
+<ul>
+<li>[ ] thread/block/warp 三级 tile 的「正方形最优」统一原理（算术不等式视角）</li>
+<li>[ ] z-order swizzling 为什么能触发广播</li>
+<li>[ ] swizzling（<code>^</code>）消除 bank conflict 的地址映射</li>
+</ul>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        Author:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">Evan Guo</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        Link:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://gureumdot.github.io/2026/06/12/%E6%89%8B%E6%92%95/CUDA%E7%AE%97%E5%AD%90/cuda-gotchas/">https://gureumdot.github.io/2026/06/12/%E6%89%8B%E6%92%95/CUDA%E7%AE%97%E5%AD%90/cuda-gotchas/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        Reprint policy:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    All articles in this blog are used except for special statements
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    reprint policy. If reproduced, please indicate source
+                    <a href="/about" target="_blank">Evan Guo</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>Copied successfully, please follow the reprint policy of this article</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">more</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/CUDA/">
+                                    <span class="chip bg-color">CUDA</span>
+                                </a>
+                            
+                                <a href="/tags/GEMM/">
+                                    <span class="chip bg-color">GEMM</span>
+                                </a>
+                            
+                                <a href="/tags/%E7%AE%97%E5%AD%90%E4%BC%98%E5%8C%96/">
+                                    <span class="chip bg-color">算子优化</span>
+                                </a>
+                            
+                                <a href="/tags/%E6%98%93%E9%94%99%E7%82%B9/">
+                                    <span class="chip bg-color">易错点</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;Previous</div>
+            <div class="card">
+                <a href="/2026/07/05/%E6%89%8B%E6%92%95/LLM%E7%AE%97%E6%B3%95/moe/">
+                    <div class="card-image">
+                        
+                        <img src="/img/covers/moe_cover.png" class="responsive-img" alt="MoE 手撕（一）：naive routing 与隐式 dispatch/combine">
+                        
+                        <span class="card-title">MoE 手撕（一）：naive routing 与隐式 dispatch/combine</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            面试高频手撕。MoE 的核心不是 expert 本身（就是普通 FFN），而是 routing：token 怎么被分到 topk 个 expert、算完怎么加权聚合回来。本篇写最干净的 for 循环版，dispatch / combine 
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2026-07-05
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/%E6%89%8B%E6%92%95/" class="post-category">
+                                    手撕
+                                </a>
+                            
+                            <a href="/categories/%E6%89%8B%E6%92%95/LLM%E7%AE%97%E6%B3%95/" class="post-category">
+                                    LLM算法
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/%E6%89%8B%E6%92%95/">
+                        <span class="chip bg-color">手撕</span>
+                    </a>
+                    
+                    <a href="/tags/moe/">
+                        <span class="chip bg-color">moe</span>
+                    </a>
+                    
+                    <a href="/tags/mixture-of-experts/">
+                        <span class="chip bg-color">mixture-of-experts</span>
+                    </a>
+                    
+                    <a href="/tags/routing/">
+                        <span class="chip bg-color">routing</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                Next&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2026/06/11/%E9%9D%A2%E8%AF%95/%E6%8A%95%E9%80%92%E8%AE%B0%E5%BD%95/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/16.jpg" class="responsive-img" alt="投递记录 + 面经总结">
+                        
+                        <span class="card-title">投递记录 + 面经总结</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+投递进度追踪 + 面经总结合并记录，方便复盘。
+分类标准：各领域知名公司单独列类，北京/外地按是否有大模型算法或 AI Infra 岗在北京划分。
+
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2026-06-11
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/%E9%9D%A2%E8%AF%95/" class="post-category">
+                                    面试
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/%E9%9D%A2%E8%AF%95/">
+                        <span class="chip bg-color">面试</span>
+                    </a>
+                    
+                    <a href="/tags/%E6%B1%82%E8%81%8C/">
+                        <span class="chip bg-color">求职</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;TOC</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        // Give h1 headings an id so tocbot can link to them (Hexo only generates ids for h2+)
+        $('#articleContent h1').each(function () {
+            if (!this.id) {
+                this.id = $(this).text().trim().replace(/\s+/g, '-');
+            }
+        });
+
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('1'),
+            headingSelector: 'h1, h2, h3, h4, h5',
+            scrollSmooth: true,
+            scrollSmoothOffset: -64
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2026</span>
+            
+            <a href="/about" target="_blank">Evan Guo</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;Total visits:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;Total visitors:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/blinkfox" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:1181062873@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=1181062873" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 1181062873" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;Search</span>
+            <input type="search" id="searchInput" name="s" placeholder="Please enter a search keyword"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+
+    
+    
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>
