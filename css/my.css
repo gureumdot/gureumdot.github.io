@@ -1,0 +1,96 @@
+/* Here is your custom css styles. */
+
+/* ===== 代码块整体容器 ===== */
+.code-area {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    margin: 1.5rem 0;
+    background: #1e1e1e;
+}
+
+/* ===== 顶栏（Mac 风格窗口控件所在区域）===== */
+.code-area::before {
+    content: '';
+    display: block;
+    height: 36px;
+    background: #2d2d2d;
+    border-bottom: 1px solid #3a3a3a;
+}
+
+/* ===== 三色圆点（覆盖原有位置和尺寸）===== */
+.code-area::after {
+    width: 13px;
+    height: 13px;
+    top: 11px;
+    left: 14px;
+    background: #ff5f57;
+    box-shadow: 21px 0 0 #febc2e, 42px 0 0 #28c840;
+}
+
+/* ===== 语言标签 ===== */
+.code_lang {
+    top: 9px;
+    right: 50px;
+    line-height: 18px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.5);
+    filter: none;
+}
+
+/* ===== pre 块：主代码区 ===== */
+pre {
+    background: #1e1e1e !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    padding: 1rem 1.2rem 1rem 0 !important;
+    font-size: 0.88rem;
+    line-height: 1.65;
+}
+
+/* ===== 代码文字 ===== */
+pre code {
+    background: transparent !important;
+    color: #d4d4d4 !important;
+    font-family: 'JetBrains Mono', 'Fira Code', Consolas, Monaco, 'Courier New', monospace;
+    font-size: 0.88rem;
+    line-height: 1.65;
+}
+
+/* ===== 行号区域（Prism line-numbers 插件）===== */
+pre.line-numbers {
+    padding-left: 3.5em !important;
+}
+
+.line-numbers .line-numbers-rows {
+    border-right: 1px solid #3a3a3a;
+    background: #1e1e1e;
+    padding-right: 0.6em;
+    top: 1rem;
+}
+
+.line-numbers-rows > span::before {
+    color: #4e5057;
+    font-size: 0.82rem;
+}
+
+/* ===== 复制按钮调整 ===== */
+.code_copy {
+    top: 8px;
+    right: 28px;
+    filter: invert(60%);
+}
+
+.codecopy_notice {
+    top: 8px;
+    filter: invert(60%);
+}
+
+/* ===== 折叠按钮调整 ===== */
+.code-expand {
+    top: 6px;
+    filter: invert(60%);
+}

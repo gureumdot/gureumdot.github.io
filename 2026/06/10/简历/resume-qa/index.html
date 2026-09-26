@@ -1,0 +1,1550 @@
+<!DOCTYPE HTML>
+<html lang="en">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="简历 QA 准备, Evan&#39;s blogs">
+    <meta name="description" content="
+针对简历每条经历，预设面试官可能追问的问题并给出答案框架。
+
+
+
+工作/实习经历
+实习一：摩尔线程
+时间：2026.02 — 2026.05｜北京
+1. vLLM/SGLang musify 移植 &amp;amp; moore feature ">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>简历 QA 准备 | Evan&#39;s blogs</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<link rel="stylesheet" href="/libs/katex/katex.min.css">
+
+<style>
+#site-lock-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: #0f0f1a;
+  z-index: 99999;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  color: #fff; font-family: sans-serif;
+}
+#site-lock-overlay h2 { font-size: 22px; margin-bottom: 8px; letter-spacing: 2px; }
+#site-lock-overlay p  { color: #aaa; font-size: 14px; margin-bottom: 20px; }
+#site-lock-overlay input {
+  padding: 10px 16px; font-size: 16px;
+  border-radius: 8px; border: 1px solid #444;
+  background: #1e1e2e; color: #fff;
+  width: 260px; text-align: center; outline: none;
+  margin-bottom: 12px;
+}
+#site-lock-overlay button {
+  padding: 10px 40px;
+  background: #4a9eff; color: #fff;
+  border: none; border-radius: 8px;
+  cursor: pointer; font-size: 15px;
+  transition: background 0.2s;
+}
+#site-lock-overlay button:hover { background: #2278dd; }
+#site-lock-err { color: #ff6b6b; font-size: 13px; margin-top: 8px; min-height: 18px; }
+</style>
+
+<div id="site-lock-overlay">
+  <h2>🔒 访问受限</h2>
+  <p>请输入密码以继续访问</p>
+  <input type="password" id="site-password" placeholder="请输入密码"
+         onkeydown="if(event.key==='Enter') siteUnlock()">
+  <button onclick="siteUnlock()">确 认</button>
+  <div id="site-lock-err"></div>
+</div>
+
+<script>
+(function () {
+  // ★ 在这里修改你的访问密码 ★
+  var SITE_PASSWORD = 'qwe123456qwe';
+
+  if (sessionStorage.getItem('site_unlocked') === '1') {
+    document.getElementById('site-lock-overlay').style.display = 'none';
+  }
+
+  window.siteUnlock = function () {
+    var val = document.getElementById('site-password').value;
+    if (val === SITE_PASSWORD) {
+      sessionStorage.setItem('site_unlocked', '1');
+      document.getElementById('site-lock-overlay').style.display = 'none';
+    } else {
+      document.getElementById('site-lock-err').textContent = '密码错误，请重新输入';
+      document.getElementById('site-password').value = '';
+    }
+  };
+})();
+</script>
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">Evan&#39;s blogs</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>Index</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>Tags</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>Categories</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>Archives</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>About</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>Contact</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>Friends</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="Search" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">Evan&#39;s blogs</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			Index
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			Tags
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			Categories
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			Archives
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			About
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			Contact
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			Friends
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/blinkfox/hexo-theme-matery" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/blinkfox/hexo-theme-matery" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/img/covers/coding.png')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">简历 QA 准备</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/%E7%AE%80%E5%8E%86/">
+                                <span class="chip bg-color">简历</span>
+                            </a>
+                        
+                            <a href="/tags/%E9%9D%A2%E8%AF%95/">
+                                <span class="chip bg-color">面试</span>
+                            </a>
+                        
+                            <a href="/tags/QA/">
+                                <span class="chip bg-color">QA</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fas fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/%E7%AE%80%E5%8E%86/" class="post-category">
+                                简历
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>Publish Date:&nbsp;&nbsp;
+                    2026-06-10
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <blockquote>
+<p>针对简历每条经历，预设面试官可能追问的问题并给出答案框架。</p>
+</blockquote>
+<span id="more"></span>
+<hr>
+<h2 id="工作-实习经历">工作/实习经历</h2>
+<h3 id="实习一：摩尔线程">实习一：摩尔线程</h3>
+<p><strong>时间</strong>：2026.02 — 2026.05｜北京</p>
+<h4 id="1-vLLM-SGLang-musify-移植-moore-feature-兼容性验证">1. vLLM/SGLang musify 移植 &amp; moore feature 兼容性验证</h4>
+<ul>
+<li><strong>挑战一：编译出错 — 模板对应不上，找不到模板/找不到对应的声明</strong>
+<ul>
+<li>原因：编译器新版本有新算子融合的更新，但 SGLang 里面编译第三方库时仍然会调用该算子</li>
+<li>解决方案：退回到旧版本编译器</li>
+</ul>
+</li>
+</ul>
+<h5 id="挑战一-QA：编译器版本与第三方库算子不匹配">挑战一 QA：编译器版本与第三方库算子不匹配</h5>
+<blockquote>
+<p>待补充：面试官追问点（如「为什么旧编译器能用、新版本反而不行」「除了退回旧版本还有其他方案吗」「这类版本兼容问题在 musify 移植里常见吗」等）。</p>
+</blockquote>
+<ul>
+<li><strong>挑战二：PR 冲突</strong>
+<ul>
+<li>无法合并 pr17137：<code>[Feature] Support non-Marlin CompressedTensorsWNA16MoE method</code>（Port from vLLM）#17137，与 0.5.9 版本冲突，具体见 pr#17503</li>
+<li>解决方案：待上游合并</li>
+</ul>
+</li>
+</ul>
+<h5 id="挑战二-QA：PR-冲突与上游版本管理">挑战二 QA：PR 冲突与上游版本管理</h5>
+<blockquote>
+<p>待补充：面试官追问点（如「冲突点具体是什么」「为什么要等上游合并而不是 fork 一份」「musify 移植和上游 PR 的关系是怎样的」等）。</p>
+</blockquote>
+<ul>
+<li><strong>挑战三：torch.fx 优化无法开启</strong>
+<ul>
+<li>原因：未知，可能是 torchada 的适配工作没做好</li>
+<li>解决方案：未知</li>
+</ul>
+</li>
+</ul>
+<h5 id="挑战三-QA：torch-fx-图优化未启用">挑战三 QA：torch.fx 图优化未启用</h5>
+<blockquote>
+<p>待补充：torch.fx 的作用、它在 vLLM/SGLang 中的位置、torchada 是什么、未开启的影响等。</p>
+</blockquote>
+<ul>
+<li><strong>挑战四：cuda graph 无法开启 piecewise 优化模式</strong>
+<ul>
+<li>原因：未知</li>
+<li>解决方案：未知</li>
+</ul>
+</li>
+</ul>
+<style>
+.qa-svg { --t: #c9d1d9; --bg: transparent; }
+.qa-svg text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; fill: var(--t); }
+.qa-svg .th { font-size: 14px; font-weight: 600; }
+.qa-svg .ts { font-size: 12px; }
+.qa-svg rect { fill-opacity: 0.18; stroke-opacity: 0.9; }
+.qa-svg .arr { stroke: #c9d1d9; stroke-width: 1.5; fill: none; opacity: 0.75; }
+.qa-svg .c-gray   rect { fill: #8b949e; stroke: #8b949e; }
+.qa-svg .c-amber  rect { fill: #d29922; stroke: #d29922; }
+.qa-svg .c-teal   rect { fill: #1f9d9d; stroke: #1f9d9d; }
+.qa-svg .c-red    rect { fill: #e24b4a; stroke: #e24b4a; }
+.qa-svg .c-purple rect { fill: #8957e5; stroke: #8957e5; }
+.qa-svg .c-green  rect { fill: #2da44e; stroke: #2da44e; }
+.qa-svg .c-coral  rect { fill: #db6d56; stroke: #db6d56; }
+</style>
+<blockquote>
+<p><strong>【挑战四 QA 梳理：CUDA Graph】</strong><br>
+以下围绕「cuda graph 无法开启 piecewise 优化模式」这条经历，梳理面试可能追问的 CUDA Graph 知识点，重点是几个最易理解错的地方。</p>
+</blockquote>
+<h5 id="挑战四-QA·1：CUDA-Graph-的真正优化目标（含「为什么要固定-shape」）">挑战四 QA·1：CUDA Graph 的真正优化目标（含「为什么要固定 shape」）</h5>
+<p><strong>一句话结论</strong>：直接原因是<strong>把多次 kernel 发射合并成一次发射</strong>，消除 CPU 侧的 kernel launch 开销。<strong>固定 shape 只是前置条件，不是加速来源本身。</strong></p>
+<p><strong>它录的是什么</strong>：常见误解以为 Graph「把计算大小写好了所以快」。错。Graph 录的是<strong>一整串 kernel 的调用拓扑</strong>（哪些 kernel、什么顺序、依赖、各自的 launch 参数），<strong>不是 tensor 的 shape</strong>。</p>
+<p><strong>加速从哪来</strong>：eager 模式下每个 kernel 都要 CPU 走一遍提交（参数打包 → 驱动校验 → 推进 GPU 队列），每次约 5~10μs。LLM 一个 decode step 有几百个 kernel，单个计算可能只要 2~3μs，于是 <strong>GPU 算得比 CPU 喂得快，在「饿肚子」干等</strong>（launch-bound）。CUDA Graph 把这几百次提交<strong>录制一次</strong>，之后每 step 只发一条 <code>cudaGraphLaunch</code>，几百个 kernel 在 GPU 侧按录好的拓扑自动接力，几百次提交压成一次。</p>
+<p><svg class="qa-svg" width="100%" viewBox="0 0 680 480" role="img"><title>Eager 模式与 CUDA Graph 模式的 kernel 提交对比</title><desc>Eager 模式每个 kernel 都要 CPU 单独提交，CPU 成为瓶颈；CUDA Graph 模式下 CPU 只发一条 launch，几百个 kernel 在 GPU 侧自动接力</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#c9d1d9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs><text class="th" x="40" y="36">Eager 模式：CPU 逐个提交，是瓶颈</text><g class="c-gray"><rect x="40" y="52" width="80" height="200" rx="8" stroke-width="0.5"/><text class="th" x="80" y="80" text-anchor="middle">CPU</text><text class="ts" x="80" y="98" text-anchor="middle">5~10μs/次</text></g><g class="c-amber"><rect x="150" y="60" width="68" height="34" rx="6" stroke-width="0.5"/><text class="ts" x="184" y="77" text-anchor="middle" dominant-baseline="central">launch K1</text></g><g class="c-amber"><rect x="150" y="108" width="68" height="34" rx="6" stroke-width="0.5"/><text class="ts" x="184" y="125" text-anchor="middle" dominant-baseline="central">launch K2</text></g><g class="c-amber"><rect x="150" y="156" width="68" height="34" rx="6" stroke-width="0.5"/><text class="ts" x="184" y="173" text-anchor="middle" dominant-baseline="central">launch K3</text></g><text class="ts" x="184" y="216" text-anchor="middle">⋯ ×几百</text><line x1="218" y1="77" x2="280" y2="77" class="arr" marker-end="url(#arrow)"/><line x1="218" y1="125" x2="280" y2="125" class="arr" marker-end="url(#arrow)"/><line x1="218" y1="173" x2="280" y2="173" class="arr" marker-end="url(#arrow)"/><g class="c-teal"><rect x="282" y="52" width="78" height="200" rx="8" stroke-width="0.5"/><text class="th" x="321" y="80" text-anchor="middle">GPU</text></g><g class="c-teal"><rect x="294" y="62" width="54" height="28" rx="5" stroke-width="0.5"/><text class="ts" x="321" y="76" text-anchor="middle" dominant-baseline="central">K1 算</text></g><g class="c-teal"><rect x="294" y="110" width="54" height="28" rx="5" stroke-width="0.5"/><text class="ts" x="321" y="124" text-anchor="middle" dominant-baseline="central">K2 算</text></g><g class="c-teal"><rect x="294" y="158" width="54" height="28" rx="5" stroke-width="0.5"/><text class="ts" x="321" y="172" text-anchor="middle" dominant-baseline="central">K3 算</text></g><g class="c-red"><rect x="380" y="100" width="120" height="100" rx="8" stroke-width="0.5"/><text class="th" x="440" y="138" text-anchor="middle">GPU 饿肚子</text><text class="ts" x="440" y="160" text-anchor="middle">算 2~3μs</text><text class="ts" x="440" y="178" text-anchor="middle">等 5~10μs</text></g><line x1="40" y1="290" x2="640" y2="290" stroke="#c9d1d9" stroke-width="0.5" opacity="0.3"/><text class="th" x="40" y="324">CUDA Graph 模式：CPU 发一条，GPU 自己接力</text><g class="c-gray"><rect x="40" y="340" width="80" height="110" rx="8" stroke-width="0.5"/><text class="th" x="80" y="382" text-anchor="middle">CPU</text><text class="ts" x="80" y="400" text-anchor="middle">闲</text></g><g class="c-purple"><rect x="150" y="378" width="100" height="34" rx="6" stroke-width="0.5"/><text class="ts" x="200" y="395" text-anchor="middle" dominant-baseline="central">graphLaunch ×1</text></g><line x1="250" y1="395" x2="300" y2="395" class="arr" marker-end="url(#arrow)"/><g class="c-teal"><rect x="302" y="340" width="338" height="110" rx="8" stroke-width="0.5"/><text class="th" x="471" y="364" text-anchor="middle">GPU 录制好的拓扑，连续触发</text><rect x="318" y="382" width="56" height="40" rx="5" stroke-width="0.5"/><text class="ts" x="346" y="402" text-anchor="middle" dominant-baseline="central">K1</text><rect x="384" y="382" width="56" height="40" rx="5" stroke-width="0.5"/><text class="ts" x="412" y="402" text-anchor="middle" dominant-baseline="central">K2</text><rect x="450" y="382" width="56" height="40" rx="5" stroke-width="0.5"/><text class="ts" x="478" y="402" text-anchor="middle" dominant-baseline="central">K3</text><text class="ts" x="560" y="402" text-anchor="middle" dominant-baseline="central">⋯ 无缝接力</text></g></svg></p>
+<p><strong>和 <code>#pragma unroll</code> 的区别</strong>（易混点）：两者唯一共性是「提前确定 → 干掉运行时重复固定开销」这个直觉，但消除的开销类型不同。<code>#pragma unroll</code> 消除<strong>循环控制开销</strong>（计数器、边界判断、跳转），是单 kernel 内部、GPU 指令级的优化；CUDA Graph 消除 <strong>kernel launch 开销</strong>（CPU→GPU 提交路径），是跨 kernel、CPU 提交侧的优化。</p>
+<p><strong>为什么要固定 shape，动态 shape 会怎样？</strong>（这是问题一的一部分）</p>
+<p><strong>准确的因果链</strong>（注意表述陷阱）：「动态 shape 就必须由 GPU 发射」是错的。动态 shape 只是让你<strong>没法用 CUDA Graph</strong>，于是退回 CPU 逐个发射（eager）：</p>
+<pre class="line-numbers language-none"><code class="language-none">shape 动态  →  无法录制 graph  →  只能 eager（CPU 逐个发射）
+shape 固定  →  能录制 graph    →  回放时 GPU 接力，CPU 只发一次<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p>「GPU 自己接力」是 graph 录制成功后的<em>结果</em>，不是处理动态 shape 的<em>手段</em>。</p>
+<p><strong>为什么动态 shape 录不了：录制 = 把变量烤成常量</strong>。Graph 录的是一串<strong>参数被烤死的 kernel 节点</strong>，每个节点固化三样东西，而这三样都随 shape 变：① grid/block 配置（<code>ceil(M*N/block_size)</code> 这类按 shape 算的常数）；② 显存地址（录制那刻的具体指针）；③ shared memory（SRAM）/ register 预分配。录制时这些被当字面常量写进节点，回放时 GPU 照常量触发，<strong>不需要 CPU 临时算任何东西，这才是它能跳过 CPU 的原因</strong>。动态 shape 下这些值要运行时才知道、不同 shape 全不一样，<strong>必须 CPU 先算好再分配给 GPU</strong> → 回到 eager。</p>
+<p><svg class="qa-svg" width="100%" viewBox="0 0 680 420" role="img"><title>为什么动态 shape 录不了 CUDA Graph</title><desc>录制 graph 会把 grid 配置和显存地址烤成字面常量；shape 固定时这些值确定可烤死，shape 动态时这些值要运行时由 CPU 计算，于是退回 eager</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#c9d1d9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs><text class="th" x="40" y="34">shape 固定：值可烤死 → 录制成功</text><g class="c-green"><rect x="40" y="50" width="130" height="80" rx="8" stroke-width="0.5"/><text class="th" x="105" y="80" text-anchor="middle">shape = 固定</text><text class="ts" x="105" y="100" text-anchor="middle">如 batch=8</text></g><line x1="170" y1="90" x2="222" y2="90" class="arr" marker-end="url(#arrow)"/><g class="c-teal"><rect x="224" y="50" width="160" height="80" rx="8" stroke-width="0.5"/><text class="th" x="304" y="76" text-anchor="middle">grid / 地址 确定</text><text class="ts" x="304" y="96" text-anchor="middle">编译期即可算出</text><text class="ts" x="304" y="114" text-anchor="middle">烤成字面常量</text></g><line x1="384" y1="90" x2="436" y2="90" class="arr" marker-end="url(#arrow)"/><g class="c-purple"><rect x="438" y="50" width="172" height="80" rx="8" stroke-width="0.5"/><text class="th" x="524" y="76" text-anchor="middle">graph 录制成功</text><text class="ts" x="524" y="96" text-anchor="middle">回放 GPU 接力</text><text class="ts" x="524" y="114" text-anchor="middle">CPU 只发一次</text></g><line x1="40" y1="170" x2="640" y2="170" stroke="#c9d1d9" stroke-width="0.5" opacity="0.3"/><text class="th" x="40" y="208">shape 动态：值要运行时算 → 退回 eager</text><g class="c-amber"><rect x="40" y="224" width="130" height="80" rx="8" stroke-width="0.5"/><text class="th" x="105" y="254" text-anchor="middle">shape = 动态</text><text class="ts" x="105" y="274" text-anchor="middle">seqlen 多变</text></g><line x1="170" y1="264" x2="222" y2="264" class="arr" marker-end="url(#arrow)"/><g class="c-coral"><rect x="224" y="224" width="160" height="80" rx="8" stroke-width="0.5"/><text class="th" x="304" y="250" text-anchor="middle">grid / 地址 未知</text><text class="ts" x="304" y="270" text-anchor="middle">要运行时才知道</text><text class="ts" x="304" y="288" text-anchor="middle">没有常量可烤</text></g><line x1="384" y1="264" x2="436" y2="264" class="arr" marker-end="url(#arrow)"/><g class="c-red"><rect x="438" y="224" width="172" height="80" rx="8" stroke-width="0.5"/><text class="th" x="524" y="250" text-anchor="middle">CPU 临时计算配置</text><text class="ts" x="524" y="270" text-anchor="middle">回到逐个发射</text><text class="ts" x="524" y="288" text-anchor="middle">= eager 路径</text></g><text class="ts" x="40" y="360">关键：graph 录的是「被烤死的 kernel 节点」，不是代码逻辑。需要运行时计算的东西无法烤死。</text><text class="ts" x="40" y="382">这也解释了 vLLM 的做法：为一批固定 batch size 各抓一份 graph，decode 时按实际值选最近的那份。</text></svg></p>
+<p><strong>加分点：GPU 能自己发射吗？</strong> 问题不在「算」，而在「发射」这个动作传统上只在 CPU 手里。发射 kernel 是一次 host 向 device 提交任务的系统级动作，发起权在 host；GPU 是被动执行器，即便算出 grid 大小，结果还得传回 CPU 发射，绕一圈 launch 开销原封不动。但严格说这是<strong>传统 host-launch 模型</strong>的限制，不是物理铁律：CUDA 有 <strong>Dynamic Parallelism</strong>（GPU 上的 kernel 直接再发射子 kernel）、12.4 起有 <strong>device-side graph launch</strong>。实际 vLLM/SGLang 不用，是工程权衡（device 端发射开销不小、生态全按 host-launch 写、固定 shape 方案够用），非「不可能」。面试若追问「GPU 真没办法吗」，答出这个即高质量回答。</p>
+<p><svg class="qa-svg" width="100%" viewBox="0 0 680 340" role="img"><title>为什么 GPU 算出 grid 配置后仍要回 CPU 发射</title><desc>GPU 是被动执行器，即使能算出 grid 配置，也没有自己发射 kernel 的权限，结果必须传回 CPU，由 CPU 提交，launch 开销原封不动</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#c9d1d9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs><g class="c-teal"><rect x="40" y="60" width="170" height="90" rx="8" stroke-width="0.5"/><text class="th" x="125" y="92" text-anchor="middle">GPU 算出 grid 配置</text><text class="ts" x="125" y="114" text-anchor="middle">计算它会</text><text class="ts" x="125" y="132" text-anchor="middle">没有发射权限</text></g><text class="ts" x="290" y="92" text-anchor="middle">结果必须</text><text class="ts" x="290" y="110" text-anchor="middle">传回 CPU</text><line x1="210" y1="105" x2="360" y2="105" stroke="#E24B4A" stroke-width="1.5" marker-end="url(#arrow)" fill="none"/><g class="c-red"><rect x="362" y="60" width="170" height="90" rx="8" stroke-width="0.5"/><text class="th" x="447" y="92" text-anchor="middle">CPU 提交 kernel</text><text class="ts" x="447" y="114" text-anchor="middle">驱动校验 + 入队</text><text class="ts" x="447" y="132" text-anchor="middle">5~10μs 照旧</text></g><line x1="532" y1="105" x2="584" y2="105" class="arr" marker-end="url(#arrow)"/><g class="c-teal"><rect x="586" y="72" width="60" height="66" rx="8" stroke-width="0.5"/><text class="th" x="616" y="105" text-anchor="middle" dominant-baseline="central">GPU 执行</text></g><text class="th" x="40" y="210">本质：瓶颈不是「算配置」，是「发射动作必须经过 CPU」</text><text class="ts" x="40" y="240">GPU 是被动执行器：能疯狂算数，但传统上不能自己决定「下一个发射哪个 kernel」。</text><text class="ts" x="40" y="262">所以让 GPU 算 grid 没用——结果还得回 CPU 发射，你绕一圈，该有的 CPU 参与一次没少。</text><text class="ts" x="40" y="288">CUDA Graph 的真正巧妙：把发射动作提前录死，回放时连「算配置 + 提交」都不需要了。</text></svg></p>
+<h5 id="挑战四-QA·2：为什么-piecewise-之前-decode-能做-CUDA-Graph、prefill-不能？">挑战四 QA·2：为什么 piecewise 之前 decode 能做 CUDA Graph、prefill 不能？</h5>
+<p><strong>先纠一个易错点</strong>：「decode 是固定 shape」是<strong>不准确</strong>的。准确说法是——decode 之所以能做 graph，不是天生 shape 固定，而是它的动态性<strong>可以被治理成固定</strong>；prefill 的动态性治不了。</p>
+<ul>
+<li><strong>prefill</strong>：输入是整段 prompt（50 / 800 / 2000… token），seqlen 直接进 shape，且取值<strong>连续无法枚举</strong>，抓 graph 抓不完 → 天然动态。</li>
+<li><strong>decode</strong> 有三个维度，逐个被治理：① 输入 token 数恒为 1（天然固定）；② batch size 会变（请求进出），但可以<strong>预抓一批固定 batch size 的 graph，运行时 padding 到最近一档复用</strong>；③ KV cache 长度每步涨、每条不同，但它<strong>藏在 attention kernel 内部</strong>（通过指针/长度元数据传入），不进外层 tensor 的 shape，所以外层算子的 graph 不受它影响。</li>
+</ul>
+<p><strong>最关键认知</strong>：从外层算子（RMSNorm、QKV proj、MLP）视角，decode 的 shape 是 <code>[batch, 1, hidden]</code>，batch 固定它们就全固定，KV 长度根本不出现。KV 长度只在 attention 内部起作用 —— 这恰恰就是 piecewise 的动机。</p>
+<p><svg class="qa-svg" width="100%" viewBox="0 0 680 440" role="img"><title>prefill 与 decode 的动态性差异，以及 decode 为何可治理</title><desc>prefill 的 seqlen 维度连续变化无法枚举；decode 输入 token 数恒为 1，batch size 可通过抓多份 graph 治理，KV 长度通过 attention 内部处理不进 graph 的 shape</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#c9d1d9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs><text class="th" x="40" y="34">prefill：seqlen 维度连续变化，治不了</text><g class="c-red"><rect x="40" y="50" width="600" height="74" rx="8" stroke-width="0.5"/><text class="th" x="340" y="76" text-anchor="middle">输入 = 整段 prompt（50 / 800 / 2000… token）</text><text class="ts" x="340" y="98" text-anchor="middle">seqlen 直接进 shape，取值连续无法枚举，抓不完</text><text class="ts" x="340" y="116" text-anchor="middle">→ 天然动态 shape，难做 CUDA Graph</text></g><line x1="40" y1="148" x2="640" y2="148" stroke="#c9d1d9" stroke-width="0.5" opacity="0.3"/><text class="th" x="40" y="182">decode：三个维度，逐个被治理</text><g class="c-green"><rect x="40" y="198" width="186" height="92" rx="8" stroke-width="0.5"/><text class="th" x="133" y="226" text-anchor="middle">输入 token 数</text><text class="ts" x="133" y="248" text-anchor="middle">恒为 1</text><text class="ts" x="133" y="268" text-anchor="middle">天然固定 ✓</text></g><g class="c-amber"><rect x="247" y="198" width="186" height="92" rx="8" stroke-width="0.5"/><text class="th" x="340" y="222" text-anchor="middle">batch size</text><text class="ts" x="340" y="244" text-anchor="middle">会变（请求进出）</text><text class="ts" x="340" y="264" text-anchor="middle">抓多份 graph 治理</text><text class="ts" x="340" y="282" text-anchor="middle">+padding 到最近档</text></g><g class="c-amber"><rect x="454" y="198" width="186" height="92" rx="8" stroke-width="0.5"/><text class="th" x="547" y="222" text-anchor="middle">KV cache 长度</text><text class="ts" x="547" y="244" text-anchor="middle">每步涨，每条不同</text><text class="ts" x="547" y="264" text-anchor="middle">藏进 attention 内部</text><text class="ts" x="547" y="282" text-anchor="middle">不进 graph 的 shape</text></g><text class="ts" x="40" y="328">治理手段一（batch）：vLLM 预抓一批固定 batch size 的 graph（如 1,2,4,8,…），</text><text class="ts" x="40" y="350">运行时把实际 batch padding 到最近的那一档，复用对应 graph。</text><text class="ts" x="40" y="378">治理手段二（KV 长度）：长度信息通过指针/元数据传给 attention kernel，</text><text class="ts" x="40" y="400">不体现在外层 tensor 的 shape 上，所以外层算子的 graph 不受它影响。</text></svg></p>
+<h5 id="挑战四-QA·3：piecewise-到底解决什么问题，为什么attention没办法做cudagraph">挑战四 QA·3：piecewise 到底解决什么问题，为什么attention没办法做cudagraph</h5>
+<p><strong>一句话</strong>：piecewise 建立在 chunked prefill 基础上，做attention分离操作，非attention可以做cuda graph，attention正常走eager</p>
+<p>完整逻辑链（这条最重要）：</p>
+<ol>
+<li><strong>prefill 做不了 CUDA Graph 的根因</strong>：一个 batch 里所有请求的 token 总量不确定（seqlen 连续变化、无法枚举）。</li>
+<li><strong>chunked prefill 解决「长度不确定」</strong>：可以让长度等长</li>
+<li><strong>但 attention 这里用不了 chunk</strong>：因为attention要计算所有token之间的注意力，不能切割分开计算，要不然后面的chunk块就看不懂前面chunk块的注意力</li>
+<li><strong>所以 piecewise 必须把 attention 这一段从 graph 里去除掉</strong></li>
+</ol>
+<ul>
+<li><strong>挑战五：MoE 架构模型无法通过 cudagraph 抓取</strong>
+<ul>
+<li>原因：抓取过程中不允许有异构计算，但 <code>moe_forward_native</code> 中计算每个 <code>tokens_per_expert</code> 会移步到 CPU 进行计算</li>
+<li>解决方案：保证全部在 GPU 上执行（可参考 NPU 的做法）；重新设计 MoE 计算逻辑，针对性设计 MoE 专家计算逻辑：1. 专家初始化：根据 token 与专家选择；2. 专家并行计算</li>
+</ul>
+</li>
+</ul>
+<h5 id="挑战五-QA：MoE-CUDA-Graph-的异构计算冲突">挑战五 QA：MoE + CUDA Graph 的异构计算冲突</h5>
+<blockquote>
+<p>待补充：为什么 <code>tokens_per_expert</code> 这一步必须在 CPU 上算（是因为 dynamic indexing 吗）、CUDA Graph 不允许异构计算的本质（=不允许 device-host 同步点）、NPU 的做法是什么、重新设计的 MoE forward 怎么把 expert dispatch 留在 GPU 上等。</p>
+</blockquote>
+<hr>
+<h4 id="2-PD-分离（Prefill-Decode-Disaggregation）部署测试-节点配比方案">2. PD 分离（Prefill-Decode Disaggregation）部署测试 &amp; 节点配比方案</h4>
+<ul>
+<li><strong>设计压测方案</strong>：基于摩尔线程计算卡本身的性能特点（prefill 算力瓶颈 vs decode 访存瓶颈），初步设计 PD 节点配比方案</li>
+</ul>
+<h5 id="PD-分离-QA·1：为什么要做-PD-分离-摩尔线程卡的算力-带宽特点如何指导配比">PD 分离 QA·1：为什么要做 PD 分离 &amp; 摩尔线程卡的算力/带宽特点如何指导配比</h5>
+<blockquote>
+<p>待补充：PD 分离的本质动因（prefill 是 compute-bound、decode 是 memory-bound，混合部署互相干扰）、摩尔线程卡相对 H100/A100 的算力/HBM 带宽比是怎样的、这个比值如何影响 P:D 比例的初值。</p>
+</blockquote>
+<ul>
+<li><strong>设计切割策略</strong>：针对 prefill/decode 两类节点，分别设计合适的并行切割（如 TP）策略</li>
+</ul>
+<h5 id="PD-分离-QA·2：prefill-与-decode-节点的切割策略为什么不同">PD 分离 QA·2：prefill 与 decode 节点的切割策略为什么不同</h5>
+<blockquote>
+<p>待补充：prefill 偏好大 TP（计算密集需要算力堆叠）、decode 偏好大 DP/小 TP（访存密集 + batch 越大越好）、为什么 EP/PP 在不同阶段的取舍不同、KV cache 传输路径如何影响切割策略。</p>
+</blockquote>
+<ul>
+<li><strong>压测与数据分析</strong>：在不同 PD 配比、不同切割策略组合下进行压测，采集吞吐、延迟等指标</li>
+</ul>
+<h5 id="PD-分离-QA·3：压测指标设计与瓶颈定位">PD 分离 QA·3：压测指标设计与瓶颈定位</h5>
+<blockquote>
+<p>待补充：核心指标（TTFT/TPOT/throughput/goodput）的取舍、SLO 约束下怎样选择最优配比、如何识别瓶颈是 prefill 还是 decode、KV cache 传输是否成为新瓶颈。</p>
+</blockquote>
+<ul>
+<li><strong>迭代收敛</strong>：根据压测数据分析结果，不断调整配比方案，最终找到集群下相对最优的 PD 节点配比</li>
+</ul>
+<h5 id="PD-分离-QA·4：迭代收敛策略与最终结论">PD 分离 QA·4：迭代收敛策略与最终结论</h5>
+<blockquote>
+<p>待补充：调参的优先级（先调 P:D 比例还是先调 TP/DP）、收敛判据、最终给出的推荐配比是什么、在哪些 workload 下结论不再适用。</p>
+</blockquote>
+<hr>
+<h4 id="3-自动化性能测试框架-摩尔线程-vs-NVIDIA-GPU-benchmark">3. 自动化性能测试框架 &amp; 摩尔线程 vs NVIDIA GPU benchmark</h4>
+<ul>
+<li><strong>挑战一：独特的自动化测试脚本设计</strong>
+<ul>
+<li>解决：脚本自动遍历模型列表，逐个拉起测试，输出覆盖多个模型规格</li>
+<li>解决：输出脚本增加时间戳，防止覆盖，便于 debug</li>
+</ul>
+</li>
+</ul>
+<h5 id="挑战一-QA：自动化压测框架的设计选型">挑战一 QA：自动化压测框架的设计选型</h5>
+<blockquote>
+<p>待补充：为什么不直接用 vllm benchmark/serving_benchmark，而是自研脚本；脚本如何处理失败重试、超时、单测异常隔离；时间戳目录如何配合 grafana/csv 做趋势对比；和 NVIDIA 同测脚本对齐保证可比性。</p>
+</blockquote>
+<ul>
+<li><strong>挑战二：不同参数量模型的切割粒度不一致</strong>
+<ul>
+<li>不同参数量模型大小差异大，统一的 TP 切割方式不适用于所有规格</li>
+<li>解决：针对模型维度做 TP 切割设计，以 7B 为基准，覆盖不同参数量模型大小的区别</li>
+</ul>
+</li>
+</ul>
+<h5 id="挑战二-QA：TP-切割粒度按模型维度自适应">挑战二 QA：TP 切割粒度按模型维度自适应</h5>
+<blockquote>
+<p>待补充：head_dim/num_heads/hidden_size 哪些维度必须能整除 TP、为什么以 7B 为基准、不同尺寸模型（如 32B/70B）的 TP=2/4/8 选择依据、TP 不整除时的 padding/重排代价。</p>
+</blockquote>
+<ul>
+<li><strong>挑战三：Qwen3 模型量化/非量化适配报错</strong>
+<ul>
+<li>SGLang 的 Qwen3 默认认为你跑的是量化模型，但跑非量化模型时会因缺少量化参数而报错</li>
+<li>解决：增加 <code>if none skip</code> 逻辑，跳过量化参数相关处理</li>
+</ul>
+</li>
+</ul>
+<h5 id="挑战三-QA：Qwen3-量化-非量化路径分支">挑战三 QA：Qwen3 量化/非量化路径分支</h5>
+<blockquote>
+<p>待补充：报错在 SGLang 的哪一层（加载 config / load_weights / forward）；为什么 Qwen3 默认走量化路径；<code>if none skip</code> 具体跳过了哪些字段（如 quantization_config/scale/zero）；这个 patch 是否提交回上游。</p>
+</blockquote>
+<hr>
+<h4 id="4-开源大语言-多模态模型-MUSA-SDK-兼容性测试与模型适配">4. 开源大语言/多模态模型 MUSA SDK 兼容性测试与模型适配</h4>
+<p>Penguin 多模态模型针对 MUSA 软件栈的适配工作：</p>
+<ul>
+<li><strong>挑战一：模型切割问题</strong>
+<ul>
+<li>transformer 自带的 <code>automap</code> 模型切割是用类似 PP 的操作，但与 PP 不同的是，它为了最大降低显存负载不均衡的问题，可能会跨 GPU 做切割，这样就会有跨 GPU 算子不支持的问题</li>
+<li>解决方案：
+<ol>
+<li>自定义切割方式</li>
+<li>降低可用 GPU 数量（GPU 数量越多，切割策略越偏激/越细）</li>
+</ol>
+</li>
+</ul>
+</li>
+</ul>
+<h5 id="挑战一-QA：HuggingFace-device-map-auto-的跨-GPU-切割问题">挑战一 QA：HuggingFace <code>device_map=&quot;auto&quot;</code> 的跨 GPU 切割问题</h5>
+<blockquote>
+<p>待补充：<code>device_map=auto</code> 和正经 PP 的区别（前者是 layer-level 贪心放置而非 stage 划分）、为什么&quot;跨 GPU 算子&quot;会失败（典型是 layer 内部算子被切到两张卡，需要 all-gather/p2p，而 MUSA 这套通信原语未覆盖）、自定义切割按什么粒度（按 layer 还是按 module）、为什么&quot;减少 GPU 数&quot;反而更稳。</p>
+</blockquote>
+<ul>
+<li><strong>挑战二：模型算子调配问题</strong>
+<ul>
+<li>需要额外加 patch 来让模型走 MUSA 分支，进而调用对应的算子</li>
+</ul>
+</li>
+</ul>
+<h5 id="挑战二-QA：模型算子分发到-MUSA-后端">挑战二 QA：模型算子分发到 MUSA 后端</h5>
+<blockquote>
+<p>待补充：patch 加在 transformers 哪一层（modeling_xxx / attention impl / sdpa backend）；MUSA 算子和 CUDA 算子是 1:1 替换还是部分子集；如何避免 patch 跟着 transformers 升级不断维护。</p>
+</blockquote>
+<ul>
+<li><strong>挑战三：算子或编译器不适配</strong>
+<ul>
+<li>Mamba + 新的编译器 + deepseek_repe（定制旋转位置编码）</li>
+</ul>
+</li>
+</ul>
+<h5 id="挑战三-QA：Mamba-定制-RoPE-等非主流算子的适配">挑战三 QA：Mamba/定制 RoPE 等非主流算子的适配</h5>
+<blockquote>
+<p>待补充：Mamba 在 MUSA 上具体卡在哪个 kernel（selective_scan？causal_conv1d？）、deepseek_rope 和标准 RoPE 的区别（如 YaRN 缩放/decoupled freq）、新编译器报什么错、最终是改算子实现还是改编译 pass。</p>
+</blockquote>
+<hr>
+<h4 id="5-veRL-强化学习训练框架-MUSA-平台适配">5. veRL 强化学习训练框架 MUSA 平台适配</h4>
+<ul>
+<li><strong>挑战一：兼容性适配：SGLang 后端版本更换</strong>
+<ul>
+<li>新模型依赖 FA2（FlashAttention 2）版本</li>
+<li>复用条目 1 中 musify 工作里编译出的带 FA 支持的 SGLang 版本，更换后端后跑通</li>
+</ul>
+</li>
+</ul>
+<h5 id="挑战一-QA：veRL-的-rollout-后端为什么要-SGLang-FA2">挑战一 QA：veRL 的 rollout 后端为什么要 SGLang + FA2</h5>
+<blockquote>
+<p>待补充：veRL 里 SGLang 担任的角色（rollout/inference 侧）、FA2 在长序列 PPO rollout 中的必要性、FA2 vs FA3 在 MUSA 上的可用性差异、复用 musify 版本时遇到的版本绑定/ABI 问题。</p>
+</blockquote>
+<ul>
+<li><strong>挑战二：Offload 策略调整</strong>
+<ul>
+<li>现象：模型规模变大后，单卡显存放不下完整的模型权重和优化器状态</li>
+<li>解决：基于 FSDP，将模型权重和优化器状态 offload 到 CPU/host 内存，训练时再加载回 GPU</li>
+</ul>
+</li>
+</ul>
+<h5 id="挑战二-QA：FSDP-CPU-offload-在-RL-训练里的特殊性">挑战二 QA：FSDP CPU offload 在 RL 训练里的特殊性</h5>
+<blockquote>
+<p>待补充：RL 训练有 actor/critic/ref/reward 多个模型并存，offload 优先级如何排（哪些常驻 GPU、哪些可换出）、PCIe 带宽对训练吞吐的实际影响、FSDP ZeRO-3 vs ZeRO-Offload 的取舍、何时切到 ZeRO-Infinity。</p>
+</blockquote>
+<ul>
+<li><strong>扩展后问题一：切割策略调整</strong>（待详细讨论）</li>
+</ul>
+<h5 id="扩展问题-QA：模型放大后的并行切割重设计">扩展问题 QA：模型放大后的并行切割重设计</h5>
+<blockquote>
+<p>待补充：从 7B 扩到 30B/70B 时 TP/PP/SP/EP 怎么重新组合、为什么不能简单&quot;加 TP&quot;、Megatron-LM 风格切割与 FSDP 的搭配。</p>
+</blockquote>
+<hr>
+<h3 id="实习二：中科院">实习二：中科院</h3>
+<p><strong>时间</strong>：2025.07 — 2025.09｜北京</p>
+<h4 id="1-YOLOv11-后训练量化（PTQ）与实地部署">1. YOLOv11 后训练量化（PTQ）与实地部署</h4>
+<p>这是条目 2 和条目 3 工作的整体概括，具体技术细节见下方两条。</p>
+<h5 id="YOLOv11-PTQ-总览-QA：PTQ-vs-QAT-选型-部署目标">YOLOv11 PTQ 总览 QA：PTQ vs QAT 选型 &amp; 部署目标</h5>
+<blockquote>
+<p>待补充：为什么是 PTQ 而不是 QAT（数据量少、训练成本、精度损失可控）、量化到 INT8 还是混合精度、目标硬件的算力/带宽约束、整体精度损失目标（mAP 掉点上限）。</p>
+</blockquote>
+<hr>
+<h4 id="2-基于-ONNX-计算图的-YOLOv11-架构微调、算子调度优化与图重构">2. 基于 ONNX 计算图的 YOLOv11 架构微调、算子调度优化与图重构</h4>
+<ul>
+<li><strong>挑战一：卷积算子复用问题（量化前准备）</strong>
+<ul>
+<li>现象：计算图中经过所有激活层的卷积都在复用第一层的卷积对象</li>
+<li>原因：架构内部所有激活层共用了同一个卷积对象，未做区分</li>
+<li>修改：<code>/root/qdrop/qdrop/model/code/yolo11/ultralytics/ultralytics/nn/modules/conv.py</code>，每次重新初始化卷积对象，而不是反复调用同一个对象</li>
+</ul>
+</li>
+</ul>
+<h5 id="挑战一-QA：卷积对象复用为什么会破坏-PTQ">挑战一 QA：卷积对象复用为什么会破坏 PTQ</h5>
+<blockquote>
+<p>待补充：复用对象会让 PTQ 的 calibration（per-layer min/max 采样）拿到的统计量被多层混合污染、QDrop 这类按层独立量化的算法为什么必须每层有独立对象、修改后是否会因为不再复用而显著增大显存/参数量。</p>
+</blockquote>
+<ul>
+<li><strong>挑战二：算子封装（图重构）</strong>
+<ul>
+<li>现象：部分计算无法直接生成完整计算图</li>
+<li>原因：某些计算逻辑太复杂，ONNX tracer 会深入到内部细节，导致图不完整</li>
+<li>解决：将相关函数设置为算子类型（op），tracer 不再展开其内部实现，从而生成完整计算图</li>
+<li>修改：<code>/root/qdrop/mqbench/mqbench/advanced_ptq.py</code></li>
+</ul>
+</li>
+</ul>
+<h5 id="挑战二-QA：torch-onnx-export-的-tracer-展开问题">挑战二 QA：torch.onnx.export 的 tracer 展开问题</h5>
+<blockquote>
+<p>待补充：tracer 为什么会&quot;深入到内部细节&quot;导致图不完整（控制流/Python 原生 op 的副作用）、@torch.fx.wrap / custom symbolic 注册的作用、把函数封装成 op 后 ONNX 里是怎么的节点形态、对后续 mqbench 量化的影响。</p>
+</blockquote>
+<ul>
+<li><strong>挑战三：box 回归值始终为 0（图重构）</strong>
+<ul>
+<li>现象：YOLOv11 推理过程中，回归值（box 坐标）计算结果始终为 0</li>
+<li>原因：封装 box 计算算子时，内部每次调用都会重新初始化成员变量，导致计算始终从初始值（0）开始，而不是使用正确的成员变量</li>
+<li>解决：直接读取成员变量参与计算，去掉每次调用时的重复初始化</li>
+</ul>
+</li>
+</ul>
+<h5 id="挑战三-QA：DFL-box-decode-的状态保留问题">挑战三 QA：DFL/box decode 的状态保留问题</h5>
+<blockquote>
+<p>待补充：YOLOv11 box decode 用的 DFL（Distribution Focal Loss）需要哪些常量张量（projection vector / anchors / stride）、为什么封装成 op 后 <code>__init__</code> 会被反复调用、修改方案是改成 buffer 还是直接外部传入。</p>
+</blockquote>
+<hr>
+<h4 id="3-多芯异构调度策略-C-重构模型部署链路">3. 多芯异构调度策略 &amp; C++ 重构模型部署链路</h4>
+<ul>
+<li><strong>核心优化：NMS 从 GPU 迁移到 CPU</strong>
+<ul>
+<li>分析：对整个推理流程进行 profiling，发现 NMS（Non-Maximum Suppression，去除重复框）环节的特点是数据量小、逻辑串行、不适合大规模并行</li>
+<li>决策：NMS 处理过程改在 CPU 上执行，GPU 专注于卷积/矩阵等并行计算密集型部分</li>
+<li>效果：减少了不必要的 GPU-CPU 数据搬运开销，整体推理链路更高效</li>
+</ul>
+</li>
+</ul>
+<h5 id="NMS-异构调度-QA：为什么-NMS-反而放回-CPU-更快">NMS 异构调度 QA：为什么 NMS 反而放回 CPU 更快</h5>
+<blockquote>
+<p>待补充：NMS 的串行依赖本质（IoU 比较 + 贪心抑制）、GPU 上做 NMS 的代价（kernel launch 开销 + 同步点 + 小数据量利用率低）、CPU/GPU 数据传输如何避免（结果集小、和后处理同步 pipeline）、和&quot;GPU 饿肚子&quot;那部分 CUDA Graph 知识的呼应。</p>
+</blockquote>
+<h5 id="C-重构部署链路-QA：从-Python-推理-demo-到-C-部署的工程要点">C++ 重构部署链路 QA：从 Python 推理 demo 到 C++ 部署的工程要点</h5>
+<blockquote>
+<p>待补充：原 Python 推理链路的瓶颈在哪（GIL/数据拷贝/解释器开销）、C++ 侧用的推理引擎（自研 / ONNX Runtime / TensorRT-LLM-like）、内存池/线程池设计、和 NMS-on-CPU 异构调度怎么协同（CPU 线程池接 GPU stream 的 callback）。</p>
+</blockquote>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        Author:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">Evan Guo</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        Link:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://gureumdot.github.io/2026/06/10/%E7%AE%80%E5%8E%86/resume-qa/">https://gureumdot.github.io/2026/06/10/%E7%AE%80%E5%8E%86/resume-qa/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        Reprint policy:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    All articles in this blog are used except for special statements
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    reprint policy. If reproduced, please indicate source
+                    <a href="/about" target="_blank">Evan Guo</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>Copied successfully, please follow the reprint policy of this article</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">more</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/%E7%AE%80%E5%8E%86/">
+                                    <span class="chip bg-color">简历</span>
+                                </a>
+                            
+                                <a href="/tags/%E9%9D%A2%E8%AF%95/">
+                                    <span class="chip bg-color">面试</span>
+                                </a>
+                            
+                                <a href="/tags/QA/">
+                                    <span class="chip bg-color">QA</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;Previous</div>
+            <div class="card">
+                <a href="/2026/06/10/%E7%AE%80%E5%8E%86/resume-detail/">
+                    <div class="card-image">
+                        
+                        <img src="/img/covers/mountain.jpg" class="responsive-img" alt="工作介绍">
+                        
+                        <span class="card-title">工作介绍</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+本文对简历中的每一条经历进行详细展开，为面试中的&quot;讲项目&quot;环节做准备。
+
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2026-06-10
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/%E7%AE%80%E5%8E%86/" class="post-category">
+                                    简历
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/%E7%AE%80%E5%8E%86/">
+                        <span class="chip bg-color">简历</span>
+                    </a>
+                    
+                    <a href="/tags/%E5%B7%A5%E4%BD%9C%E7%BB%8F%E5%8E%86/">
+                        <span class="chip bg-color">工作经历</span>
+                    </a>
+                    
+                    <a href="/tags/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E5%8E%86/">
+                        <span class="chip bg-color">项目经历</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                Next&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2026/06/02/%E6%89%8B%E6%92%95/CUDA%E7%AE%97%E5%AD%90/gemm/">
+                    <div class="card-image">
+                        
+                        <img src="/img/covers/gemm.png" class="responsive-img" alt="GEMM">
+                        
+                        <span class="card-title">GEMM</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2026-06-02
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/%E6%89%8B%E6%92%95/" class="post-category">
+                                    手撕
+                                </a>
+                            
+                            <a href="/categories/%E6%89%8B%E6%92%95/CUDA%E7%AE%97%E5%AD%90/" class="post-category">
+                                    CUDA算子
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/CUDA/">
+                        <span class="chip bg-color">CUDA</span>
+                    </a>
+                    
+                    <a href="/tags/GEMM/">
+                        <span class="chip bg-color">GEMM</span>
+                    </a>
+                    
+                    <a href="/tags/%E7%AE%97%E5%AD%90%E4%BC%98%E5%8C%96/">
+                        <span class="chip bg-color">算子优化</span>
+                    </a>
+                    
+                    <a href="/tags/%E6%89%8B%E6%92%95/">
+                        <span class="chip bg-color">手撕</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;TOC</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        // Give h1 headings an id so tocbot can link to them (Hexo only generates ids for h2+)
+        $('#articleContent h1').each(function () {
+            if (!this.id) {
+                this.id = $(this).text().trim().replace(/\s+/g, '-');
+            }
+        });
+
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('1'),
+            headingSelector: 'h1, h2, h3, h4, h5',
+            scrollSmooth: true,
+            scrollSmoothOffset: -64
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2026</span>
+            
+            <a href="/about" target="_blank">Evan Guo</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;Total visits:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;Total visitors:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/blinkfox" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:1181062873@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=1181062873" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 1181062873" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;Search</span>
+            <input type="search" id="searchInput" name="s" placeholder="Please enter a search keyword"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    
+
+    
+    
+    
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>
